@@ -3,6 +3,7 @@ package com.jaffa.rpc.lib.zeromq;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.zeromq.ZMQ;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,6 +30,15 @@ public class CurveUtils {
             log.error("Error while getting public Curve key from location " + path, ioException);
         }
         return null;
+    }
+
+    public static void makeSocketSecure(ZMQ.Socket socket){
+        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", "false"))) {
+            socket.setZAPDomain("global".getBytes());
+            socket.setCurveServer(true);
+            socket.setCurvePublicKey(CurveUtils.getServerPublicKey().getBytes());
+            socket.setCurveSecretKey(CurveUtils.getServerSecretKey().getBytes());
+        }
     }
 
     public static String getClientPublicKey(String moduleId) {

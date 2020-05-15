@@ -34,12 +34,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
                 auth.configureCurve(Utils.getRequiredOption("jaffa.rpc.protocol.zmq.client.dir"));
             }
             socket = context.createSocket(SocketType.REP);
-            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", "false"))) {
-                socket.setZAPDomain("global".getBytes());
-                socket.setCurveServer(true);
-                socket.setCurvePublicKey(CurveUtils.getServerPublicKey().getBytes());
-                socket.setCurveSecretKey(CurveUtils.getServerSecretKey().getBytes());
-            }
+            CurveUtils.makeSocketSecure(socket);
             socket.bind("tcp://" + Utils.getZeroMQCallbackBindAddress());
         } catch (UnknownHostException zmqStartupException) {
             log.error("Error during ZeroMQ response receiver startup:", zmqStartupException);
