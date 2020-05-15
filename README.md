@@ -81,7 +81,7 @@ public interface PersonService {
 }
 ```
 
-**Server-side implementation:**
+**Server-side implementation (note it must be Spring Bean):**
 ```java
 
 @ApiServer
@@ -128,7 +128,7 @@ public class TicketProviderImpl implements TicketProvider {
 }
 ```
 
-Next, you could inject this RPC interface using **@Autowire**:
+**Next, you could inject this RPC interface using @Autowire and make sync or async RPC calls:**
 
 ```java
 @Autowired
@@ -145,8 +145,10 @@ personServiceClient.get(id)
              .onModule("main.server")
              .withTimeout(TimeUnit.MILLISECONDS.toMillis(10000))
              .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
+```
 
-// Async callback implementation example
+**Async callback implementation (note it must be Spring Bean):**  
+```java
 @Component
 public class PersonCallback implements Callback<Person> {
 
