@@ -52,8 +52,7 @@ public class KafkaAsyncRequestReceiver extends KafkaReceiver implements Runnable
                 for (ConsumerRecord<String, byte[]> record : records) {
                     try {
                         Command command = Serializer.getCtx().deserialize(record.value(), Command.class);
-                        RequestContext.setSourceModuleId(command.getSourceModuleId());
-                        RequestContext.setSecurityTicket(command.getTicket());
+                        RequestContext.setMetaData(command);
                         Object result = RequestInvoker.invoke(command);
                         byte[] serializedResponse = Serializer.getCtx().serialize(RequestInvoker.constructCallbackContainer(command, result));
                         ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()) + "-" + command.getSourceModuleId() + "-client-async", UUID.randomUUID().toString(), serializedResponse);

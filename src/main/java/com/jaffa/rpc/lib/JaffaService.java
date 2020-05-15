@@ -157,7 +157,9 @@ public class JaffaService {
             JaffaService.setClientSyncTopics(createKafkaTopics("client-sync"));
         }
         if (protocol.equals(Protocol.RABBIT)) {
-            JaffaService.setConnectionFactory(new CachingConnectionFactory(Utils.getRequiredOption("jaffa.rpc.rabbit.host"), Integer.parseInt(Utils.getRequiredOption("jaffa.rpc.rabbit.port"))));
+            String rabbitHost = Utils.getRequiredOption("jaffa.rpc.rabbit.host");
+            int rabbitPort = Integer.parseInt(Utils.getRequiredOption("jaffa.rpc.rabbit.port"));
+            JaffaService.setConnectionFactory(new CachingConnectionFactory(rabbitHost, rabbitPort));
             JaffaService.setAdminRabbitMQ(new RabbitAdmin(JaffaService.connectionFactory));
             JaffaService.adminRabbitMQ.declareExchange(new DirectExchange(RabbitMQRequestSender.EXCHANGE_NAME, true, false));
             if (JaffaService.adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.SERVER) == null) {
@@ -330,7 +332,7 @@ public class JaffaService {
                 for (String service : Utils.services) {
                     Utils.deleteAllRegistrations(service);
                 }
-                if(Utils.conn != null) Utils.conn.close();
+                if (Utils.conn != null) Utils.conn.close();
                 Utils.conn = null;
             } catch (KeeperException | InterruptedException | ParseException | UnknownHostException e) {
                 log.error("Unable to unregister services from ZooKeeper cluster, probably it was done earlier");

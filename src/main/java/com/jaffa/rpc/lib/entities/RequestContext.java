@@ -25,4 +25,9 @@ public class RequestContext {
     public static void setSecurityTicket(SecurityTicket securityTicket) {
         RequestContext.securityTicketThreadLocal.set(securityTicket);
     }
+
+    public static void setMetaData(Command command){
+        setSourceModuleId(command.getSourceModuleId());
+        setSecurityTicket(command.getTicket());
+    }
 }

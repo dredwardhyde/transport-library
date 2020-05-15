@@ -51,8 +51,7 @@ public class KafkaSyncRequestReceiver extends KafkaReceiver implements Runnable 
                 for (ConsumerRecord<String, byte[]> record : records) {
                     try {
                         Command command = Serializer.getCtx().deserialize(record.value(), Command.class);
-                        RequestContext.setSourceModuleId(command.getSourceModuleId());
-                        RequestContext.setSecurityTicket(command.getTicket());
+                        RequestContext.setMetaData(command);
                         Object result = RequestInvoker.invoke(command);
                         byte[] serializedResponse = Serializer.getCtx().serializeWithClass(RequestInvoker.getResult(result));
                         ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()) + "-" + Utils.getRequiredOption("jaffa.rpc.module.id") + "-client-sync", command.getRqUid(), serializedResponse);

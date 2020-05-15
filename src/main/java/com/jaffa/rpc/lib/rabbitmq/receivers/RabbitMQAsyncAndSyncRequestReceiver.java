@@ -51,8 +51,7 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                                     if (command.getCallbackKey() != null && command.getCallbackClass() != null) {
                                         Runnable runnable = () -> {
                                             try {
-                                                RequestContext.setSourceModuleId(command.getSourceModuleId());
-                                                RequestContext.setSecurityTicket(command.getTicket());
+                                                RequestContext.setMetaData(command);
                                                 Object result = RequestInvoker.invoke(command);
                                                 CallbackContainer callbackContainer = RequestInvoker.constructCallbackContainer(command, result);
                                                 byte[] response = Serializer.getCtx().serialize(callbackContainer);
@@ -68,8 +67,7 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                                         };
                                         responseService.execute(runnable);
                                     } else {
-                                        RequestContext.setSourceModuleId(command.getSourceModuleId());
-                                        RequestContext.setSecurityTicket(command.getTicket());
+                                        RequestContext.setMetaData(command);
                                         Object result = RequestInvoker.invoke(command);
                                         byte[] response = Serializer.getCtx().serializeWithClass(RequestInvoker.getResult(result));
                                         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().correlationId(command.getRqUid()).build();

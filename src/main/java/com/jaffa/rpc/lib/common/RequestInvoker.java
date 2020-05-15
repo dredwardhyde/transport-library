@@ -3,15 +3,20 @@ package com.jaffa.rpc.lib.common;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.ExceptionHolder;
+import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
+import com.jaffa.rpc.lib.ui.AdminServer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 public class RequestInvoker {
 
     private static final Map<Class<?>, Class<?>> primitiveToWrappers = new HashMap<>();
@@ -83,5 +88,25 @@ public class RequestInvoker {
             callbackContainer.setResultClass(targetMethod.getReturnType().getName());
         }
         return callbackContainer;
+    }
+
+    public static void processCallbackContainer(CallbackContainer callbackContainer) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Class<?> callbackClass = Class.forName(callbackContainer.getListener());
+        Command command = FinalizationWorker.getEventsToConsume().remove(callbackContainer.getKey());
+        if (command != null) {
+            if (callbackContainer.getResult() instanceof ExceptionHolder) {
+                Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
+                method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
+            } else {
+                Method method = callbackClass.getMethod("onSuccess", String.class, Class.forName(callbackContainer.getResultClass()));
+                if (Class.forName(callbackContainer.getResultClass()).equals(Void.class)) {
+                    method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), null);
+                } else
+                    method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), callbackContainer.getResult());
+            }
+            AdminServer.addMetric(command);
+        } else {
+            log.warn("Response {} already expired", callbackContainer.getKey());
+        }
     }
 }

@@ -60,8 +60,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 if (command.getCallbackKey() != null && command.getCallbackClass() != null) {
                     Runnable runnable = () -> {
                         try {
-                            RequestContext.setSourceModuleId(command.getSourceModuleId());
-                            RequestContext.setSecurityTicket(command.getTicket());
+                            RequestContext.setMetaData(command);
                             Object result = RequestInvoker.invoke(command);
                             byte[] serializedResponse = Serializer.getCtx().serialize(RequestInvoker.constructCallbackContainer(command, result));
                             ZMQ.Socket socketAsync = context.createSocket(SocketType.REQ);
@@ -76,8 +75,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     };
                     service.execute(runnable);
                 } else {
-                    RequestContext.setSourceModuleId(command.getSourceModuleId());
-                    RequestContext.setSecurityTicket(command.getTicket());
+                    RequestContext.setMetaData(command);
                     Object result = RequestInvoker.invoke(command);
                     byte[] serializedResponse = Serializer.getCtx().serializeWithClass(RequestInvoker.getResult(result));
                     socket.send(serializedResponse);

@@ -1,14 +1,11 @@
 package com.jaffa.rpc.lib.kafka.receivers;
 
 import com.jaffa.rpc.lib.JaffaService;
-import com.jaffa.rpc.lib.common.FinalizationWorker;
 import com.jaffa.rpc.lib.common.RebalancedListener;
+import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
-import com.jaffa.rpc.lib.entities.Command;
-import com.jaffa.rpc.lib.entities.ExceptionHolder;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.serialization.Serializer;
-import com.jaffa.rpc.lib.ui.AdminServer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -18,7 +15,6 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.InterruptException;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,23 +46,7 @@ public class KafkaAsyncResponseReceiver extends KafkaReceiver implements Runnabl
                 for (ConsumerRecord<String, byte[]> record : records) {
                     try {
                         CallbackContainer callbackContainer = Serializer.getCtx().deserialize(record.value(), CallbackContainer.class);
-                        Class<?> callbackClass = Class.forName(callbackContainer.getListener());
-                        Command command = FinalizationWorker.getEventsToConsume().remove(callbackContainer.getKey());
-                        if (command != null) {
-                            if (callbackContainer.getResult() instanceof ExceptionHolder) {
-                                Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
-                                method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
-                            } else {
-                                Method method = callbackClass.getMethod("onSuccess", String.class, Class.forName(callbackContainer.getResultClass()));
-                                if (Class.forName(callbackContainer.getResultClass()).equals(Void.class)) {
-                                    method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), null);
-                                } else
-                                    method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), callbackContainer.getResult());
-                            }
-                            AdminServer.addMetric(command);
-                        } else {
-                            log.warn("Response {} already expired", callbackContainer.getKey());
-                        }
+                        RequestInvoker.processCallbackContainer(callbackContainer);
                         Map<TopicPartition, OffsetAndMetadata> commitData = new HashMap<>();
                         commitData.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                         consumer.commitSync(commitData);
