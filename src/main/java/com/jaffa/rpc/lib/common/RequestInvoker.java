@@ -97,7 +97,7 @@ public class RequestInvoker {
         return callbackContainer;
     }
 
-    public static void processCallbackContainer(CallbackContainer callbackContainer) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static void processCallbackContainer(CallbackContainer callbackContainer) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Class<?> callbackClass = Class.forName(callbackContainer.getListener());
         Object callBackBean = context.getBean(callbackClass);
         Command command = FinalizationWorker.getEventsToConsume().remove(callbackContainer.getKey());

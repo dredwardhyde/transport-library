@@ -40,7 +40,7 @@ public class KafkaAsyncRequestReceiver extends KafkaReceiver implements Runnable
         Runnable consumerThread = () -> {
             final KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(JaffaService.getConsumerProps());
             final KafkaProducer<String, byte[]> producer = new KafkaProducer<>(JaffaService.getProducerProps());
-            consumer.subscribe(JaffaService.getServerAsyncTopics(), new RebalanceListener(consumer, countDownLatch));
+            consumer.subscribe(JaffaService.getServerAsyncTopics(), new RebalancedListener(consumer, countDownLatch));
             consumer.poll(Duration.ofMillis(0));
             while (!Thread.currentThread().isInterrupted()) {
                 ConsumerRecords<String, byte[]> records = new ConsumerRecords<>(new HashMap<>());

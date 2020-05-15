@@ -34,7 +34,7 @@ public class KafkaAsyncResponseReceiver extends KafkaReceiver implements Runnabl
         JaffaService.getConsumerProps().put("group.id", UUID.randomUUID().toString());
         Runnable consumerThread = () -> {
             KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(JaffaService.getConsumerProps());
-            consumer.subscribe(JaffaService.getClientAsyncTopics(), new RebalanceListener(consumer, countDownLatch));
+            consumer.subscribe(JaffaService.getClientAsyncTopics(), new RebalancedListener(consumer, countDownLatch));
             consumer.poll(Duration.ofMillis(0));
             while (!Thread.currentThread().isInterrupted()) {
                 ConsumerRecords<String, byte[]> records = new ConsumerRecords<>(new HashMap<>());
@@ -49,7 +49,7 @@ public class KafkaAsyncResponseReceiver extends KafkaReceiver implements Runnabl
                         Map<TopicPartition, OffsetAndMetadata> commitData = new HashMap<>();
                         commitData.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                         consumer.commitSync(commitData);
-                    } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | InvocationTargetException | IllegalAccessException executionException) {
+                    } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException executionException) {
                         log.error("Error during receiving callback", executionException);
                         throw new JaffaRpcExecutionException(executionException);
                     }

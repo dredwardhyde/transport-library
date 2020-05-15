@@ -17,7 +17,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Slf4j
 @AllArgsConstructor
-public class RebalanceListener implements ConsumerRebalanceListener {
+public class RebalancedListener implements ConsumerRebalanceListener {
     private final Consumer<String, byte[]> consumer;
     private final CountDownLatch countDownLatch;
 
@@ -28,7 +28,7 @@ public class RebalanceListener implements ConsumerRebalanceListener {
 
     @Override
     public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-        long startRebalance = System.nanoTime();
+        long startRebalanced = System.nanoTime();
         long threeMinAgo = Instant.ofEpochMilli(System.currentTimeMillis()).minus(3, MINUTES).toEpochMilli();
         Map<TopicPartition, Long> query = new HashMap<>();
         partitions.forEach(x -> query.put(x, threeMinAgo));
@@ -37,6 +37,6 @@ public class RebalanceListener implements ConsumerRebalanceListener {
             consumer.seek(entry.getKey(), entry.getValue().offset());
         }
         countDownLatch.countDown();
-        log.info(">>>>>> Partitions assigned took {} ns, latch {}", System.nanoTime() - startRebalance, countDownLatch.getCount());
+        log.info(">>>>>> Partitions assigned took {} ns, latch {}", System.nanoTime() - startRebalanced, countDownLatch.getCount());
     }
 }

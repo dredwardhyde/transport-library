@@ -39,7 +39,7 @@ public class KafkaSyncRequestReceiver extends KafkaReceiver implements Runnable 
         Runnable consumerThread = () -> {
             KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(JaffaService.getConsumerProps());
             KafkaProducer<String, byte[]> producer = new KafkaProducer<>(JaffaService.getProducerProps());
-            consumer.subscribe(JaffaService.getServerSyncTopics(), new RebalanceListener(consumer, countDownLatch));
+            consumer.subscribe(JaffaService.getServerSyncTopics(), new RebalancedListener(consumer, countDownLatch));
             consumer.poll(Duration.ofMillis(0));
             while (!Thread.currentThread().isInterrupted()) {
                 ConsumerRecords<String, byte[]> records = new ConsumerRecords<>(new HashMap<>());
