@@ -50,7 +50,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
                     log.error("General ZMQ exception", recvTerminationException);
                     throw new JaffaRpcSystemException(recvTerminationException);
                 }
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | ClassNotFoundException | NoSuchMethodException callbackExecutionException) {
+            } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException | NoSuchMethodException callbackExecutionException) {
                 log.error("ZMQ callback execution exception", callbackExecutionException);
                 throw new JaffaRpcExecutionException(callbackExecutionException);
             }

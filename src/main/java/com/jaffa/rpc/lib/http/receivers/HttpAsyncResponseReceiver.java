@@ -63,7 +63,7 @@ public class HttpAsyncResponseReceiver implements Runnable, Closeable {
                 os.write(response.getBytes());
                 os.close();
                 request.close();
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | ClassNotFoundException | NoSuchMethodException callbackExecutionException) {
+            } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException | NoSuchMethodException callbackExecutionException) {
                 log.error("ZMQ callback execution exception", callbackExecutionException);
                 throw new JaffaRpcExecutionException(callbackExecutionException);
             }
