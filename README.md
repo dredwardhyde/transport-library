@@ -7,7 +7,7 @@
 - **Sync & async RPC calls - type of communication is determined by the client, not server**
 - **One interface could have multiple server implementations - client choose required one by specifying target's jaffa.rpc.module.id in request**
 - **Request-scoped timeout for both sync/async calls**
-- **4 protocols are supported**:
+- **4 transport protocols are supported**:
   - **ZeroMQ (with authentication/encryption using Curve)**
     - Unlimited message size
     - Low latency
@@ -22,6 +22,15 @@
     - Low latency
     - High throughput
     - Persistence
+- **2 serialization protocols are supported**:
+  - **Java**
+    - Slow
+    - No compression
+    - All exceptions will be returned as is
+  - **Kryo**
+    - Faster
+    - More efficient
+    - Only stacktraces will be returned in response
 - **User could specify custom OTT provider (see example below)**
 
 ## Latency
