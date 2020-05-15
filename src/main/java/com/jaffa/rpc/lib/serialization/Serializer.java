@@ -12,6 +12,10 @@ public class Serializer {
     @Getter
     private static SerializationContext ctx;
 
+    public static String getCurrentSerializationProtocol(){
+        return System.getProperty("jaffa.rpc.serializer", "kryo");
+    }
+
     public static void init() {
         String currentSerializer = System.getProperty("jaffa.rpc.serializer", "kryo");
         switch (currentSerializer) {

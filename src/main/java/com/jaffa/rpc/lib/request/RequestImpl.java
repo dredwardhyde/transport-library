@@ -76,6 +76,8 @@ public class RequestImpl<T> implements Request<T> {
         AdminServer.addMetric(command);
         if (result instanceof ExceptionHolder)
             throw new JaffaRpcExecutionException(((ExceptionHolder) result).getStackTrace());
+        if (result instanceof Throwable)
+            throw new JaffaRpcExecutionException((Throwable)result);
         return (T) result;
     }
 

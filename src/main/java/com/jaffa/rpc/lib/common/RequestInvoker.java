@@ -4,6 +4,8 @@ import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.ExceptionHolder;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
+import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
+import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.ui.AdminServer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.Getter;
@@ -69,7 +71,7 @@ public class RequestInvoker {
     }
 
     public static Object getResult(Object result) {
-        if (result instanceof Throwable) {
+        if (result instanceof Throwable && !Serializer.getCurrentSerializationProtocol().equals("java")) {
             StringWriter sw = new StringWriter();
             ((Throwable) result).printStackTrace(new PrintWriter(sw));
             return new ExceptionHolder(sw.toString());
@@ -97,6 +99,13 @@ public class RequestInvoker {
             if (callbackContainer.getResult() instanceof ExceptionHolder) {
                 Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                 method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
+            } else if (callbackContainer.getResult() instanceof Throwable) {
+                if(Serializer.getCurrentSerializationProtocol().equals("java")){
+                    Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
+                    method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), new JaffaRpcExecutionException((Throwable) callbackContainer.getResult()));
+                } else {
+                    throw new JaffaRpcSystemException("Same serialization protocol must be enabled cluster-wide!");
+                }
             } else {
                 Method method = callbackClass.getMethod("onSuccess", String.class, Class.forName(callbackContainer.getResultClass()));
                 if (Class.forName(callbackContainer.getResultClass()).equals(Void.class)) {

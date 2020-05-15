@@ -50,6 +50,13 @@ public class RabbitMQAsyncResponseReceiver implements Runnable, Closeable {
                             if (callbackContainer.getResult() instanceof ExceptionHolder) {
                                 java.lang.reflect.Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                                 method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
+                            } else if (callbackContainer.getResult() instanceof Throwable) {
+                                if (Serializer.getCurrentSerializationProtocol().equals("java")) {
+                                    Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
+                                    method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), new JaffaRpcExecutionException((Throwable) callbackContainer.getResult()));
+                                } else {
+                                    throw new JaffaRpcSystemException("Same serialization protocol must be enabled cluster-wide!");
+                                }
                             } else {
                                 Method method = callbackClass.getMethod("onSuccess", String.class, Class.forName(callbackContainer.getResultClass()));
                                 if (Class.forName(callbackContainer.getResultClass()).equals(Void.class)) {
