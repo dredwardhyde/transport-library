@@ -38,7 +38,7 @@ public class ZMQCertTest {
         ZContext ctx = new ZContext();
         ctx.setLinger(0);
         ZAuth auth = null;
-        if(secure) {
+        if (secure) {
             auth = new ZAuth(ctx);
             auth.setVerbose(true);
             auth.allow("127.0.0.1");
@@ -46,7 +46,7 @@ public class ZMQCertTest {
         }
 
         ZMQ.Socket server = ctx.createSocket(SocketType.PUSH);
-        if(secure) {
+        if (secure) {
             server.setZAPDomain("global".getBytes());
             server.setCurveServer(true);
             server.setCurvePublicKey(serverPublicKey.getBytes());
@@ -55,7 +55,7 @@ public class ZMQCertTest {
         server.bind("tcp://*:9000");
 
         ZMQ.Socket client = ctx.createSocket(SocketType.PULL);
-        if(secure) {
+        if (secure) {
             client.setCurvePublicKey(serverPublicKey.getBytes());
             client.setCurveSecretKey(serverSecretKey.getBytes());
             client.setCurveServerKey(foreignServerPublicKey.getBytes());
@@ -68,7 +68,7 @@ public class ZMQCertTest {
         if (message.equals("Hello")) {
             log.info("Security test OK");
         }
-        if(secure){
+        if (secure) {
             auth.destroy();
         } else {
             ctx.destroy();

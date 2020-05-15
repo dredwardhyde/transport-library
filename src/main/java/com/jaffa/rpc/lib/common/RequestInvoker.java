@@ -106,7 +106,7 @@ public class RequestInvoker {
                 Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                 method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
             } else if (callbackContainer.getResult() instanceof Throwable) {
-                if(Serializer.getCurrentSerializationProtocol().equals("java")){
+                if (Serializer.getCurrentSerializationProtocol().equals("java")) {
                     Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                     method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException((Throwable) callbackContainer.getResult()));
                 } else {

@@ -32,7 +32,7 @@ public class CurveUtils {
         return null;
     }
 
-    public static void makeSocketSecure(ZMQ.Socket socket){
+    public static void makeSocketSecure(ZMQ.Socket socket) {
         if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", "false"))) {
             socket.setZAPDomain("global".getBytes());
             socket.setCurveServer(true);

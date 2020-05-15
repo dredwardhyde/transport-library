@@ -51,7 +51,6 @@ import scala.Option;
 import javax.annotation.PostConstruct;
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;

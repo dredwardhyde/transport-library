@@ -287,11 +287,11 @@ class ShutdownHook extends Thread {
     @Override
     public void run() {
         try {
-            if(Utils.conn != null){
+            if (Utils.conn != null) {
                 for (String service : Utils.services) {
                     Utils.deleteAllRegistrations(service);
                 }
-                if(Utils.conn != null) Utils.conn.close();
+                if (Utils.conn != null) Utils.conn.close();
             }
             Utils.conn = null;
         } catch (KeeperException | InterruptedException | ParseException | IOException e) {

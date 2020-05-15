@@ -77,7 +77,7 @@ public class RequestImpl<T> implements Request<T> {
         if (result instanceof ExceptionHolder)
             throw new JaffaRpcExecutionException(((ExceptionHolder) result).getStackTrace());
         if (result instanceof Throwable)
-            throw new JaffaRpcExecutionException((Throwable)result);
+            throw new JaffaRpcExecutionException((Throwable) result);
         return (T) result;
     }
 

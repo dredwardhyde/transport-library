@@ -1,8 +1,8 @@
 package com.jaffa.rpc.lib.kafka.receivers;
 
 import com.jaffa.rpc.lib.JaffaService;
-import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.common.RebalancedListener;
+import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.RequestContext;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
