@@ -1,6 +1,6 @@
 ## Jaffa RPC library
 
-**This library provides communication between Java applications.**  
+**This library provides communication between Java Spring applications.**  
 
 **Key features:**  
 - **Apache ZooKeeper (with TLSv1.2) is used for service discovery**
@@ -24,13 +24,13 @@
     - Persistence
 - **2 serialization protocols are supported**:
   - **Java**
-    - Slow
+    - Slower
     - No compression
-    - All exceptions will be returned as is
+    - **All exceptions will be returned as is**
   - **Kryo**
     - Faster
     - More efficient
-    - Only stacktraces will be returned in response
+    - **Only stacktraces will be returned in response**
 - **User could specify custom OTT provider (see example below)**
 
 ## Latency
@@ -63,7 +63,7 @@ Dashboard URL is logged at startup like this:
 
 [FULL EXAMPLE HERE](https://github.com/dredwardhyde/jaffa-rpc-library/blob/master/src/test/java/com/jaffa/rpc/test/TestServer.java)
 
-You create an interface with ```@Api```annotation, for example:
+You create an interface with ```@Api```annotation like this:
 
 ```java
 @Api
@@ -81,7 +81,7 @@ public interface PersonService {
 }
 ```
 
-**Server-side implementation (note it must be Spring Bean):**
+**Server-side implementation (must be Spring Bean):**
 ```java
 
 @ApiServer
@@ -100,7 +100,7 @@ public class PersonServiceImpl implements PersonService{
 ```
 
 Then [jaffa-rpc-maven-plugin](https://github.com/dredwardhyde/jaffa-rpc-maven-plugin) generates client interface.  
-This plugin ignores all the static and default methods, all fields:
+This plugin ignores all the static, default methods and all fields:
 
 ```java
 @ApiClient(ticketProvider = TicketProviderImpl.class)
@@ -147,7 +147,7 @@ personServiceClient.get(id)
              .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
 ```
 
-**Async callback implementation (note it must be Spring Bean):**  
+**Async callback implementation (must be Spring Bean):**  
 ```java
 @Component
 public class PersonCallback implements Callback<Person> {
