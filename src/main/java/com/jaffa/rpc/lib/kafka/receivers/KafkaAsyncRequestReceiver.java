@@ -9,22 +9,21 @@ import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.InterruptException;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-
-import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Slf4j
 public class KafkaAsyncRequestReceiver extends KafkaReceiver implements Runnable {
@@ -41,26 +40,7 @@ public class KafkaAsyncRequestReceiver extends KafkaReceiver implements Runnable
         Runnable consumerThread = () -> {
             final KafkaConsumer<String, byte[]> consumer = new KafkaConsumer<>(JaffaService.getConsumerProps());
             final KafkaProducer<String, byte[]> producer = new KafkaProducer<>(JaffaService.getProducerProps());
-            long startRebalance = System.nanoTime();
-            long threeMinAgo = Instant.ofEpochMilli(System.currentTimeMillis()).minus(3, MINUTES).toEpochMilli();
-            consumer.subscribe(JaffaService.getServerAsyncTopics(), new ConsumerRebalanceListener() {
-                @Override
-                public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-                    // No-op
-                }
-
-                @Override
-                public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-                    Map<TopicPartition, Long> query = new HashMap<>();
-                    partitions.forEach(x -> query.put(x, threeMinAgo));
-                    for (Map.Entry<TopicPartition, OffsetAndTimestamp> entry : consumer.offsetsForTimes(query).entrySet()) {
-                        if (entry.getValue() == null) continue;
-                        consumer.seek(entry.getKey(), entry.getValue().offset());
-                    }
-                    log.info(">>>>>> Partitions assigned took {} ns", System.nanoTime() - startRebalance);
-                    countDownLatch.countDown();
-                }
-            });
+            consumer.subscribe(JaffaService.getServerAsyncTopics(), new RebalanceListener(consumer, countDownLatch));
             consumer.poll(Duration.ofMillis(0));
             while (!Thread.currentThread().isInterrupted()) {
                 ConsumerRecords<String, byte[]> records = new ConsumerRecords<>(new HashMap<>());

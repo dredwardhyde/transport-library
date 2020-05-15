@@ -3,30 +3,31 @@
 <html lang="en">
 
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
 
-  <meta content="utf-8" http-equiv="encoding">
-  <title>Response time</title>
+    <meta content="utf-8" http-equiv="encoding">
+    <title>Response time</title>
 
-  <style type="text/css">
+    <style type="text/css">
     body,
     html,
     select {
       font: 10pt sans-serif;
     }
-  </style>
 
-  <script src="./vis.min.js"></script>
-  <link href="./vis.min.css" rel="stylesheet" type="text/css">
+    </style>
+
+    <script src="./vis.min.js"></script>
+    <link href="./vis.min.css" rel="stylesheet" type="text/css">
 </head>
 
 <body>
-  <h2 id="header">Response time</h2>
-  <h3 id="count">Requests: 0</h3>
+<h2 id="header">Response time</h2>
+<h3 id="count">Requests: 0</h3>
 
-  <div id="visualization" />
+<div id="visualization"/>
 
-  <script type="text/javascript">
+<script type="text/javascript">
 
     var header = document.getElementById('header');
     var count = document.getElementById('count');
@@ -117,7 +118,8 @@
       setTimeout(addDataPoint, DELAY);
     }
     addDataPoint();
-  </script>
+
+</script>
 
 </body>
 
