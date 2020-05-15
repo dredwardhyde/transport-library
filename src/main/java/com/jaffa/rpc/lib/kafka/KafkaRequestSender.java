@@ -31,10 +31,10 @@ public class KafkaRequestSender extends Sender {
         consumerProps.put("bootstrap.servers", Utils.getRequiredOption("jaffa.rpc.protocol.kafka.bootstrap.servers"));
         consumerProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         consumerProps.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
-        consumerProps.put("enable.auto.commit", "false");
+        consumerProps.put("enable.auto.commit", String.valueOf(false));
         consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.kafka.use.ssl", "false"))) {
+        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.kafka.use.ssl", String.valueOf(false)))) {
             Map<String, String> sslProps = new HashMap<>();
             sslProps.put("security.protocol", "SSL");
             sslProps.put("ssl.truststore.location", Utils.getRequiredOption("jaffa.rpc.protocol.kafka.ssl.truststore.location"));

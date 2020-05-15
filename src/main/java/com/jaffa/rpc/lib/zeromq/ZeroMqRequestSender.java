@@ -16,7 +16,7 @@ public class ZeroMqRequestSender extends Sender {
     public static final ZContext context = new ZContext(10);
 
     public static void addCurveKeysToSocket(ZMQ.Socket socket, String moduleId) {
-        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", "false"))) {
+        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", String.valueOf(false)))) {
             socket.setCurvePublicKey(CurveUtils.getServerPublicKey().getBytes());
             socket.setCurveSecretKey(CurveUtils.getServerSecretKey().getBytes());
             String clientPublicKey = CurveUtils.getClientPublicKey(moduleId);

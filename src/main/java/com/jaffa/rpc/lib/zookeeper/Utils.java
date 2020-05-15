@@ -3,6 +3,8 @@ package com.jaffa.rpc.lib.zookeeper;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -27,11 +29,14 @@ import java.util.Properties;
 @Slf4j
 public class Utils {
 
-    public static final List<String> services = new ArrayList<>();
-    public static volatile ZooKeeperConnection conn;
+    @Getter
+    private static final List<String> services = new ArrayList<>();
+    @Getter
+    @Setter
+    private static volatile ZooKeeperConnection conn;
     private static ZooKeeper zk;
 
-    public static void loadProperties() {
+    public static void loadExternalProperties() {
         try {
             String path = System.getProperty("jaffa-rpc-config");
             if (path != null) {
@@ -95,7 +100,7 @@ public class Utils {
     }
 
     private static String getHttpPrefix() {
-        return (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", "false")) ? "https" : "http") + "://";
+        return (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", String.valueOf(false))) ? "https" : "http") + "://";
     }
 
     private static ArrayList<MutablePair<String, String>> getHostsForService(String service, String moduleId, Protocol protocol) throws KeeperException, ParseException, InterruptedException {
@@ -287,13 +292,13 @@ class ShutdownHook extends Thread {
     @Override
     public void run() {
         try {
-            if (Utils.conn != null) {
-                for (String service : Utils.services) {
+            if (Utils.getConn() != null) {
+                for (String service : Utils.getServices()) {
                     Utils.deleteAllRegistrations(service);
                 }
-                if (Utils.conn != null) Utils.conn.close();
+                if (Utils.getConn() != null) Utils.getConn().close();
             }
-            Utils.conn = null;
+            Utils.setConn(null);
         } catch (KeeperException | InterruptedException | ParseException | IOException e) {
             throw new JaffaRpcSystemException(e);
         }

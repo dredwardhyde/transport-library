@@ -21,8 +21,8 @@ public class ZooKeeperConnection {
         if (zkConfig == null) {
             ZKClientConfig zkClientConfig = new ZKClientConfig();
             zkClientConfig.setProperty("zookeeper.clientCnxnSocket", System.getProperty("jaffa.rpc.zookeeper.clientCnxnSocket", "org.apache.zookeeper.ClientCnxnSocketNetty"));
-            zkClientConfig.setProperty("zookeeper.client.secure", System.getProperty("jaffa.rpc.zookeeper.client.secure", "false"));
-            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.zookeeper.client.secure", "false"))) {
+            zkClientConfig.setProperty("zookeeper.client.secure", System.getProperty("jaffa.rpc.zookeeper.client.secure", String.valueOf(false)));
+            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.zookeeper.client.secure", String.valueOf(false)))) {
                 zkClientConfig.setProperty("zookeeper.ssl.keyStore.location", Utils.getRequiredOption("jaffa.rpc.zookeeper.ssl.keyStore.location"));
                 zkClientConfig.setProperty("zookeeper.ssl.keyStore.password", Utils.getRequiredOption("jaffa.rpc.zookeeper.ssl.keyStore.password"));
                 zkClientConfig.setProperty("zookeeper.ssl.trustStore.location", Utils.getRequiredOption("jaffa.rpc.zookeeper.ssl.trustStore.location"));

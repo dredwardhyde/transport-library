@@ -28,7 +28,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
         try {
             context = new ZContext(10);
             context.setLinger(0);
-            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", "false"))) {
+            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", String.valueOf(false)))) {
                 auth = new ZAuth(context);
                 auth.setVerbose(true);
                 auth.configureCurve(Utils.getRequiredOption("jaffa.rpc.protocol.zmq.client.dir"));
@@ -60,7 +60,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
 
     @Override
     public void close() {
-        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", "false"))) {
+        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", String.valueOf(false)))) {
             try {
                 auth.close();
             } catch (IOException ioException) {

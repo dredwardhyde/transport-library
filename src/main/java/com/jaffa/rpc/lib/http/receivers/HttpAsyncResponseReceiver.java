@@ -27,7 +27,7 @@ public class HttpAsyncResponseReceiver implements Runnable, Closeable {
     @Override
     public void run() {
         try {
-            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", "false"))) {
+            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", String.valueOf(false)))) {
                 HttpsServer httpsServer = HttpsServer.create(Utils.getHttpCallbackBindAddress(), 0);
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer);
                 server = httpsServer;

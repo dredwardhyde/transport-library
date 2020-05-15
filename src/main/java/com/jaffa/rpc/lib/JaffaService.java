@@ -97,19 +97,19 @@ public class JaffaService {
     @Autowired
     private ApplicationContext context;
 
-    private static void initInternalProps() {
+    private static void loadInternalProperties() {
         if (Utils.getRpcProtocol().equals(Protocol.KAFKA)) {
             consumerProps.put("bootstrap.servers", Utils.getRequiredOption("jaffa.rpc.protocol.kafka.bootstrap.servers"));
             consumerProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
             consumerProps.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
-            consumerProps.put("enable.auto.commit", "false");
+            consumerProps.put("enable.auto.commit", String.valueOf(false));
             consumerProps.put("group.id", UUID.randomUUID().toString());
 
             producerProps.put("bootstrap.servers", Utils.getRequiredOption("jaffa.rpc.protocol.kafka.bootstrap.servers"));
             producerProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
             producerProps.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
 
-            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.kafka.use.ssl", "false"))) {
+            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.kafka.use.ssl", String.valueOf(false)))) {
                 Map<String, String> sslProps = new HashMap<>();
                 sslProps.put("security.protocol", "SSL");
                 sslProps.put("ssl.truststore.location", Utils.getRequiredOption("jaffa.rpc.protocol.kafka.ssl.truststore.location"));
@@ -222,8 +222,8 @@ public class JaffaService {
     @SuppressWarnings("unused")
     private void init() {
         try {
-            Utils.loadProperties();
-            initInternalProps();
+            Utils.loadExternalProperties();
+            loadInternalProperties();
             long startedTime = System.currentTimeMillis();
             prepareServiceRegistration();
             CountDownLatch started = null;
@@ -261,7 +261,7 @@ public class JaffaService {
                         this.zmqReceivers.add(zmqAsyncResponseReceiver);
                         this.receiverThreads.add(new Thread(zmqAsyncResponseReceiver));
                     }
-                    if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", "false"))) {
+                    if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", String.valueOf(false)))) {
                         CurveUtils.readClientKeys();
                         CurveUtils.readServerKeys();
                     }
@@ -326,13 +326,13 @@ public class JaffaService {
         log.info("Kafka receivers closed");
         KafkaRequestSender.shutDownConsumers();
         log.info("Kafka sync response consumers closed");
-        if (Utils.conn != null) {
+        if (Utils.getConn() != null) {
             try {
-                for (String service : Utils.services) {
+                for (String service : Utils.getServices()) {
                     Utils.deleteAllRegistrations(service);
                 }
-                if (Utils.conn != null) Utils.conn.close();
-                Utils.conn = null;
+                if (Utils.getConn() != null) Utils.getConn().close();
+                Utils.setConn(null);
             } catch (KeeperException | InterruptedException | ParseException | UnknownHostException e) {
                 log.error("Unable to unregister services from ZooKeeper cluster, probably it was done earlier");
             }
@@ -346,8 +346,8 @@ public class JaffaService {
                 throw new JaffaRpcSystemException(e);
             }
         });
-        ZContext context = ZeroMqRequestSender.context;
-        if (!context.isClosed()) context.close();
+        ZContext zkCtx = ZeroMqRequestSender.context;
+        if (!zkCtx.isClosed()) zkCtx.close();
         RabbitMQRequestSender.close();
         log.info("All ZMQ sockets were closed");
         for (Thread thread : this.receiverThreads) {

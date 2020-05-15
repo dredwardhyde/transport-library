@@ -45,7 +45,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     private HttpServer server;
 
     public static void initClient() {
-        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", "false"))) {
+        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", String.valueOf(false)))) {
             TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
             SSLContext sslContext;
             try {
@@ -100,7 +100,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     @Override
     public void run() {
         try {
-            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", "false"))) {
+            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", String.valueOf(false)))) {
                 HttpsServer httpsServer = HttpsServer.create(Utils.getHttpBindAddress(), 0);
                 initSSLForHttpsServer(httpsServer);
                 server = httpsServer;
