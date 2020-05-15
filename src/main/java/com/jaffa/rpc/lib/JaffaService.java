@@ -305,7 +305,7 @@ public class JaffaService {
                 RebalancedListener.waitForRebalanced();
                 log.info("Initial balancing took: {}", RebalancedListener.lastEvent - RebalancedListener.firstEvent);
             }
-            FinalizationWorker.startFinalizer();
+            FinalizationWorker.startFinalizer(context);
             log.info("\n    .---.                                             \n" +
                     "    |   |                                               \n" +
                     "    '---'                                               \n" +

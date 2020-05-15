@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,6 +22,7 @@ public class FinalizationWorker {
     @Getter
     private static final ConcurrentMap<String, Command> eventsToConsume = new ConcurrentHashMap<>();
     private static final CountDownLatch countDownLatch = new CountDownLatch(1);
+    private static ApplicationContext context;
     private static final Thread finalizer = new Thread(() -> {
         log.info("Finalizer thread started");
         countDownLatch.countDown();
@@ -37,11 +39,12 @@ public class FinalizationWorker {
                         long start = System.nanoTime();
                         log.info("Finalization request {}", command.getRqUid());
                         Class<?> callbackClass = Class.forName(command.getCallbackClass());
+                        Object callBackBean = context.getBean(callbackClass);
                         Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
-                        method.invoke(callbackClass.getDeclaredConstructor().newInstance(), command.getCallbackKey(), new JaffaRpcExecutionTimeoutException());
+                        method.invoke(callBackBean, command.getCallbackKey(), new JaffaRpcExecutionTimeoutException());
                         log.info("Finalization request {} took {}ns", command.getRqUid(), (System.nanoTime() - start));
                     }
-                } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     log.error("Error during finalization command: {}", command);
                 }
             });
@@ -50,7 +53,8 @@ public class FinalizationWorker {
     });
 
     @SuppressWarnings("squid:S2142")
-    public static void startFinalizer() {
+    public static void startFinalizer(ApplicationContext context) {
+        FinalizationWorker.context = context;
         finalizer.start();
         try {
             countDownLatch.await();
