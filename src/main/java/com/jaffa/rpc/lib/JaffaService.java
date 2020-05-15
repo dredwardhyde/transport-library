@@ -4,7 +4,6 @@ import com.jaffa.rpc.lib.annotations.Api;
 import com.jaffa.rpc.lib.annotations.ApiClient;
 import com.jaffa.rpc.lib.annotations.ApiServer;
 import com.jaffa.rpc.lib.common.FinalizationWorker;
-import com.jaffa.rpc.lib.common.RebalancedListener;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -300,10 +299,6 @@ public class JaffaService {
             this.receiverThreads.forEach(Thread::start);
             if (expectedThreadCount != 0) started.await();
             registerServices();
-            if (protocol.equals(Protocol.KAFKA)) {
-                RebalancedListener.waitForRebalanced();
-                log.info("Initial balancing took: {}", RebalancedListener.lastEvent - RebalancedListener.firstEvent);
-            }
             FinalizationWorker.startFinalizer(context);
             log.info("\n    .---.                                             \n" +
                     "    |   |                                               \n" +

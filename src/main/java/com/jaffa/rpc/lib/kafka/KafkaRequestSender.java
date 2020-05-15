@@ -83,6 +83,7 @@ public class KafkaRequestSender extends Sender {
                 log.info(">>>>>> Partitions assigned took {} ns", System.nanoTime() - startRebalance);
             }
         });
+        consumer.poll(0);
         log.info(">>>>>> Consumer rebalance took {} ns", System.nanoTime() - startRebalance);
         long start = System.currentTimeMillis();
         while (!((timeout != -1 && System.currentTimeMillis() - start > timeout) || (System.currentTimeMillis() - start > (1000 * 60 * 60)))) {
