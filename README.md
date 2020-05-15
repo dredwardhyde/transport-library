@@ -61,9 +61,9 @@ Dashboard URL is logged at startup like this:
 
 ## How to use
 
-[FULL EXAMPLE HERE](https://github.com/dredwardhyde/jaffa-rpc-library/blob/master/src/test/java/com/jaffa/rpc/test/TestServer.java)
-
-You create an interface with ```@Api```annotation like this:
+[Full code example here](https://github.com/dredwardhyde/jaffa-rpc-library/blob/master/src/test/java/com/jaffa/rpc/test/TestServer.java)  
+[Full project example here](https://github.com/dredwardhyde/jaffa-rpc-library-test)  
+You create an interface with ```@Api```annotation like this:  
 
 ```java
 @Api
@@ -218,7 +218,8 @@ NOTE: Number of partitions for library's topics is equal to the number of Kafka 
       If any required topics already exist, but they have wrong configurations, exception will be thrown.
 
 #### Available options
-Could be configured entirely as JVM options or by specifying **jaffa-rpc-config** JVM option with the path to [config.properties](https://github.com/dredwardhyde/jaffa-rpc-library/blob/master/jaffa-rpc-config-main-server.properties)
+Could be configured entirely as JVM options or by specifying **jaffa-rpc-config** JVM option with the path to [config.properties](https://github.com/dredwardhyde/jaffa-rpc-library/blob/master/jaffa-rpc-config-main-server.properties)  
+Minimal required config is [here](https://github.com/dredwardhyde/jaffa-rpc-library-test/blob/master/jaffa-rpc-config-test-server.properties)
 <table>
   <th>Option</th><th>Description</th>
   <tr>
