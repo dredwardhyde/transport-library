@@ -12,6 +12,7 @@ public enum Protocol implements Serializable {
     KAFKA("kafka", "Apache Kafka"),
     ZMQ("zmq", "ZeroMQ"),
     HTTP("http", "HTTP/1.1"),
+    GRPC("grpc", "gRPC"),
     RABBIT("rabbit", "RabbitMQ");
 
     private final String shortName;
