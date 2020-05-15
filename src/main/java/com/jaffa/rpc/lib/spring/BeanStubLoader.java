@@ -12,6 +12,7 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.lang.NonNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -23,7 +24,7 @@ import static net.bytebuddy.matcher.ElementMatchers.any;
 @DependsOn({"serverEndpoints", "clientEndpoints"})
 public class BeanStubLoader implements BeanDefinitionRegistryPostProcessor {
     @Override
-    public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
+    public void postProcessBeanDefinitionRegistry(@NonNull BeanDefinitionRegistry registry) {
 
         ClientEndpoints clientEndpoints = ((DefaultListableBeanFactory) registry).getBean(ClientEndpoints.class);
         ClassLoader cl = BeanStubLoader.class.getClassLoader();
@@ -50,7 +51,7 @@ public class BeanStubLoader implements BeanDefinitionRegistryPostProcessor {
     }
 
     @Override
-    public void postProcessBeanFactory(ConfigurableListableBeanFactory configurableListableBeanFactory) {
+    public void postProcessBeanFactory(@NonNull ConfigurableListableBeanFactory configurableListableBeanFactory) {
         // No-op
     }
 }

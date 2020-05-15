@@ -74,7 +74,7 @@ public class Utils {
 
     public static Pair<String, String> getHostForService(String service, String moduleId, Protocol protocol) {
         service = Utils.getServiceInterfaceNameFromClient(service);
-        Stat stat = null;
+        Stat stat;
         try {
             stat = isZNodeExists("/" + service);
         } catch (KeeperException | InterruptedException e) {
@@ -191,6 +191,7 @@ public class Utils {
         return zk.exists(service, true);
     }
 
+    @SuppressWarnings("unchecked")
     private static void update(String service, Protocol protocol) throws KeeperException, InterruptedException, ParseException, UnknownHostException {
         byte[] zkData = zk.getData(service, false, null);
         JSONArray jArray = (JSONArray) new JSONParser().parse(new String(zkData));
@@ -226,7 +227,7 @@ public class Utils {
         return getLocalHostLANAddress().getHostAddress() + ":" + getServicePort();
     }
 
-    public static InetSocketAddress getHttpBindAddress() throws UnknownHostException {
+    public static InetSocketAddress getHttpBindAddress() {
         return new InetSocketAddress(Utils.getLocalHost(), getServicePort());
     }
 
@@ -234,7 +235,7 @@ public class Utils {
         return getLocalHostLANAddress().getHostAddress() + ":" + getCallbackPort();
     }
 
-    public static InetSocketAddress getHttpCallbackBindAddress() throws UnknownHostException {
+    public static InetSocketAddress getHttpCallbackBindAddress() {
         return new InetSocketAddress(Utils.getLocalHost(), getCallbackPort());
     }
 

@@ -1,6 +1,5 @@
 package com.jaffa.rpc.lib.spring;
 
-import com.jaffa.rpc.lib.JaffaService;
 import com.jaffa.rpc.lib.annotations.ApiClient;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.Protocol;
@@ -19,6 +18,7 @@ import org.springframework.aop.support.StaticMethodMatcherPointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
@@ -76,18 +76,20 @@ public class ApiClientAdvisor extends AbstractPointcutAdvisor {
     }
 
     @Override
+    @NonNull
     public Pointcut getPointcut() {
         return this.pointcut;
     }
 
     @Override
+    @NonNull
     public Advice getAdvice() {
         return this.interceptor;
     }
 
     private static final class ApiClientAnnotationOnClassOrInheritedInterfacePointcut extends StaticMethodMatcherPointcut {
         @Override
-        public boolean matches(Method method, Class<?> targetClass) {
+        public boolean matches(@NonNull Method method, @NonNull Class<?> targetClass) {
             if (AnnotationUtils.findAnnotation(method, ApiClient.class) != null) {
                 return true;
             }
