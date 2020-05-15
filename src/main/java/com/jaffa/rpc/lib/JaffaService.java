@@ -44,6 +44,7 @@ import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.zeromq.ZContext;
 import scala.Option;
 
@@ -95,6 +96,8 @@ public class JaffaService {
     private ServerEndpoints serverEndpoints;
     @Autowired
     private ClientEndpoints clientEndpoints;
+    @Autowired
+    private ApplicationContext context;
 
     private static void initInternalProps() {
         if (Utils.getRpcProtocol().equals(Protocol.KAFKA)) {
@@ -122,16 +125,17 @@ public class JaffaService {
         }
     }
 
-    private void registerServices() throws InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    private void registerServices() {
         Map<Class<?>, Class<?>> apiImpls = new HashMap<>();
         for (Class<?> server : serverEndpoints.getEndpoints()) {
             log.info("Server endpoint: {}", server.getName());
             apiImpls.put(server, server.getInterfaces()[0]);
         }
         for (Map.Entry<Class<?>, Class<?>> apiImpl : apiImpls.entrySet()) {
-            RequestInvoker.getWrappedServices().put(apiImpl.getValue(), apiImpl.getKey().getDeclaredConstructor().newInstance());
+            RequestInvoker.getWrappedServices().put(apiImpl.getValue(), context.getBean(apiImpl.getKey()));
             Utils.registerService(apiImpl.getValue().getName(), Utils.getRpcProtocol());
         }
+        RequestInvoker.setContext(context);
     }
 
     @SuppressWarnings("squid:S2583")
@@ -285,6 +289,7 @@ public class JaffaService {
                     }
                     if (clientEndpoints.getEndpoints().length != 0) {
                         RabbitMQAsyncResponseReceiver rabbitMQAsyncResponseReceiver = new RabbitMQAsyncResponseReceiver();
+                        rabbitMQAsyncResponseReceiver.setContext(context);
                         this.zmqReceivers.add(rabbitMQAsyncResponseReceiver);
                         this.receiverThreads.add(new Thread(rabbitMQAsyncResponseReceiver));
                     }

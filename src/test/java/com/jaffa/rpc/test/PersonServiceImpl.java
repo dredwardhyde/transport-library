@@ -4,6 +4,7 @@ import com.jaffa.rpc.lib.annotations.ApiServer;
 import com.jaffa.rpc.lib.entities.RequestContext;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @ApiServer
+@Component
 public class PersonServiceImpl implements PersonService {
 
     private final List<Person> people = new ArrayList<>();

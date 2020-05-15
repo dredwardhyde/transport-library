@@ -2,8 +2,10 @@ package com.jaffa.rpc.test;
 
 import com.jaffa.rpc.lib.callbacks.Callback;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 public class ServiceCallback implements Callback<Void> {
 
 

@@ -9,7 +9,9 @@ import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.ui.AdminServer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationContext;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -24,6 +26,9 @@ public class RequestInvoker {
     private static final Map<Class<?>, Class<?>> primitiveToWrappers = new HashMap<>();
     @Getter
     private static final Map<Class<?>, Object> wrappedServices = new HashMap<>();
+
+    @Setter
+    private static ApplicationContext context;
 
     static {
         primitiveToWrappers.put(boolean.class, Boolean.class);
@@ -94,24 +99,25 @@ public class RequestInvoker {
 
     public static void processCallbackContainer(CallbackContainer callbackContainer) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class<?> callbackClass = Class.forName(callbackContainer.getListener());
+        Object callBackBean = context.getBean(callbackClass);
         Command command = FinalizationWorker.getEventsToConsume().remove(callbackContainer.getKey());
         if (command != null) {
             if (callbackContainer.getResult() instanceof ExceptionHolder) {
                 Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
-                method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
+                method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
             } else if (callbackContainer.getResult() instanceof Throwable) {
                 if(Serializer.getCurrentSerializationProtocol().equals("java")){
                     Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
-                    method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), new JaffaRpcExecutionException((Throwable) callbackContainer.getResult()));
+                    method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException((Throwable) callbackContainer.getResult()));
                 } else {
                     throw new JaffaRpcSystemException("Same serialization protocol must be enabled cluster-wide!");
                 }
             } else {
                 Method method = callbackClass.getMethod("onSuccess", String.class, Class.forName(callbackContainer.getResultClass()));
                 if (Class.forName(callbackContainer.getResultClass()).equals(Void.class)) {
-                    method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), null);
+                    method.invoke(callBackBean, callbackContainer.getKey(), null);
                 } else
-                    method.invoke(callbackClass.getDeclaredConstructor().newInstance(), callbackContainer.getKey(), callbackContainer.getResult());
+                    method.invoke(callBackBean, callbackContainer.getKey(), callbackContainer.getResult());
             }
             AdminServer.addMetric(command);
         } else {

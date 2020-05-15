@@ -4,9 +4,11 @@ import com.jaffa.rpc.lib.annotations.ApiServer;
 import com.jaffa.rpc.lib.entities.RequestContext;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @ApiServer
+@Component
 public class ClientServiceImpl implements ClientService {
 
     @Override

@@ -85,6 +85,7 @@ public interface PersonService {
 ```java
 
 @ApiServer
+@Component
 public class PersonServiceImpl implements PersonService{
     // Methods
     // ...
@@ -146,6 +147,7 @@ personServiceClient.get(id)
              .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
 
 // Async callback implementation example
+@Component
 public class PersonCallback implements Callback<Person> {
 
     // **key** - used as request ID, will be the same value that was used during invocation
