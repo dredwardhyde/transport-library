@@ -35,7 +35,7 @@ public class HttpRequestSender extends Sender {
             httpPost.setEntity(postParams);
             CloseableHttpResponse httpResponse;
             try {
-                httpResponse = HttpAsyncAndSyncRequestReceiver.client.execute(httpPost);
+                httpResponse = HttpAsyncAndSyncRequestReceiver.getClient().execute(httpPost);
             } catch (ConnectTimeoutException | SocketTimeoutException e) {
                 throw new JaffaRpcExecutionTimeoutException();
             }
@@ -60,7 +60,7 @@ public class HttpRequestSender extends Sender {
             HttpPost httpPost = new HttpPost(Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.HTTP).getLeft() + "/request");
             HttpEntity postParams = new ByteArrayEntity(message);
             httpPost.setEntity(postParams);
-            CloseableHttpResponse httpResponse = HttpAsyncAndSyncRequestReceiver.client.execute(httpPost);
+            CloseableHttpResponse httpResponse = HttpAsyncAndSyncRequestReceiver.getClient().execute(httpPost);
             int response = httpResponse.getStatusLine().getStatusCode();
             httpResponse.close();
             if (response != 200) {

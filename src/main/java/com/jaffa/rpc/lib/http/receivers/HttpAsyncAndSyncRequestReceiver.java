@@ -9,6 +9,7 @@ import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import com.sun.net.httpserver.*;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -39,7 +40,8 @@ import java.util.concurrent.Executors;
 public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
     private static final ExecutorService service = Executors.newFixedThreadPool(3);
-    public static CloseableHttpClient client;
+    @Getter
+    private static CloseableHttpClient client;
     private HttpServer server;
 
     public static void initClient() {
