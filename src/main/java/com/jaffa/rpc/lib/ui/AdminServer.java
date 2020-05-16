@@ -71,17 +71,19 @@ public class AdminServer {
             boolean useHttps = Boolean.parseBoolean(System.getProperty("jaffa.admin.use.https", String.valueOf(false)));
             if (useHttps) {
                 HttpsServer httpsServer = HttpsServer.create(new InetSocketAddress(Utils.getLocalHost(), getFreePort()), 0);
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                KeyStore ks = KeyStore.getInstance("PKCS12");
-                char[] storepass = System.getProperty("jaffa.admin.storepass").toCharArray();
-                FileInputStream fis = new FileInputStream(Utils.getRequiredOption("jaffa.admin.keystore"));
-                ks.load(fis, storepass);
+                char[] keyPassphrase = Utils.getRequiredOption("jaffa.rpc.admin.ssl.keystore.password").toCharArray();
+                KeyStore ks = KeyStore.getInstance("JKS");
+                ks.load(new FileInputStream(Utils.getRequiredOption("jaffa.rpc.admin.ssl.keystore.location")), keyPassphrase);
                 KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-                kmf.init(ks, storepass);
+                kmf.init(ks, keyPassphrase);
+                char[] trustPassphrase = Utils.getRequiredOption("jaffa.rpc.admin.ssl.truststore.password").toCharArray();
+                KeyStore tks = KeyStore.getInstance("JKS");
+                tks.load(new FileInputStream(Utils.getRequiredOption("jaffa.rpc.admin.ssl.truststore.location")), trustPassphrase);
                 TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-                tmf.init(ks);
-                sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-                httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
+                tmf.init(tks);
+                SSLContext c = SSLContext.getInstance("TLSv1.2");
+                c.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+                httpsServer.setHttpsConfigurator(new HttpsConfigurator(c) {
                     @Override
                     public void configure(HttpsParameters params) {
                         try {
@@ -130,7 +132,7 @@ public class AdminServer {
             server.setExecutor(Executors.newFixedThreadPool(3));
             server.start();
             log.info("Jaffa RPC console started at {}", (useHttps ? "https://" : "http://") + server.getAddress().getHostName() + ":" + server.getAddress().getPort() + "/admin");
-        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | KeyManagementException | UnrecoverableKeyException httpServerStartupException) {
+        } catch (IOException | KeyStoreException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException httpServerStartupException) {
             log.error("Exception during admin HTTP server startup", httpServerStartupException);
         }
     }

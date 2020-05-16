@@ -41,6 +41,7 @@ import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.connection.RabbitConnectionFactoryBean;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -161,7 +162,19 @@ public class JaffaService {
         if (protocol.equals(Protocol.RABBIT)) {
             String rabbitHost = Utils.getRequiredOption("jaffa.rpc.rabbit.host");
             int rabbitPort = Integer.parseInt(Utils.getRequiredOption("jaffa.rpc.rabbit.port"));
-            JaffaService.setConnectionFactory(new CachingConnectionFactory(rabbitHost, rabbitPort));
+            RabbitConnectionFactoryBean factory = new RabbitConnectionFactoryBean();
+            factory.setHost(rabbitHost);
+            factory.setPort(rabbitPort);
+            factory.setUsername(System.getProperty("jaffa.rpc.protocol.rabbit.login", "guest"));
+            factory.setPassword(System.getProperty("jaffa.rpc.protocol.rabbit.password", "guest"));
+            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.rabbit.use.ssl", "false"))) {
+                factory.setUseSSL(true);
+                factory.setKeyStore(Utils.getRequiredOption("jaffa.rpc.protocol.rabbit.ssl.keystore.location"));
+                factory.setKeyStorePassphrase(Utils.getRequiredOption("jaffa.rpc.protocol.rabbit.ssl.keystore.password"));
+                factory.setTrustStore(Utils.getRequiredOption("jaffa.rpc.protocol.rabbit.ssl.truststore.location"));
+                factory.setTrustStorePassphrase(Utils.getRequiredOption("jaffa.rpc.protocol.rabbit.ssl.truststore.location"));
+            }
+            JaffaService.setConnectionFactory(new CachingConnectionFactory(factory.getRabbitConnectionFactory()));
             JaffaService.setAdminRabbitMQ(new RabbitAdmin(JaffaService.connectionFactory));
             JaffaService.adminRabbitMQ.declareExchange(new DirectExchange(RabbitMQRequestSender.EXCHANGE_NAME, true, false));
             if (JaffaService.adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.SERVER) == null) {

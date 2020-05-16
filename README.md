@@ -18,7 +18,7 @@
   - **HTTP1.1/HTTPS (with TLSv1.2)**
     - Low latency
     - High throughput
-  - **RabbitMQ**
+  - **RabbitMQ (Login/Password with TLS 1.2)**
     - Low latency
     - High throughput
     - Persistence
@@ -266,30 +266,46 @@ Minimal required config is [here](https://github.com/dredwardhyde/jaffa-rpc-libr
     <td>Serialization providers available: 'kryo' (default) and 'java'. Java serialization requires all entities to be Serializable. Same serialization provider must be used clusterwide.</td>
   </tr>
   <tr>
-    <td>jaffa.admin.keystore</td>
-    <td>Path to PKCS12 keystore that will be used to configure HTTPS server for admin console</td>
+    <td>jaffa.admin.use.https</td>
+    <td>Use HTTPS or HTTP for admin console, HTTP is default</td>
   </tr>
   <tr>
-    <td>jaffa.admin.storepass</td>
+    <td>jaffa.rpc.admin.ssl.keystore.location</td>
+    <td>Path to JKS keystore that will be used to configure HTTPS server for admin console</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.admin.ssl.keystore.password</td>
     <td>Password to keystore provided by previous option</td>
   </tr>
   <tr>
-    <td>jaffa.admin.use.https</td>
-    <td>Use HTTPS or HTTP for admin console, HTTP is default</td>
+    <td>jaffa.rpc.admin.ssl.truststore.location</td>
+    <td>Path to JKS truststore that will be used to configure HTTPS server for admin console</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.admin.ssl.truststore.password</td>
+    <td>Password to truststore provided by previous option</td>
   </tr>
   <tr>
     <td>jaffa.rpc.protocol.use.https</td>
     <td>Enables HTTPS when 'http' protocol is used. 'false' by default</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.https.keystore</td>
-    <td>Path to PKCS12 keystore that will be used to configure HTTPS server for RPC communication</td>
+    <td>jaffa.rpc.protocol.http.ssl.keystore.location</td>
+    <td>Path to JKS keystore that will be used to configure HTTPS server for RPC communication</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.https.storepass</td>
+    <td>jaffa.rpc.protocol.http.ssl.keystore.password</td>
     <td>Password to keystore provided by previous option</td>
   </tr>
-    <tr>
+  <tr>
+    <td>jaffa.rpc.protocol.http.ssl.truststore.location</td>
+    <td>Path to JKS truststore that will be used to configure HTTPS server for RPC communication</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.protocol.http.ssl.truststore.password</td>
+    <td>Password to truststore provided by previous option</td>
+  </tr>
+  <tr>
     <td>jaffa.rpc.zookeeper.client.secure</td>
     <td>Value 'true' enables TLSv1.2 for Apache ZooKeeper client</td>
   </tr>
@@ -353,12 +369,39 @@ Minimal required config is [here](https://github.com/dredwardhyde/jaffa-rpc-libr
       <td>jaffa.rpc.protocol.zmq.client.key.--jaffa.rpc.module.id--</td>
       <td>Path to the Curve keys for client with --jaffa.rpc.module.id--</td>
     </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.rabbit.login</td>
+      <td>Login to RabbitMQ server ('guest' is default)</td>
+    </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.rabbit.password</td>
+      <td>Password to RabbitMQ server ('guest' is default)</td>
+    </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.rabbit.use.ssl</td>
+      <td>Enables TLSv1.2 for connections to RabbitMQ ('false' is default)</td>
+    </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.rabbit.ssl.keystore.location</td>
+      <td>Path to JKS keystore that will be used to connect to RabbitMQ</td>
+    </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.rabbit.ssl.keystore.password</td>
+      <td>Password to keystore provided by previous option</td>
+    </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.rabbit.ssl.truststore.location</td>
+      <td>Path to JKS truststore that will be used to connect to RabbitMQ</td>
+    </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.rabbit.ssl.truststore.password</td>
+      <td>Password to truststore provided by previous option</td>
+    </tr>
   </table>  
   
 ## Work in progress:  
 
 ### gRPC support   
-### Login&Password/TLS 1.2 support for RabbitMQ  
 
 ## Example how to generate keystore for admin console:  
 ```sh

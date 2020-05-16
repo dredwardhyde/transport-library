@@ -69,17 +69,19 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
     public static void initSSLForHttpsServer(HttpsServer httpsServer) throws NoSuchAlgorithmException, KeyStoreException, IOException,
             CertificateException, UnrecoverableKeyException, KeyManagementException {
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-        KeyStore ks = KeyStore.getInstance("PKCS12");
-        char[] storepass = Utils.getRequiredOption("jaffa.rpc.protocol.https.storepass").toCharArray();
-        FileInputStream fis = new FileInputStream(Utils.getRequiredOption("jaffa.rpc.protocol.https.keystore"));
-        ks.load(fis, storepass);
+        char[] keyPassphrase = Utils.getRequiredOption("jaffa.rpc.protocol.http.ssl.keystore.password").toCharArray();
+        KeyStore ks = KeyStore.getInstance("JKS");
+        ks.load(new FileInputStream(Utils.getRequiredOption("jaffa.rpc.protocol.http.ssl.keystore.location")), keyPassphrase);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-        kmf.init(ks, storepass);
+        kmf.init(ks, keyPassphrase);
+        char[] trustPassphrase = Utils.getRequiredOption("jaffa.rpc.protocol.http.ssl.truststore.password").toCharArray();
+        KeyStore tks = KeyStore.getInstance("JKS");
+        tks.load(new FileInputStream(Utils.getRequiredOption("jaffa.rpc.protocol.http.ssl.truststore.location")), trustPassphrase);
         TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-        tmf.init(ks);
-        sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-        httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
+        tmf.init(tks);
+        SSLContext c = SSLContext.getInstance("TLSv1.2");
+        c.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+        httpsServer.setHttpsConfigurator(new HttpsConfigurator(c) {
             @Override
             public void configure(HttpsParameters params) {
                 try {
