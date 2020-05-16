@@ -399,10 +399,6 @@ Minimal required config is [here](https://github.com/dredwardhyde/jaffa-rpc-libr
     </tr>
   </table>  
   
-## Work in progress:  
-
-### gRPC support   
-
 ## Example how to generate keystore for admin console:  
 ```sh
 keytool -genkeypair -keyalg RSA -alias self_signed -keypass simulator -keystore test.keystore -storepass simulator
