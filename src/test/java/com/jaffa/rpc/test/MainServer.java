@@ -30,14 +30,14 @@ public class MainServer {
                     .withTimeout(15, TimeUnit.SECONDS)
                     .onModule("main.server")
                     .executeSync();
-            log.info("Resulting id is " + id);
+            log.info("Resulting id is {}", id);
             Person person = personService.get(id)
                     .onModule("main.server")
                     .executeSync();
             log.info(person.toString());
             personService.lol().executeSync();
             personService.lol2("kek").executeSync();
-            log.info("Name: " + personService.getName().executeSync());
+            log.info("Name: {}", personService.getName().executeSync());
             clientService.lol3("test3")
                     .onModule("main.server")
                     .executeSync();
@@ -66,14 +66,14 @@ public class MainServer {
                     .withTimeout(10, TimeUnit.SECONDS)
                     .onModule("test.server")
                     .executeSync();
-            log.info("Resulting id is " + id);
+            log.info("Resulting id is {}", id);
             person = personService.get(id)
                     .onModule("test.server")
                     .executeSync();
             log.info(person.toString());
             personService.lol().executeSync();
             personService.lol2("kek").executeSync();
-            log.info("Name: " + personService.getName().executeSync());
+            log.info("Name: {}", personService.getName().executeSync());
             clientService.lol3("test3")
                     .onModule("test.server")
                     .executeSync();

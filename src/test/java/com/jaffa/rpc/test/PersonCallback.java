@@ -10,8 +10,8 @@ public class PersonCallback implements Callback<Person> {
 
     @Override
     public void onSuccess(String key, Person result) {
-        log.info("Key: " + key);
-        log.info("Result: " + result);
+        log.info("Key: {}", key);
+        log.info("Result: {}", result);
     }
 
     @Override
