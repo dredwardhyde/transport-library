@@ -17,6 +17,8 @@ import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.TimeUnit;
+
 @Slf4j
 public class RequestImpl<T> implements Request<T> {
 
@@ -46,8 +48,8 @@ public class RequestImpl<T> implements Request<T> {
         }
     }
 
-    public RequestImpl<T> withTimeout(long timeout) {
-        this.timeout = timeout;
+    public RequestImpl<T> withTimeout(long timeout, TimeUnit unit) {
+        this.timeout = unit.toMillis(timeout);
         return this;
     }
 

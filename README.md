@@ -136,14 +136,14 @@ com.jaffa.rpc.test.PersonServiceClient personServiceClient;
 
 // Sync call on any implementation with 10s timeout:
 Integer id = personServiceClient.add("Test name", "test@mail.com", null)
-                          .withTimeout(TimeUnit.MILLISECONDS.toMillis(15000))
+                          .withTimeout(15, TimeUnit.SECONDS)
                           .onModule("test.server")
                           .executeSync();
 
 // Async call on module with moduleId = main.server and timeout = 10s
 personServiceClient.get(id)
              .onModule("main.server")
-             .withTimeout(TimeUnit.MILLISECONDS.toMillis(10000))
+             .withTimeout(10, TimeUnit.SECONDS)
              .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
 ```
 

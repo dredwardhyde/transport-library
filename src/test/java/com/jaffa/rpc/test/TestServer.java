@@ -29,9 +29,14 @@ public class TestServer {
         ClientServiceClient clientService = ctx.getBean(ClientServiceClient.class);
 
         if (!loadTest) {
-            Integer id = personService.add("Test name", "test@mail.com", null).withTimeout(TimeUnit.MILLISECONDS.toMillis(15000)).onModule("test.server").executeSync();
+            Integer id = personService.add("Test name", "test@mail.com", null)
+                    .withTimeout(15, TimeUnit.SECONDS)
+                    .onModule("test.server")
+                    .executeSync();
             log.info("Resulting id is {}", id);
-            Person person = personService.get(id).onModule("test.server").executeSync();
+            Person person = personService.get(id)
+                    .onModule("test.server")
+                    .executeSync();
             Assert.assertEquals(person.getId(), id);
             log.info(person.toString());
             personService.lol().executeSync();
@@ -39,13 +44,24 @@ public class TestServer {
             String name = personService.getName().executeSync();
             log.info("Name: {}", name);
             Assert.assertNull(name);
-            clientService.lol3("test3").onModule("test.server").executeSync();
-            clientService.lol4("test4").onModule("test.server").executeSync();
-            clientService.lol4("test4").onModule("test.server").withTimeout(TimeUnit.MILLISECONDS.toMillis(10000)).executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
-            personService.get(id).onModule("test.server").executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
+            clientService.lol3("test3")
+                    .onModule("test.server")
+                    .executeSync();
+            clientService.lol4("test4")
+                    .onModule("test.server")
+                    .executeSync();
+            clientService.lol4("test4")
+                    .onModule("test.server")
+                    .withTimeout(10, TimeUnit.SECONDS)
+                    .executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
+            personService.get(id)
+                    .onModule("test.server")
+                    .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
             personService.lol2("kek").executeSync();
             try {
-                personService.testError().onModule("test.server").executeSync();
+                personService.testError()
+                        .onModule("test.server")
+                        .executeSync();
             } catch (Throwable e) {
                 log.error("Exception during sync call:", e);
                 Assert.assertTrue(e.getMessage().contains("very bad in") || (e.getCause() != null && e.getCause().getMessage().contains("very bad in")));
@@ -60,14 +76,21 @@ public class TestServer {
                 while (!Thread.currentThread().isInterrupted() && (System.currentTimeMillis() - startTime) < (60 * 60 * 1000)) {
                     if (sync) {
                         if (heavy) {
-                            personService.getHeavy(RandomStringUtils.randomAlphabetic(250_000)).onModule("test.server").executeSync();
+                            personService.getHeavy(RandomStringUtils.randomAlphabetic(250_000))
+                                    .onModule("test.server")
+                                    .executeSync();
                         } else {
                             // Sync call
-                            clientService.lol3("test3").onModule("test.server").executeSync();
+                            clientService.lol3("test3")
+                                    .onModule("test.server")
+                                    .executeSync();
                         }
                     } else {
                         // Async call
-                        clientService.lol3("test3").onModule("test.server").withTimeout(10_000).executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
+                        clientService.lol3("test3")
+                                .onModule("test.server")
+                                .withTimeout(10, TimeUnit.SECONDS)
+                                .executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
                     }
                     try {
                         Thread.sleep((int) (Math.random() * 100));

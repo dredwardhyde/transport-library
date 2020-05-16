@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @SuppressWarnings("squid:S2187")
@@ -25,43 +26,78 @@ public class MainServer {
         ClientServiceClient clientService = ctx.getBean(ClientServiceClient.class);
 
         Runnable runnable = () -> {
-            Integer id = personService.add("Test name 2", "test2@mail.com", null).withTimeout(15_000).onModule("main.server").executeSync();
+            Integer id = personService.add("Test name 2", "test2@mail.com", null)
+                    .withTimeout(15, TimeUnit.SECONDS)
+                    .onModule("main.server")
+                    .executeSync();
             log.info("Resulting id is " + id);
-            Person person = personService.get(id).onModule("main.server").executeSync();
+            Person person = personService.get(id)
+                    .onModule("main.server")
+                    .executeSync();
             log.info(person.toString());
             personService.lol().executeSync();
             personService.lol2("kek").executeSync();
             log.info("Name: " + personService.getName().executeSync());
-            clientService.lol3("test3").onModule("main.server").executeSync();
-            clientService.lol4("test4").onModule("main.server").executeSync();
-            clientService.lol4("test4").onModule("main.server").executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
-            personService.get(id).onModule("main.server").executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
+            clientService.lol3("test3")
+                    .onModule("main.server")
+                    .executeSync();
+            clientService.lol4("test4")
+                    .onModule("main.server")
+                    .executeSync();
+            clientService.lol4("test4")
+                    .onModule("main.server")
+                    .executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
+            personService.get(id)
+                    .onModule("main.server")
+                    .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
             personService.lol2("kek").executeSync();
             try {
-                personService.testError().onModule("main.server").executeSync();
+                personService.testError()
+                        .onModule("main.server")
+                        .executeSync();
             } catch (Exception e) {
                 log.error("Exception during sync call:", e);
             }
-            personService.testError().onModule("main.server").executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
+            personService.testError()
+                    .onModule("main.server")
+                    .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
 
-            id = personService.add("Test name 2", "test2@mail.com", null).withTimeout(10_000).onModule("test.server").executeSync();
+            id = personService.add("Test name 2", "test2@mail.com", null)
+                    .withTimeout(10, TimeUnit.SECONDS)
+                    .onModule("test.server")
+                    .executeSync();
             log.info("Resulting id is " + id);
-            person = personService.get(id).onModule("test.server").executeSync();
+            person = personService.get(id)
+                    .onModule("test.server")
+                    .executeSync();
             log.info(person.toString());
             personService.lol().executeSync();
             personService.lol2("kek").executeSync();
             log.info("Name: " + personService.getName().executeSync());
-            clientService.lol3("test3").onModule("test.server").executeSync();
-            clientService.lol4("test4").onModule("test.server").executeSync();
-            clientService.lol4("test4").onModule("test.server").withTimeout(10_000).executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
-            personService.get(id).onModule("test.server").executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
+            clientService.lol3("test3")
+                    .onModule("test.server")
+                    .executeSync();
+            clientService.lol4("test4")
+                    .onModule("test.server")
+                    .executeSync();
+            clientService.lol4("test4")
+                    .onModule("test.server")
+                    .withTimeout(10, TimeUnit.SECONDS)
+                    .executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
+            personService.get(id)
+                    .onModule("test.server")
+                    .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
             personService.lol2("kek").executeSync();
             try {
-                personService.testError().onModule("test.server").executeSync();
+                personService.testError()
+                        .onModule("test.server")
+                        .executeSync();
             } catch (JaffaRpcExecutionException e) {
                 log.error("Exception during sync call:", e);
             }
-            personService.testError().onModule("test.server").executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
+            personService.testError()
+                    .onModule("test.server")
+                    .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
         };
 
         Thread thread1 = new Thread(runnable);
@@ -76,7 +112,7 @@ public class MainServer {
             thread1.join();
             thread2.join();
             thread3.join();
-            Thread.sleep(20_000);
+            Thread.sleep(TimeUnit.SECONDS.toMillis(20));
         } catch (Exception ignore) {
         }
     }
