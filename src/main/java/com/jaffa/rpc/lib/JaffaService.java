@@ -55,7 +55,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 @Slf4j
-@SuppressWarnings("squid:S2142")
+@SuppressWarnings({"squid:S2142", "squid:S2095", "unused"})
 public class JaffaService {
 
     @Getter

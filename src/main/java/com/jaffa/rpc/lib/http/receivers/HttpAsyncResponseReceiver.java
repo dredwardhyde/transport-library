@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Executors;
 
 @Slf4j
+@SuppressWarnings("squid:S1191")
 public class HttpAsyncResponseReceiver implements Runnable, Closeable {
 
     private HttpServer server;
@@ -50,7 +51,7 @@ public class HttpAsyncResponseReceiver implements Runnable, Closeable {
         log.info("HTTP async response receiver stopped");
     }
 
-    private class HttpRequestHandler implements HttpHandler {
+    private static class HttpRequestHandler implements HttpHandler {
 
         @Override
         public void handle(HttpExchange request) throws IOException {

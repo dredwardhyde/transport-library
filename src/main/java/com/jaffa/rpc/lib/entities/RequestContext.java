@@ -30,4 +30,9 @@ public class RequestContext {
         setSourceModuleId(command.getSourceModuleId());
         setSecurityTicket(command.getTicket());
     }
+
+    public static void removeMetaData() {
+        sourceModuleId.remove();
+        securityTicketThreadLocal.remove();
+    }
 }

@@ -1,7 +1,9 @@
 package com.jaffa.rpc.lib.zeromq;
 
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.zeromq.ZMQ;
 
@@ -12,6 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CurveUtils {
 
     private static final Map<String, String> moduleIdWithClientKeys = new HashMap<>();

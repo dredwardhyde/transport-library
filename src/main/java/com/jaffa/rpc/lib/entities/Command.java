@@ -12,6 +12,7 @@ import java.io.Serializable;
 @Setter
 @Getter
 @ToString
+@SuppressWarnings("squid:S1948")
 public class Command implements Serializable {
     private String serviceClass;
     private String methodName;

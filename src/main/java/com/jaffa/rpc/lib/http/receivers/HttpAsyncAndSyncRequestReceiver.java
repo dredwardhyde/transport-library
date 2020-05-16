@@ -37,6 +37,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Slf4j
+@SuppressWarnings("squid:S1191")
 public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
     private static final ExecutorService service = Executors.newFixedThreadPool(3);
@@ -129,7 +130,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         log.info("HTTP request receiver stopped");
     }
 
-    private class HttpRequestHandler implements HttpHandler {
+    private static class HttpRequestHandler implements HttpHandler {
 
         @Override
         public void handle(HttpExchange request) throws IOException {
@@ -147,6 +148,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     try {
                         RequestContext.setMetaData(command);
                         Object result = RequestInvoker.invoke(command);
+                        RequestContext.removeMetaData();
                         byte[] serializedResponse = Serializer.getCtx().serialize(RequestInvoker.constructCallbackContainer(command, result));
                         HttpPost httpPost = new HttpPost(command.getCallBackZMQ() + "/response");
                         HttpEntity postParams = new ByteArrayEntity(serializedResponse);
@@ -166,6 +168,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             } else {
                 RequestContext.setMetaData(command);
                 Object result = RequestInvoker.invoke(command);
+                RequestContext.removeMetaData();
                 byte[] response = Serializer.getCtx().serializeWithClass(RequestInvoker.getResult(result));
                 request.sendResponseHeaders(200, response.length);
                 OutputStream os = request.getResponseBody();

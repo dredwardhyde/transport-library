@@ -46,12 +46,14 @@ public class KafkaSyncRequestReceiver extends KafkaReceiver implements Runnable 
                 try {
                     records = consumer.poll(Duration.ofMillis(100));
                 } catch (InterruptException ignore) {
+                    // No-op
                 }
                 for (ConsumerRecord<String, byte[]> record : records) {
                     try {
                         Command command = Serializer.getCtx().deserialize(record.value(), Command.class);
                         RequestContext.setMetaData(command);
                         Object result = RequestInvoker.invoke(command);
+                        RequestContext.removeMetaData();
                         byte[] serializedResponse = Serializer.getCtx().serializeWithClass(RequestInvoker.getResult(result));
                         ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()) + "-" + Utils.getRequiredOption("jaffa.rpc.module.id") + "-client-sync", command.getRqUid(), serializedResponse);
                         producer.send(resultPackage).get();
@@ -68,6 +70,7 @@ public class KafkaSyncRequestReceiver extends KafkaReceiver implements Runnable 
                 consumer.close();
                 producer.close();
             } catch (InterruptException ignore) {
+                // No-op
             }
         };
         startThreadsAndWait(consumerThread);

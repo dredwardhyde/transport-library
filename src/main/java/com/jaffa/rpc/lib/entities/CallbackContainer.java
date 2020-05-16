@@ -11,6 +11,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @ToString
+@SuppressWarnings("squid:S1948")
 public class CallbackContainer implements Serializable {
     private String key;
     private String listener;

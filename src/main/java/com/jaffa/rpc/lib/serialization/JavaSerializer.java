@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.*;
 
 @Slf4j
+@SuppressWarnings("squid:S1168")
 public class JavaSerializer implements SerializationContext {
     @Override
     public byte[] serialize(Object obj) {

@@ -61,6 +61,7 @@ public class RabbitMQRequestSender extends Sender {
         try {
             if (clientChannel != null) clientChannel.close();
         } catch (IOException | TimeoutException ignore) {
+            // No-op
         }
         if (connection != null) connection.close();
     }

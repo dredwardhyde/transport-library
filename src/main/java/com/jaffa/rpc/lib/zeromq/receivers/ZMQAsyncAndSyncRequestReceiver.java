@@ -57,6 +57,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                         try {
                             RequestContext.setMetaData(command);
                             Object result = RequestInvoker.invoke(command);
+                            RequestContext.removeMetaData();
                             byte[] serializedResponse = Serializer.getCtx().serialize(RequestInvoker.constructCallbackContainer(command, result));
                             ZMQ.Socket socketAsync = context.createSocket(SocketType.REQ);
                             ZeroMqRequestSender.addCurveKeysToSocket(socketAsync, command.getSourceModuleId());
@@ -72,6 +73,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 } else {
                     RequestContext.setMetaData(command);
                     Object result = RequestInvoker.invoke(command);
+                    RequestContext.removeMetaData();
                     byte[] serializedResponse = Serializer.getCtx().serializeWithClass(RequestInvoker.getResult(result));
                     socket.send(serializedResponse);
                 }

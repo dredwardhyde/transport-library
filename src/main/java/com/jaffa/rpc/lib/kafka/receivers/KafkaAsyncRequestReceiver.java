@@ -47,12 +47,14 @@ public class KafkaAsyncRequestReceiver extends KafkaReceiver implements Runnable
                 try {
                     records = consumer.poll(Duration.ofMillis(100));
                 } catch (InterruptException ignore) {
+                    // No-op
                 }
                 for (ConsumerRecord<String, byte[]> record : records) {
                     try {
                         Command command = Serializer.getCtx().deserialize(record.value(), Command.class);
                         RequestContext.setMetaData(command);
                         Object result = RequestInvoker.invoke(command);
+                        RequestContext.removeMetaData();
                         byte[] serializedResponse = Serializer.getCtx().serialize(RequestInvoker.constructCallbackContainer(command, result));
                         ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()) + "-" + command.getSourceModuleId() + "-client-async", UUID.randomUUID().toString(), serializedResponse);
                         producer.send(resultPackage).get();
@@ -72,6 +74,7 @@ public class KafkaAsyncRequestReceiver extends KafkaReceiver implements Runnable
                 consumer.close();
                 producer.close();
             } catch (InterruptException ignore) {
+                // No-op
             }
         };
         startThreadsAndWait(consumerThread);

@@ -41,6 +41,7 @@ public class KafkaAsyncResponseReceiver extends KafkaReceiver implements Runnabl
                 try {
                     records = consumer.poll(Duration.ofMillis(100));
                 } catch (InterruptException ignore) {
+                    // No-op
                 }
                 for (ConsumerRecord<String, byte[]> record : records) {
                     try {
@@ -58,6 +59,7 @@ public class KafkaAsyncResponseReceiver extends KafkaReceiver implements Runnabl
             try {
                 consumer.close();
             } catch (InterruptException ignore) {
+                // No-op
             }
         };
         startThreadsAndWait(consumerThread);

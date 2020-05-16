@@ -6,6 +6,7 @@ import org.springframework.context.annotation.*;
 @Configuration
 @ComponentScan({"com.jaffa.rpc"})
 @EnableAspectJAutoProxy(proxyTargetClass = true)
+@SuppressWarnings("unused")
 public class JaffaRpcConfig {
 
     @Bean(destroyMethod = "close")

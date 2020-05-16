@@ -27,6 +27,7 @@ import java.util.concurrent.Executors;
 
 @Slf4j
 @Component
+@SuppressWarnings("squid:S1191")
 public class AdminServer {
 
     private static final Queue<ResponseMetric> responses = QueueUtils.synchronizedQueue(new CircularFifoQueue<>(1000));

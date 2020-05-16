@@ -96,6 +96,7 @@ public class RabbitMQAsyncResponseReceiver implements Runnable, Closeable {
         try {
             clientChannel.close();
         } catch (IOException | TimeoutException ignore) {
+            // No-op
         }
         connection.close();
     }

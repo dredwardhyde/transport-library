@@ -53,6 +53,7 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                                             try {
                                                 RequestContext.setMetaData(command);
                                                 Object result = RequestInvoker.invoke(command);
+                                                RequestContext.removeMetaData();
                                                 CallbackContainer callbackContainer = RequestInvoker.constructCallbackContainer(command, result);
                                                 byte[] response = Serializer.getCtx().serialize(callbackContainer);
                                                 Map<String, Object> headers = new HashMap<>();
@@ -69,6 +70,7 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                                     } else {
                                         RequestContext.setMetaData(command);
                                         Object result = RequestInvoker.invoke(command);
+                                        RequestContext.removeMetaData();
                                         byte[] response = Serializer.getCtx().serializeWithClass(RequestInvoker.getResult(result));
                                         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().correlationId(command.getRqUid()).build();
                                         clientChannel.basicPublish(command.getSourceModuleId(), command.getSourceModuleId() + "-client-sync", props, response);
@@ -96,6 +98,7 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
             serverChannel.close();
             clientChannel.close();
         } catch (IOException | TimeoutException ignore) {
+            // No-op
         }
         connection.close();
         responseService.shutdownNow();
