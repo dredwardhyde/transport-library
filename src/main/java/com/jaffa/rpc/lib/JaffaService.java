@@ -172,7 +172,7 @@ public class JaffaService {
                 factory.setKeyStore(Utils.getRequiredOption("jaffa.rpc.protocol.rabbit.ssl.keystore.location"));
                 factory.setKeyStorePassphrase(Utils.getRequiredOption("jaffa.rpc.protocol.rabbit.ssl.keystore.password"));
                 factory.setTrustStore(Utils.getRequiredOption("jaffa.rpc.protocol.rabbit.ssl.truststore.location"));
-                factory.setTrustStorePassphrase(Utils.getRequiredOption("jaffa.rpc.protocol.rabbit.ssl.truststore.location"));
+                factory.setTrustStorePassphrase(Utils.getRequiredOption("jaffa.rpc.protocol.rabbit.ssl.truststore.password"));
             }
             JaffaService.setConnectionFactory(new CachingConnectionFactory(factory.getRabbitConnectionFactory()));
             JaffaService.setAdminRabbitMQ(new RabbitAdmin(JaffaService.connectionFactory));

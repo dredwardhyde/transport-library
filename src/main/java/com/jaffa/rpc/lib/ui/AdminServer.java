@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.QueueUtils;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -27,6 +28,7 @@ import java.util.concurrent.Executors;
 
 @Slf4j
 @Component
+@DependsOn("jaffaService")
 @SuppressWarnings("squid:S1191")
 public class AdminServer {
 
