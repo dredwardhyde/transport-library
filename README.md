@@ -68,16 +68,16 @@ You create an interface with ```@Api```annotation like this:
 ```java
 @Api
 public interface PersonService {
-    public static final String TEST = "TEST"; // will be ignored
-    public static void lol3() { // will be ignored
+    String TEST = "TEST"; // Will be ignored by maven plugin
+    static void lol3() { // Will be ignored by maven plugin
         System.out.println("lol3");
-    } // will be ignored
-    public int add(String name, String email, Address address);
-    public Person get(Integer id);
-    public void lol();
-    public void lol2(String message);
-    public String getName();
-    public Person testError();
+    }
+    int add(String name, String email, Address address);
+    Person get(Integer id);
+    void lol();
+    void lol2(String message);
+    String getName();
+    Person testError();
 }
 ```
 
@@ -90,10 +90,10 @@ public class PersonServiceImpl implements PersonService{
     // Methods
     // ...
     public void lol(){ // Normal invocation
-        RequestContext.getSourceModuleId(); // client jaffa.rpc.module.id available on server side
-        RequestContext.getTicket(); // and security ticket too (if it was provided by client)
+        RequestContext.getSourceModuleId(); // Client's 'jaffa.rpc.module.id' is available on server side
+        RequestContext.getTicket(); // Security ticket is available too (if it was provided by client)
     }
-    public Person testError() { // Invocation thrown exception
+    public Person testError() { // Invocation with exception
         throw new RuntimeException("Exception in " + System.getProperty("jaffa.rpc.module.id"));
     }
 }
@@ -105,12 +105,12 @@ This plugin ignores all the static, default methods and all fields:
 ```java
 @ApiClient(ticketProvider = TicketProviderImpl.class)
 public interface PersonServiceClient {
-    public Request<Integer> add(String name, String email, Address address);
-    public Request<Person> get(Integer id);
-    public Request<Void> lol();
-    public Request<Void> lol2(String message);
-    public Request<String> getName();
-    public Request<Person> testError();
+    Request<Integer> add(String name, String email, Address address);
+    Request<Person> get(Integer id);
+    Request<Void> lol();
+    Request<Void> lol2(String message);
+    Request<String> getName();
+    Request<Person> testError();
 }
 ```
 
@@ -134,13 +134,13 @@ public class TicketProviderImpl implements TicketProvider {
 @Autowired
 com.jaffa.rpc.test.PersonServiceClient personServiceClient;
 
-// Sync call on any implementation with 10s timeout:
+// Sync call with 10s timeout:
 Integer id = personServiceClient.add("Test name", "test@mail.com", null)
                           .withTimeout(15, TimeUnit.SECONDS)
                           .onModule("test.server")
                           .executeSync();
 
-// Async call on module with moduleId = main.server and timeout = 10s
+// Async call on module with module id = 'main.server' and timeout = 10s
 personServiceClient.get(id)
              .onModule("main.server")
              .withTimeout(10, TimeUnit.SECONDS)
@@ -149,27 +149,26 @@ personServiceClient.get(id)
 
 **Async callback implementation (must be Spring Bean):**  
 ```java
+@Slf4j
 @Component
 public class PersonCallback implements Callback<Person> {
 
-    // **key** - used as request ID, will be the same value that was used during invocation
+    // **key** - used as request id, provided by client
     // **result** - result of method invocation
     // This method will be called if method was executed without exceptions
     // If T is Void then result will always be **null**
     @Override
     public void onSuccess(String key, Person result) {
-        System.out.println("Key: " + key);
-        System.out.println("Result: " + result);
+        log.info("Key: {}", key);
+        log.info("Result: {}", result);
     }
 
     // This method will be called if method has thrown exception OR execution timeout occurred
     @Override
     public void onError(String key, Throwable exception) {
-        System.out.println("Exception during async call");
-        exception.printStackTrace();
+        log.error("Exception during async call:", exception);
     }
 }
-
 ```
 
 ## Exceptions  
