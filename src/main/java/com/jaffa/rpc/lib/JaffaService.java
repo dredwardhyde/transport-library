@@ -160,8 +160,8 @@ public class JaffaService {
             JaffaService.setClientSyncTopics(createKafkaTopics("client-sync"));
         }
         if (protocol.equals(Protocol.RABBIT)) {
-            String rabbitHost = Utils.getRequiredOption("jaffa.rpc.rabbit.host");
-            int rabbitPort = Integer.parseInt(Utils.getRequiredOption("jaffa.rpc.rabbit.port"));
+            String rabbitHost = Utils.getRequiredOption("jaffa.rpc.protocol.rabbit.host");
+            int rabbitPort = Integer.parseInt(Utils.getRequiredOption("jaffa.rpc.protocol.rabbit.port"));
             RabbitConnectionFactoryBean factory = new RabbitConnectionFactoryBean();
             factory.setHost(rabbitHost);
             factory.setPort(rabbitPort);

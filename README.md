@@ -373,11 +373,11 @@ Minimal required config is [here](https://github.com/dredwardhyde/jaffa-rpc-libr
       <td>Login to RabbitMQ server ('guest' is default)</td>
     </tr>
       <tr>
-    <td>jaffa.rpc.rabbit.host</td>
+    <td>jaffa.rpc.protocol.rabbit.host</td>
     <td>RabbitMQ server host (optional, only when RPC protocol is RabbitMQ)</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.rabbit.port</td>
+    <td>jaffa.rpc.protocol.rabbit.port</td>
     <td>RabbitMQ server port (optional, only when RPC protocol is RabbitMQ)</td>
   </tr>
     <tr>
