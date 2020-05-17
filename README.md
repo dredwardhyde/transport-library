@@ -219,93 +219,32 @@ NOTE: Number of partitions for library's topics is equal to the number of Kafka 
 #### Available options
 Could be configured entirely as JVM options or by specifying **jaffa-rpc-config** JVM option with the path to [config.properties](https://github.com/dredwardhyde/jaffa-rpc-library/blob/master/jaffa-rpc-config-main-server.properties)  
 Minimal required config is [here](https://github.com/dredwardhyde/jaffa-rpc-library-test/blob/master/config.properties)
+#### Required options:  
 <table>
   <th>Option</th><th>Description</th>
-  <tr>
-    <td>jaffa.rpc.zookeeper.connection</td>
-    <td>ZooKeeper cluster connection string (required): 'host:port' </td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.protocol.zmq.service.port</td>
-    <td>Port for receiving request connections for ZeroMQ (optional, default port is 4242)</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.protocol.http.service.port</td>
-    <td>Port for receiving request connections for HTTP (optional, default port is 4242)</td> 
-  </tr>
-  <tr>
-    <td>jaffa.rpc.protocol.zmq.callback.port</td>
-    <td>Port for receiving callback connections for ZeroMQ (optional, default port is 4342)</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.protocol.http.callback.port</td>
-    <td>Port for receiving callback connections for HTTP (optional, default port is 4342)</td>
-  </tr>
-  <tr>
+    <tr>
     <td>jaffa.rpc.module.id</td>
-    <td>Unique name of server in ZooKeeper cluster (required)</td>
+    <td>Unique name of this server</td>
   </tr>
   <tr>
     <td>jaffa.rpc.protocol</td>
-    <td>Could be 'zmq', 'kafka', 'http', 'rabbit' (required)</td>
+    <td>Could be 'zmq', 'kafka', 'http', 'rabbit'</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.kafka.bootstrap.servers</td>
-    <td>Bootstrap servers of Kafka cluster  (optional, only when RPC protocol is Kafka)</td>
+    <td>jaffa.rpc.zookeeper.connection</td>
+    <td>ZooKeeper cluster connection string: 'host:port' </td>
   </tr>
-  <tr>
-    <td>jaffa.rpc.rabbit.host</td>
-    <td>RabbitMQ server host (optional, only when RPC protocol is RabbitMQ)</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.rabbit.port</td>
-    <td>RabbitMQ server port (optional, only when RPC protocol is RabbitMQ)</td>
-  </tr>
-  <tr>
+  </table>  
+
+#### Optional:  
+
+  <table>
+  <th>Option</th><th>Description</th>
+    <tr>
     <td>jaffa.rpc.serializer</td>
     <td>Serialization providers available: 'kryo' (default) and 'java'. Java serialization requires all entities to be Serializable. Same serialization provider must be used clusterwide.</td>
   </tr>
-  <tr>
-    <td>jaffa.admin.use.https</td>
-    <td>Use HTTPS or HTTP for admin console, HTTP is default</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.admin.ssl.keystore.location</td>
-    <td>Path to JKS keystore that will be used to configure HTTPS server for admin console</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.admin.ssl.keystore.password</td>
-    <td>Password to keystore provided by previous option</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.admin.ssl.truststore.location</td>
-    <td>Path to JKS truststore that will be used to configure HTTPS server for admin console</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.admin.ssl.truststore.password</td>
-    <td>Password to truststore provided by previous option</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.protocol.use.https</td>
-    <td>Enables HTTPS when 'http' protocol is used. 'false' by default</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.protocol.http.ssl.keystore.location</td>
-    <td>Path to JKS keystore that will be used to configure HTTPS server for RPC communication</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.protocol.http.ssl.keystore.password</td>
-    <td>Password to keystore provided by previous option</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.protocol.http.ssl.truststore.location</td>
-    <td>Path to JKS truststore that will be used to configure HTTPS server for RPC communication</td>
-  </tr>
-  <tr>
-    <td>jaffa.rpc.protocol.http.ssl.truststore.password</td>
-    <td>Password to truststore provided by previous option</td>
-  </tr>
-  <tr>
+    <tr>
     <td>jaffa.rpc.zookeeper.client.secure</td>
     <td>Value 'true' enables TLSv1.2 for Apache ZooKeeper client</td>
   </tr>
@@ -328,6 +267,58 @@ Minimal required config is [here](https://github.com/dredwardhyde/jaffa-rpc-libr
   <tr>
     <td>jaffa.rpc.zookeeper.ssl.trustStore.password</td>
     <td>Password to truststore provided by previous option</td>
+  </tr>
+  <tr>
+    <td>jaffa.admin.use.https</td>
+    <td>Use HTTPS or HTTP for admin console, HTTP is default</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.admin.ssl.keystore.location</td>
+    <td>Path to JKS keystore that will be used to configure HTTPS server for admin console</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.admin.ssl.keystore.password</td>
+    <td>Password to keystore provided by previous option</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.admin.ssl.truststore.location</td>
+    <td>Path to JKS truststore that will be used to configure HTTPS server for admin console</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.admin.ssl.truststore.password</td>
+    <td>Password to truststore provided by previous option</td>
+  </tr>
+   <tr>
+    <td>jaffa.rpc.protocol.http.service.port</td>
+    <td>Port for receiving request connections for HTTP (optional, default port is 4242)</td> 
+  </tr>
+  <tr>
+    <td>jaffa.rpc.protocol.http.callback.port</td>
+    <td>Port for receiving callback connections for HTTP (optional, default port is 4342)</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.protocol.use.https</td>
+    <td>Enables HTTPS when 'http' protocol is used. 'false' by default</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.protocol.http.ssl.keystore.location</td>
+    <td>Path to JKS keystore that will be used to configure HTTPS server for RPC communication</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.protocol.http.ssl.keystore.password</td>
+    <td>Password to keystore provided by previous option</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.protocol.http.ssl.truststore.location</td>
+    <td>Path to JKS truststore that will be used to configure HTTPS server for RPC communication</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.protocol.http.ssl.truststore.password</td>
+    <td>Password to truststore provided by previous option</td>
+  </tr>
+    <tr>
+    <td>jaffa.rpc.protocol.kafka.bootstrap.servers</td>
+    <td>Bootstrap servers of Kafka cluster  (optional, only when RPC protocol is Kafka)</td>
   </tr>
     <tr>
       <td>jaffa.rpc.protocol.kafka.use.ssl</td>
@@ -353,6 +344,14 @@ Minimal required config is [here](https://github.com/dredwardhyde/jaffa-rpc-libr
       <td>jaffa.rpc.protocol.kafka.ssl.key.password</td>
       <td>Password to key in keystore by previous options</td>
     </tr>
+      <tr>
+    <td>jaffa.rpc.protocol.zmq.service.port</td>
+    <td>Port for receiving request connections for ZeroMQ (optional, default port is 4242)</td>
+  </tr>
+    <tr>
+    <td>jaffa.rpc.protocol.zmq.callback.port</td>
+    <td>Port for receiving callback connections for ZeroMQ (optional, default port is 4342)</td>
+  </tr>
     <tr>
       <td>jaffa.rpc.protocol.zmq.curve.enabled</td>
       <td>Enables Curve security for ZeroMQ protocol</td>
@@ -373,6 +372,14 @@ Minimal required config is [here](https://github.com/dredwardhyde/jaffa-rpc-libr
       <td>jaffa.rpc.protocol.rabbit.login</td>
       <td>Login to RabbitMQ server ('guest' is default)</td>
     </tr>
+      <tr>
+    <td>jaffa.rpc.rabbit.host</td>
+    <td>RabbitMQ server host (optional, only when RPC protocol is RabbitMQ)</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.rabbit.port</td>
+    <td>RabbitMQ server port (optional, only when RPC protocol is RabbitMQ)</td>
+  </tr>
     <tr>
       <td>jaffa.rpc.protocol.rabbit.password</td>
       <td>Password to RabbitMQ server ('guest' is default)</td>
