@@ -217,10 +217,10 @@ NOTE: Number of partitions for library's topics is equal to the number of Kafka 
       If any required topics already exist, but they have wrong configurations, exception will be thrown.
 
 #### Available options
-Could be configured entirely as JVM options or by specifying **jaffa-rpc-config** JVM option with the path to [config.properties](https://github.com/dredwardhyde/jaffa-rpc-library/blob/master/jaffa-rpc-config-main-server.properties)  
-Minimal required config is [here](https://github.com/dredwardhyde/jaffa-rpc-library-test/blob/master/config.properties)
-#### Required options:  
-<table>
+Could be configured as JVM options or by specifying **jaffa-rpc-config** JVM option with the path to [config.properties](https://github.com/dredwardhyde/jaffa-rpc-library/blob/master/jaffa-rpc-config-main-server.properties)  
+
+#### Required options (minimal config is [here](https://github.com/dredwardhyde/jaffa-rpc-library-test/blob/master/config.properties)):  
+<table width="900">
   <th>Option</th><th>Description</th>
     <tr>
     <td>jaffa.rpc.module.id</td>
