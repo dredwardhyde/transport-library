@@ -115,5 +115,7 @@ public class MainServer {
             Thread.sleep(TimeUnit.SECONDS.toMillis(20));
         } catch (Exception ignore) {
         }
+        ctx.close();
+        System.exit(0);
     }
 }

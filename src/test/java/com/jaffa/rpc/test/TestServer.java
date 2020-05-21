@@ -5,6 +5,8 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.junit.Assert;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.io.File;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -13,6 +15,14 @@ import java.util.concurrent.TimeUnit;
 public class TestServer {
 
     private static final boolean loadTest = false;
+
+    private static String getClassPathFromParent() {
+        return System.getProperty("java.class.path", "./*");
+    }
+
+    private static String getJavaCmdFromParent() {
+        return Objects.isNull(System.getProperty("java.home")) ? "java" : String.format("%s%sbin%sjava", System.getProperty("java.home"), File.separator, File.separator);
+    }
 
     public static void main(String... args) {
         log.info("================ TEST SERVER STARTING ================");
@@ -106,5 +116,20 @@ public class TestServer {
             } catch (Exception ignore) {
             }
         }
+
+        final String javaCmd = getJavaCmdFromParent();
+        final String classpath = getClassPathFromParent();
+        final ProcessBuilder proc = new ProcessBuilder(javaCmd, "-cp", classpath, MainServer.class.getName());
+        proc.redirectErrorStream(true);
+        proc.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        try {
+            Process process = proc.start();
+            int returnCode = process.waitFor();
+            log.info("Main test server returned {}", returnCode);
+        }catch (Exception e){
+            log.error("Exception while launching main.server", e);
+        }
+        ctx.close();
+        System.exit(0);
     }
 }
