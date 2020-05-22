@@ -56,7 +56,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 @Slf4j
-@SuppressWarnings({"squid:S2142", "squid:S2095", "unused"})
+@SuppressWarnings({"squid:S2142", "squid:S2095", "unused", "squid:S3776"})
 public class JaffaService {
 
     @Getter
@@ -197,10 +197,10 @@ public class JaffaService {
                 if (!server.isAnnotationPresent(ApiServer.class))
                     throw new IllegalArgumentException(String.format("Class %s is not annotated as ApiServer!", server.getName()));
                 if (server.getInterfaces().length == 0)
-                    throw new IllegalArgumentException(String.format("Class %s does not extend Api interface!", server.getName()));
+                    throw new IllegalArgumentException(String.format("Class %s does not implement Api interface!", server.getName()));
                 Class<?> serverInterface = server.getInterfaces()[0];
                 if (!serverInterface.isAnnotationPresent(Api.class))
-                    throw new IllegalArgumentException(String.format("Class %s does not extend Api interface!", server.getName()));
+                    throw new IllegalArgumentException(String.format("Class %s does not implement Api interface!", server.getName()));
                 try {
                     server.getConstructor();
                 } catch (NoSuchMethodException e) {

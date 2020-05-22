@@ -126,7 +126,7 @@ public class TestServer {
             Process process = proc.start();
             int returnCode = process.waitFor();
             log.info("Main test server returned {}", returnCode);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("Exception while launching main.server", e);
         }
         ctx.close();
