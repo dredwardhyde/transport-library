@@ -40,7 +40,8 @@ public class TestServer {
 
     @Test
     public void stage_1() {
-        log.info("Started stage_1");
+        log.info("Started {}", new Object() {
+        }.getClass().getEnclosingMethod().getName());
         Integer id = personService.add("Test name", "test@mail.com", null)
                 .withTimeout(15, TimeUnit.SECONDS)
                 .onModule("test.server")
@@ -83,7 +84,8 @@ public class TestServer {
 
     @Test
     public void stage_2() {
-        log.info("Started stage_2");
+        log.info("Started {}", new Object() {
+        }.getClass().getEnclosingMethod().getName());
         final String javaCmd = getJavaCmdFromParent();
         final String classpath = getClassPathFromParent();
         final ProcessBuilder proc = new ProcessBuilder(javaCmd, "-cp", classpath, MainServer.class.getName());
