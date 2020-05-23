@@ -46,6 +46,10 @@ public class Utils {
                 p.load(is);
                 for (String name : p.stringPropertyNames()) {
                     String value = p.getProperty(name);
+                    if(name.toLowerCase().contains("password"))
+                        log.info("Loading property {} = {}", name, "*************");
+                    else
+                        log.info("Loading property {} = {}", name, value);
                     System.setProperty(name, value);
                 }
             }

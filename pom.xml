@@ -147,7 +147,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <argLine>-Djaffa-rpc-config=./jaffa-rpc-config-main-server.properties
+                    <argLine>-Djaffa-rpc-config=./jaffa-rpc-config-test-server.properties
                     </argLine>
                 </configuration>
             </plugin>

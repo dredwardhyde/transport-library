@@ -5,7 +5,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -37,17 +36,7 @@ public class TestServer {
 
     @Test
     public void stage() {
-        log.info("================ TEST SERVER STARTING ================");
-
-        final AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
-        ctx.register(MainConfig.class);
-        ctx.refresh();
-
-        Runtime.getRuntime().addShutdownHook(new Thread(ctx::close));
-
-        PersonServiceClient personService = ctx.getBean(PersonServiceClient.class);
-        ClientServiceClient clientService = ctx.getBean(ClientServiceClient.class);
-
+        log.info("Started stage");
         Integer id = personService.add("Test name", "test@mail.com", null)
                 .withTimeout(15, TimeUnit.SECONDS)
                 .onModule("test.server")
