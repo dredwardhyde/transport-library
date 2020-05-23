@@ -20,6 +20,10 @@ import java.util.concurrent.TimeUnit;
 @ContextConfiguration(classes = {MainConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class TestServer {
 
+    static {
+        System.setProperty("jaffa-rpc-config", "./jaffa-rpc-config-test-server.properties");
+    }
+
     @Autowired
     private PersonServiceClient personService;
 
