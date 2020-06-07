@@ -28,6 +28,8 @@
         <junit.version>4.12</junit.version>
         <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>2.9</maven.surefire.plugin.version>
+        <caffeine.cache.version>2.5.5</caffeine.cache.version>
+        <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
     </properties>
 
     <dependencies>
@@ -125,12 +127,12 @@
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
-            <version>1.3.2</version>
+            <version>${javax.annotation-api.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
-            <version>2.5.5</version>
+            <version>${caffeine.cache.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -159,13 +161,6 @@
                 <configuration>
                     <argLine>
                         -Djaffa-rpc-config=./jaffa-rpc-config-test-server.properties
-                        -XX:+UnlockExperimentalVMOptions
-                        -XX:+UseJVMCICompiler
-                        -XX:+EnableJVMCI
-                        -Dgraal.CompilerConfiguration=community
-                        -XX:+EagerJVMCI
-                        -Dgraal.ShowConfiguration=info
-                        -Djvmci.Compiler=graal
                     </argLine>
                 </configuration>
             </plugin>
