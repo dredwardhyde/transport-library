@@ -122,6 +122,16 @@
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>2.5.5</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -147,7 +157,15 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <argLine>-Djaffa-rpc-config=./jaffa-rpc-config-test-server.properties
+                    <argLine>
+                        -Djaffa-rpc-config=./jaffa-rpc-config-test-server.properties
+                        -XX:+UnlockExperimentalVMOptions
+                        -XX:+UseJVMCICompiler
+                        -XX:+EnableJVMCI
+                        -Dgraal.CompilerConfiguration=community
+                        -XX:+EagerJVMCI
+                        -Dgraal.ShowConfiguration=info
+                        -Djvmci.Compiler=graal
                     </argLine>
                 </configuration>
             </plugin>

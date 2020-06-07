@@ -1,5 +1,7 @@
 package com.jaffa.rpc.lib.zookeeper;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -25,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class Utils {
@@ -36,6 +39,8 @@ public class Utils {
     private static volatile ZooKeeperConnection conn;
     private static ZooKeeper zk;
 
+    public static final LoadingCache<String, byte[]> cache = Caffeine.newBuilder().maximumSize(100).expireAfterWrite(1, TimeUnit.MINUTES).build(k -> zk.getData(k, true, null));
+
     public static void loadExternalProperties() {
         try {
             String path = System.getProperty("jaffa-rpc-config");
@@ -46,7 +51,7 @@ public class Utils {
                 p.load(is);
                 for (String name : p.stringPropertyNames()) {
                     String value = p.getProperty(name);
-                    if(name.toLowerCase().contains("password"))
+                    if (name.toLowerCase().contains("password"))
                         log.info("Loading property {} = {}", name, "*************");
                     else
                         log.info("Loading property {} = {}", name, value);
@@ -108,7 +113,7 @@ public class Utils {
     }
 
     private static ArrayList<MutablePair<String, String>> getHostsForService(String service, String moduleId, Protocol protocol) throws KeeperException, ParseException, InterruptedException {
-        byte[] zkData = zk.getData(service, false, null);
+        byte[] zkData = cache.get(service);
         JSONArray jArray = (JSONArray) new JSONParser().parse(new String(zkData));
         if (jArray.isEmpty())
             throw new JaffaRpcNoRouteException(service);
@@ -131,7 +136,7 @@ public class Utils {
 
     public static String getModuleForService(String service, Protocol protocol) {
         try {
-            byte[] zkData = zk.getData("/" + service, false, null);
+            byte[] zkData = cache.get("/" + service);
             JSONArray jArray = (JSONArray) new JSONParser().parse(new String(zkData));
             if (jArray.isEmpty())
                 throw new JaffaRpcNoRouteException(service);
@@ -145,7 +150,7 @@ public class Utils {
                     throw new JaffaRpcNoRouteException(service, protocol);
                 return hosts.get(0);
             }
-        } catch (KeeperException | InterruptedException | ParseException e) {
+        } catch (ParseException e) {
             log.error("Error while getting avaiable jaffa.rpc.module.id:", e);
             throw new JaffaRpcNoRouteException(service, protocol.getShortName());
         }
@@ -202,7 +207,7 @@ public class Utils {
 
     @SuppressWarnings("unchecked")
     private static void update(String service, Protocol protocol) throws KeeperException, InterruptedException, ParseException, UnknownHostException {
-        byte[] zkData = zk.getData(service, false, null);
+        byte[] zkData = zk.getData(service, true, null);
         JSONArray jArray = (JSONArray) new JSONParser().parse(new String(zkData));
         String local = getServiceBindAddress(protocol);
         if (!jArray.contains(local)) {
@@ -218,7 +223,7 @@ public class Utils {
     }
 
     public static void delete(String service, Protocol protocol) throws KeeperException, InterruptedException, ParseException, UnknownHostException {
-        byte[] zkData = zk.getData(service, false, null);
+        byte[] zkData = zk.getData(service, true, null);
         JSONArray jArray = (JSONArray) new JSONParser().parse(new String(zkData));
         String local = getServiceBindAddress(protocol);
         if (jArray.contains(local)) {

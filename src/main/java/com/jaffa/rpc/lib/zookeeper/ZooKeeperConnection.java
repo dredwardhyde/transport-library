@@ -2,6 +2,7 @@ package com.jaffa.rpc.lib.zookeeper;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.client.ZKClientConfig;
@@ -9,6 +10,7 @@ import org.apache.zookeeper.client.ZKClientConfig;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 
+@Slf4j
 public class ZooKeeperConnection {
 
     @Getter
@@ -33,6 +35,10 @@ public class ZooKeeperConnection {
         zoo = new ZooKeeper(host, 5000, (watchedEvent -> {
             if (watchedEvent.getState() == Watcher.Event.KeeperState.SyncConnected) {
                 connectedSignal.countDown();
+            }
+            if (watchedEvent.getType() == Watcher.Event.EventType.NodeDataChanged) {
+                Utils.cache.invalidate(watchedEvent.getPath());
+                log.info("Service {} changed for instance {} ", watchedEvent.getPath(), Utils.getRequiredOption("jaffa.rpc.module.id"));
             }
         }), zkConfig);
         connectedSignal.await();
