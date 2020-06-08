@@ -1,7 +1,6 @@
 package com.jaffa.rpc.lib.serialization;
 
 import lombok.AccessLevel;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -9,16 +8,12 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Serializer {
 
-    @Getter
-    private static SerializationContext ctx;
+    public static SerializationContext ctx;
 
-    public static String getCurrentSerializationProtocol() {
-        return System.getProperty("jaffa.rpc.serializer", "kryo");
-    }
+    public static final String CURRENT_SERIALIZATION_PROTOCOL =  System.getProperty("jaffa.rpc.serializer", "kryo");
 
     public static void init() {
-        String currentSerializer = System.getProperty("jaffa.rpc.serializer", "kryo");
-        switch (currentSerializer) {
+        switch (CURRENT_SERIALIZATION_PROTOCOL) {
             case "kryo":
                 ctx = new KryoPoolSerializer();
                 break;

@@ -39,7 +39,7 @@ public class Utils {
     private static volatile ZooKeeperConnection conn;
     private static ZooKeeper zk;
 
-    public static final LoadingCache<String, byte[]> cache = Caffeine.newBuilder().maximumSize(100).expireAfterWrite(1, TimeUnit.MINUTES).build(k -> zk.getData(k, true, null));
+    public static final LoadingCache<String, byte[]> cache = Caffeine.newBuilder().maximumSize(100).expireAfterWrite(10, TimeUnit.MINUTES).build(k -> zk.getData(k, true, null));
 
     public static void loadExternalProperties() {
         try {

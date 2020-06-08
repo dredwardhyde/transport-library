@@ -45,7 +45,7 @@ public class KafkaAsyncResponseReceiver extends KafkaReceiver implements Runnabl
                 }
                 for (ConsumerRecord<String, byte[]> record : records) {
                     try {
-                        CallbackContainer callbackContainer = Serializer.getCtx().deserialize(record.value(), CallbackContainer.class);
+                        CallbackContainer callbackContainer = Serializer.ctx.deserialize(record.value(), CallbackContainer.class);
                         RequestInvoker.processCallbackContainer(callbackContainer);
                         Map<TopicPartition, OffsetAndMetadata> commitData = new HashMap<>();
                         commitData.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));

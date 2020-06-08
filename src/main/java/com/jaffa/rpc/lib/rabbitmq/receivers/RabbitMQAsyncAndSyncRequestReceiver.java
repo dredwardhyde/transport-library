@@ -27,6 +27,11 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
 
     private static final ExecutorService responseService = Executors.newFixedThreadPool(3);
     private static final ExecutorService requestService = Executors.newFixedThreadPool(3);
+    private static final Map<String, Object> asyncHeaders = new HashMap<>();
+    static {
+        asyncHeaders.put("communication-type", "async");
+    }
+
     private Connection connection;
     private Channel serverChannel;
     private Channel clientChannel;
@@ -47,7 +52,7 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                         final byte[] body) {
                     requestService.execute(() -> {
                                 try {
-                                    final com.jaffa.rpc.lib.entities.Command command = Serializer.getCtx().deserialize(body, Command.class);
+                                    final com.jaffa.rpc.lib.entities.Command command = Serializer.ctx.deserialize(body, Command.class);
                                     if (command.getCallbackKey() != null && command.getCallbackClass() != null) {
                                         Runnable runnable = () -> {
                                             try {
@@ -55,10 +60,8 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                                                 Object result = RequestInvoker.invoke(command);
                                                 RequestContext.removeMetaData();
                                                 CallbackContainer callbackContainer = RequestInvoker.constructCallbackContainer(command, result);
-                                                byte[] response = Serializer.getCtx().serialize(callbackContainer);
-                                                Map<String, Object> headers = new HashMap<>();
-                                                headers.put("communication-type", "async");
-                                                AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers(headers).build();
+                                                byte[] response = Serializer.ctx.serialize(callbackContainer);
+                                                AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers(asyncHeaders).build();
                                                 clientChannel.basicPublish(command.getSourceModuleId(), command.getSourceModuleId() + "-client-async", props, response);
                                                 serverChannel.basicAck(envelope.getDeliveryTag(), false);
                                             } catch (ClassNotFoundException | NoSuchMethodException | IOException e) {
@@ -71,7 +74,7 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                                         RequestContext.setMetaData(command);
                                         Object result = RequestInvoker.invoke(command);
                                         RequestContext.removeMetaData();
-                                        byte[] response = Serializer.getCtx().serializeWithClass(RequestInvoker.getResult(result));
+                                        byte[] response = Serializer.ctx.serializeWithClass(RequestInvoker.getResult(result));
                                         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().correlationId(command.getRqUid()).build();
                                         clientChannel.basicPublish(command.getSourceModuleId(), command.getSourceModuleId() + "-client-sync", props, response);
                                         serverChannel.basicAck(envelope.getDeliveryTag(), false);

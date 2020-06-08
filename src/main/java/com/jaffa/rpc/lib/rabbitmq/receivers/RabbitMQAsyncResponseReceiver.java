@@ -48,7 +48,7 @@ public class RabbitMQAsyncResponseReceiver implements Runnable, Closeable {
                     Object type = properties.getHeaders().get("communication-type");
                     if (type == null || !"async".equals(String.valueOf(type))) return;
                     try {
-                        CallbackContainer callbackContainer = Serializer.getCtx().deserialize(body, CallbackContainer.class);
+                        CallbackContainer callbackContainer = Serializer.ctx.deserialize(body, CallbackContainer.class);
                         Class<?> callbackClass = Class.forName(callbackContainer.getListener());
                         Object callBackBean = context.getBean(callbackClass);
                         Command command = FinalizationWorker.getEventsToConsume().remove(callbackContainer.getKey());
@@ -57,7 +57,7 @@ public class RabbitMQAsyncResponseReceiver implements Runnable, Closeable {
                                 java.lang.reflect.Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                                 method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
                             } else if (callbackContainer.getResult() instanceof Throwable) {
-                                if (Serializer.getCurrentSerializationProtocol().equals("java")) {
+                                if (Serializer.CURRENT_SERIALIZATION_PROTOCOL.equals("java")) {
                                     Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                                     method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException((Throwable) callbackContainer.getResult()));
                                 } else {
