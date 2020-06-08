@@ -4,19 +4,17 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.io.ByteArrayOutputStream;
 
-class KryoPoolSerializer implements SerializationContext {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+final class KryoPoolSerializer {
     private static final int DEFAULT_BUFFER = 1024 * 100;
-    private final KryoPool pool;
+    private static final KryoPool pool = new KryoPool.Builder(Kryo::new).softReferences().build();
 
-    public KryoPoolSerializer() {
-        pool = new KryoPool.Builder(Kryo::new).softReferences().build();
-    }
-
-    @Override
-    public byte[] serialize(Object obj) {
+    public static byte[] serialize(Object obj) {
         Output output = new Output(new ByteArrayOutputStream(), DEFAULT_BUFFER);
         Kryo kryo = pool.borrow();
         kryo.writeObject(output, obj);
@@ -25,8 +23,7 @@ class KryoPoolSerializer implements SerializationContext {
         return serialized;
     }
 
-    @Override
-    public byte[] serializeWithClass(Object obj) {
+    public static byte[] serializeWithClass(Object obj) {
         Output output = new Output(new ByteArrayOutputStream(), DEFAULT_BUFFER);
         Kryo kryo = pool.borrow();
         kryo.writeClassAndObject(output, obj);
@@ -35,8 +32,7 @@ class KryoPoolSerializer implements SerializationContext {
         return serialized;
     }
 
-    @Override
-    public Object deserializeWithClass(byte[] serialized) {
+    public static Object deserializeWithClass(byte[] serialized) {
         Object obj;
         Kryo kryo = pool.borrow();
         Input input = new Input(serialized);
@@ -45,8 +41,7 @@ class KryoPoolSerializer implements SerializationContext {
         return obj;
     }
 
-    @Override
-    public <T> T deserialize(byte[] serialized, Class<T> clazz) {
+    public static <T> T deserialize(byte[] serialized, Class<T> clazz) {
         T obj;
         Kryo kryo = pool.borrow();
         Input input = new Input(serialized);

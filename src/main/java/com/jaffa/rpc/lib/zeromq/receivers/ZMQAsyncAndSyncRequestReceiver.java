@@ -48,7 +48,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] bytes = socket.recv();
-                final Command command = Serializer.ctx.deserialize(bytes, Command.class);
+                final Command command = Serializer.deserialize(bytes, Command.class);
                 if (command.getCallbackKey() != null && command.getCallbackClass() != null) {
                     socket.send("OK");
                 }
@@ -58,7 +58,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                             RequestContext.setMetaData(command);
                             Object result = RequestInvoker.invoke(command);
                             RequestContext.removeMetaData();
-                            byte[] serializedResponse = Serializer.ctx.serialize(RequestInvoker.constructCallbackContainer(command, result));
+                            byte[] serializedResponse = Serializer.serialize(RequestInvoker.constructCallbackContainer(command, result));
                             ZMQ.Socket socketAsync = context.createSocket(SocketType.REQ);
                             ZeroMqRequestSender.addCurveKeysToSocket(socketAsync, command.getSourceModuleId());
                             socketAsync.connect("tcp://" + command.getCallBackZMQ());
@@ -74,7 +74,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     RequestContext.setMetaData(command);
                     Object result = RequestInvoker.invoke(command);
                     RequestContext.removeMetaData();
-                    byte[] serializedResponse = Serializer.ctx.serializeWithClass(RequestInvoker.getResult(result));
+                    byte[] serializedResponse = Serializer.serializeWithClass(RequestInvoker.getResult(result));
                     socket.send(serializedResponse);
                 }
             } catch (ZMQException | ZError.IOException recvTerminationException) {

@@ -1,14 +1,16 @@
 package com.jaffa.rpc.lib.serialization;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.*;
 
 @Slf4j
 @SuppressWarnings("squid:S1168")
-public class JavaSerializer implements SerializationContext {
-    @Override
-    public byte[] serialize(Object obj) {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public final class JavaSerializer {
+    public static byte[] serialize(Object obj) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             ObjectOutputStream out;
             out = new ObjectOutputStream(bos);
@@ -21,13 +23,11 @@ public class JavaSerializer implements SerializationContext {
         return null;
     }
 
-    @Override
-    public byte[] serializeWithClass(Object obj) {
+    public static byte[] serializeWithClass(Object obj) {
         return serialize(obj);
     }
 
-    @Override
-    public Object deserializeWithClass(byte[] serialized) {
+    public static Object deserializeWithClass(byte[] serialized) {
         ByteArrayInputStream bis = new ByteArrayInputStream(serialized);
         try (ObjectInput in = new ObjectInputStream(bis)) {
             return in.readObject();
@@ -37,9 +37,8 @@ public class JavaSerializer implements SerializationContext {
         return null;
     }
 
-    @Override
     @SuppressWarnings("unchecked")
-    public <T> T deserialize(byte[] serialized, Class<T> clazz) {
+    public static <T> T deserialize(byte[] serialized, Class<T> clazz) {
         ByteArrayInputStream bis = new ByteArrayInputStream(serialized);
         try (ObjectInput in = new ObjectInputStream(bis)) {
             return (T) in.readObject();

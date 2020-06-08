@@ -136,7 +136,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
         @Override
         public void handle(HttpExchange request) throws IOException {
-            final Command command = Serializer.ctx.deserialize(ByteStreams.toByteArray(request.getRequestBody()), Command.class);
+            final Command command = Serializer.deserialize(ByteStreams.toByteArray(request.getRequestBody()), Command.class);
             if (command.getCallbackKey() != null && command.getCallbackClass() != null) {
                 String response = "OK";
                 request.sendResponseHeaders(200, response.getBytes().length);
@@ -151,7 +151,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                         RequestContext.setMetaData(command);
                         Object result = RequestInvoker.invoke(command);
                         RequestContext.removeMetaData();
-                        byte[] serializedResponse = Serializer.ctx.serialize(RequestInvoker.constructCallbackContainer(command, result));
+                        byte[] serializedResponse = Serializer.serialize(RequestInvoker.constructCallbackContainer(command, result));
                         HttpPost httpPost = new HttpPost(command.getCallBackZMQ() + "/response");
                         HttpEntity postParams = new ByteArrayEntity(serializedResponse);
                         httpPost.setEntity(postParams);
@@ -171,7 +171,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 RequestContext.setMetaData(command);
                 Object result = RequestInvoker.invoke(command);
                 RequestContext.removeMetaData();
-                byte[] response = Serializer.ctx.serializeWithClass(RequestInvoker.getResult(result));
+                byte[] response = Serializer.serializeWithClass(RequestInvoker.getResult(result));
                 request.sendResponseHeaders(200, response.length);
                 OutputStream os = request.getResponseBody();
                 os.write(response);

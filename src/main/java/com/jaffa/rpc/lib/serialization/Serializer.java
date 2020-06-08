@@ -8,22 +8,37 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Serializer {
 
-    public static SerializationContext ctx;
+    public static final boolean IS_KRYO = System.getProperty("jaffa.rpc.serializer", "kryo").equals("kryo");
 
-    public static final String CURRENT_SERIALIZATION_PROTOCOL =  System.getProperty("jaffa.rpc.serializer", "kryo");
+    public static byte[] serialize(Object obj) {
+        if (IS_KRYO) {
+            return KryoPoolSerializer.serialize(obj);
+        } else {
+            return JavaSerializer.serialize(obj);
+        }
+    }
 
-    public static void init() {
-        switch (CURRENT_SERIALIZATION_PROTOCOL) {
-            case "kryo":
-                ctx = new KryoPoolSerializer();
-                break;
-            case "java":
-                ctx = new JavaSerializer();
-                break;
-            default:
-                log.error("No known serializer defined");
-                ctx = null;
-                break;
+    public static byte[] serializeWithClass(Object obj) {
+        if (IS_KRYO) {
+            return KryoPoolSerializer.serializeWithClass(obj);
+        } else {
+            return JavaSerializer.serializeWithClass(obj);
+        }
+    }
+
+    public static Object deserializeWithClass(byte[] serialized) {
+        if (IS_KRYO) {
+            return KryoPoolSerializer.deserializeWithClass(serialized);
+        } else {
+            return JavaSerializer.deserializeWithClass(serialized);
+        }
+    }
+
+    public static <T> T deserialize(byte[] serialized, Class<T> clazz) {
+        if (IS_KRYO) {
+            return KryoPoolSerializer.deserialize(serialized, clazz);
+        } else {
+            return JavaSerializer.deserialize(serialized, clazz);
         }
     }
 }

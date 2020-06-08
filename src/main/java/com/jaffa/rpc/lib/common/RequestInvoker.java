@@ -79,7 +79,7 @@ public class RequestInvoker {
     }
 
     public static Object getResult(Object result) {
-        if (result instanceof Throwable && !Serializer.CURRENT_SERIALIZATION_PROTOCOL.equals("java")) {
+        if (result instanceof Throwable && Serializer.IS_KRYO) {
             StringWriter sw = new StringWriter();
             ((Throwable) result).printStackTrace(new PrintWriter(sw));
             return new ExceptionHolder(sw.toString());
@@ -109,7 +109,7 @@ public class RequestInvoker {
                 Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                 method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
             } else if (callbackContainer.getResult() instanceof Throwable) {
-                if (Serializer.CURRENT_SERIALIZATION_PROTOCOL.equals("java")) {
+                if (!Serializer.IS_KRYO) {
                     Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                     method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException((Throwable) callbackContainer.getResult()));
                 } else {
