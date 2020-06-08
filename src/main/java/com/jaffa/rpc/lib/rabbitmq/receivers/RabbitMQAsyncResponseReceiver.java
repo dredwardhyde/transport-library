@@ -57,7 +57,7 @@ public class RabbitMQAsyncResponseReceiver implements Runnable, Closeable {
                                 java.lang.reflect.Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                                 method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
                             } else if (callbackContainer.getResult() instanceof Throwable) {
-                                if (!Serializer.IS_KRYO) {
+                                if (!Serializer.isKryo) {
                                     Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                                     method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException((Throwable) callbackContainer.getResult()));
                                 } else {

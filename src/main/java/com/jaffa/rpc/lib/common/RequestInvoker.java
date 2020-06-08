@@ -79,7 +79,7 @@ public class RequestInvoker {
     }
 
     public static Object getResult(Object result) {
-        if (result instanceof Throwable && Serializer.IS_KRYO) {
+        if (result instanceof Throwable && Serializer.isKryo) {
             StringWriter sw = new StringWriter();
             ((Throwable) result).printStackTrace(new PrintWriter(sw));
             return new ExceptionHolder(sw.toString());
@@ -109,7 +109,7 @@ public class RequestInvoker {
                 Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                 method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
             } else if (callbackContainer.getResult() instanceof Throwable) {
-                if (!Serializer.IS_KRYO) {
+                if (!Serializer.isKryo) {
                     Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                     method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException((Throwable) callbackContainer.getResult()));
                 } else {

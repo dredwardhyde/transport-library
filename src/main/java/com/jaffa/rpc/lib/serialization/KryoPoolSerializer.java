@@ -6,29 +6,47 @@ import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-final class KryoPoolSerializer {
-    private static final int DEFAULT_BUFFER = 1024 * 100;
+@Slf4j
+class KryoPoolSerializer {
     private static final KryoPool pool = new KryoPool.Builder(Kryo::new).softReferences().build();
 
     public static byte[] serialize(Object obj) {
-        Output output = new Output(new ByteArrayOutputStream(), DEFAULT_BUFFER);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Output output = new Output(baos);
         Kryo kryo = pool.borrow();
         kryo.writeObject(output, obj);
-        byte[] serialized = output.toBytes();
+        output.flush();
+        output.close();
         pool.release(kryo);
+        byte[] serialized = baos.toByteArray();
+        try {
+            baos.close();
+        } catch (IOException e) {
+            log.error("Error during Kryo object serialization", e);
+        }
         return serialized;
     }
 
     public static byte[] serializeWithClass(Object obj) {
-        Output output = new Output(new ByteArrayOutputStream(), DEFAULT_BUFFER);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Output output = new Output(baos);
         Kryo kryo = pool.borrow();
         kryo.writeClassAndObject(output, obj);
-        byte[] serialized = output.toBytes();
+        output.flush();
+        output.close();
         pool.release(kryo);
+        byte[] serialized = baos.toByteArray();
+        try {
+            baos.close();
+        } catch (IOException e) {
+            log.error("Error during Kryo object with class serialization", e);
+        }
         return serialized;
     }
 

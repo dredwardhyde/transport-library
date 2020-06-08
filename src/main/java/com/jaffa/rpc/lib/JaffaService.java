@@ -241,6 +241,7 @@ public class JaffaService {
             prepareServiceRegistration();
             CountDownLatch started = null;
             int expectedThreadCount = 0;
+            Serializer.init();
             Protocol protocol = Utils.getRpcProtocol();
             switch (protocol) {
                 case KAFKA:
