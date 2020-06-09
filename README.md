@@ -3,7 +3,7 @@
 
 ## Jaffa RPC library
 
-**This library provides communication between Java Spring applications.**  
+**This library provides RPC communication between Java Spring applications.**  
 
 **Key features:**  
 - **Apache ZooKeeper (with TLSv1.2) is used for service discovery**
