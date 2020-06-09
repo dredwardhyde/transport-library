@@ -1,3 +1,5 @@
+[![License](http://img.shields.io/:license-apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+
 ## Jaffa RPC library
 
 **This library provides communication between Java Spring applications.**  
@@ -7,6 +9,7 @@
 - **Sync & async RPC calls - type of communication is determined by the client, not server**
 - **One interface could have multiple server implementations - client choose required one by specifying target's jaffa.rpc.module.id in request**
 - **Request-scoped timeout for both sync/async calls**
+- **[Caffeine](https://github.com/ben-manes/caffeine) is used for caching service discovery information**
 - **4 transport protocols are supported**:
   - **ZeroMQ (with authentication/encryption using Curve)**
     - Unlimited message size
