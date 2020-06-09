@@ -88,32 +88,25 @@ public class Utils {
 
     public static Pair<String, String> getHostForService(String service, String moduleId, Protocol protocol) {
         service = Utils.getServiceInterfaceNameFromClient(service);
-        Stat stat;
         try {
-            stat = isZNodeExists("/" + service);
-        } catch (KeeperException | InterruptedException e) {
-            log.error("Can not connect to ZooKeeper cluster", e);
-            throw new JaffaRpcSystemException(e);
-        }
-        if (stat != null) {
-            try {
-                MutablePair<String, String> host = getHostsForService("/" + service, moduleId, protocol).get(0);
-                if (protocol.equals(Protocol.HTTP)) {
-                    host.left = getHttpPrefix() + host.left;
-                }
-                return host;
-            } catch (KeeperException | ParseException | InterruptedException e) {
-                throw new JaffaRpcNoRouteException(service);
+            MutablePair<String, String> host = getHostsForService("/" + service, moduleId, protocol).get(0);
+            if (protocol.equals(Protocol.HTTP)) {
+                host.left = getHttpPrefix() + host.left;
             }
-        } else throw new JaffaRpcNoRouteException(service);
+            return host;
+        } catch (ParseException e) {
+            throw new JaffaRpcNoRouteException(service);
+        }
     }
 
     private static String getHttpPrefix() {
         return (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", String.valueOf(false))) ? "https" : "http") + "://";
     }
 
-    private static ArrayList<MutablePair<String, String>> getHostsForService(String service, String moduleId, Protocol protocol) throws KeeperException, ParseException, InterruptedException {
+    private static ArrayList<MutablePair<String, String>> getHostsForService(String service, String moduleId, Protocol protocol) throws ParseException {
         byte[] zkData = cache.get(service);
+        if(zkData == null)
+            throw new JaffaRpcNoRouteException(service);
         JSONArray jArray = (JSONArray) new JSONParser().parse(new String(zkData));
         if (jArray.isEmpty())
             throw new JaffaRpcNoRouteException(service);
