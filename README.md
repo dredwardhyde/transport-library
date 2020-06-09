@@ -51,6 +51,7 @@ Dashboard URL is logged at startup like this:
 #### Synchronous RPC  (500kb request/ 500kb response)
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_heavy.png" width="900"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_heavy.png" width="900"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_heavy.png" width="900"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_heavy.png" width="900"/>  
 
 #### Asynchronous RPC  
