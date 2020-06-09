@@ -113,6 +113,7 @@ public class KafkaRequestSender extends Sender {
         try {
             ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(requestTopic, UUID.randomUUID().toString(), message);
             producer.send(resultPackage).get();
+            producer.close();
         } catch (InterruptedException | ExecutionException e) {
             log.error("Error in sending sync request", e);
             throw new JaffaRpcExecutionException(e);
@@ -124,11 +125,10 @@ public class KafkaRequestSender extends Sender {
 
     @Override
     public void executeAsync(byte[] message) {
-        long start = System.currentTimeMillis();
         try {
             ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(RequestUtils.getTopicForService(command.getServiceClass(), moduleId, false), UUID.randomUUID().toString(), message);
             producer.send(resultPackage).get();
-            log.info(">>>>>> Executed async request {} in {} ms", command.getRqUid(), System.currentTimeMillis() - start);
+            producer.close();
         } catch (InterruptedException | ExecutionException e) {
             log.error("Error while sending async Kafka request", e);
             throw new JaffaRpcExecutionException(e);
