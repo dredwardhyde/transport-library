@@ -1,12 +1,11 @@
 package com.jaffa.rpc.test;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 
 import java.io.File;
@@ -14,9 +13,11 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @Slf4j
 @SuppressWarnings("squid:S2187")
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {MainConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class TestServer {
 
@@ -50,13 +51,13 @@ public class TestServer {
         Person person = personService.get(id)
                 .onModule("test.server")
                 .executeSync();
-        Assert.assertEquals(person.getId(), id);
+        assertEquals(person.getId(), id);
         log.info(person.toString());
         personService.lol().executeSync();
         personService.lol2("kek").executeSync();
         String name = personService.getName().executeSync();
         log.info("Name: {}", name);
-        Assert.assertNull(name);
+        assertNull(name);
         clientService.lol3("test3")
                 .onModule("test.server")
                 .executeSync();
@@ -77,7 +78,7 @@ public class TestServer {
                     .executeSync();
         } catch (Throwable e) {
             log.error("Exception during sync call:", e);
-            Assert.assertTrue(e.getMessage().contains("very bad in") || (e.getCause() != null && e.getCause().getMessage().contains("very bad in")));
+            assertTrue(e.getMessage().contains("very bad in") || (e.getCause() != null && e.getCause().getMessage().contains("very bad in")));
         }
         personService.testError().onModule("test.server").executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
     }
@@ -95,7 +96,7 @@ public class TestServer {
             Process process = proc.start();
             int returnCode = process.waitFor();
             log.info("Main test server returned {}", returnCode);
-            Assert.assertEquals(0, returnCode);
+            assertEquals(0, returnCode);
         } catch (Exception e) {
             log.error("Exception while launching main.server", e);
         }
