@@ -7,7 +7,7 @@
 
 **Key features:**  
 - **Apache ZooKeeper (with TLSv1.2) is used for service discovery**
-- **Sync & async RPC calls - type of communication is determined by the client, not server**
+- **Synchronous & asynchronous RPC calls - type of communication is determined by the client, not server**
 - **One interface could have multiple server implementations - client choose required one by specifying target's jaffa.rpc.module.id in request**
 - **Request-scoped timeout for both sync/async calls**
 - **[Caffeine](https://github.com/ben-manes/caffeine) is used for caching service discovery information**
@@ -224,7 +224,7 @@ NOTE: Number of partitions for library's topics is equal to the number of Kafka 
 #### Available options
 Could be configured as JVM options or by specifying **jaffa-rpc-config** JVM option with the path to [config.properties](https://github.com/dredwardhyde/jaffa-rpc-library/blob/master/jaffa-rpc-config-main-server.properties)  
 
-#### Required options (minimal config is [here](https://github.com/dredwardhyde/jaffa-rpc-library-test/blob/master/config.properties)):  
+#### Required options (minimal config is available [here](https://github.com/dredwardhyde/jaffa-rpc-library-test/blob/master/config.properties)):  
 <table width="900">
   <th>Option</th><th>Description</th>
     <tr>
