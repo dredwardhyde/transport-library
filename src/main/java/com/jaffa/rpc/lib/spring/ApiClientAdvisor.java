@@ -1,6 +1,7 @@
 package com.jaffa.rpc.lib.spring;
 
 import com.jaffa.rpc.lib.annotations.ApiClient;
+import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -50,12 +53,9 @@ public class ApiClientAdvisor extends AbstractPointcutAdvisor {
             command.setMethodName(invocation.getMethod().getName());
             command.setArgs(invocation.getArguments());
             if (invocation.getMethod().getParameterCount() != 0) {
-                String[] methodArgs = new String[invocation.getMethod().getParameterCount()];
-                Class<?>[] argClasses = invocation.getMethod().getParameterTypes();
-                for (int i = 0; i < methodArgs.length; i++) {
-                    methodArgs[i] = argClasses[i].getName();
-                }
-                command.setMethodArgs(methodArgs);
+                command.setMethodArgs(Arrays.stream(invocation.getMethod().getParameterTypes())
+                        .map(Class::getName)
+                        .toArray(String[]::new));
             }
             return new RequestImpl<>(command);
         };
@@ -71,7 +71,7 @@ public class ApiClientAdvisor extends AbstractPointcutAdvisor {
             log.error("Error during metadata setting", e);
             throw new JaffaRpcSystemException(e);
         }
-        command.setSourceModuleId(Utils.getRequiredOption("jaffa.rpc.module.id"));
+        command.setSourceModuleId(Utils.getRequiredOption(Options.MODULE_ID));
         command.setRqUid(UUID.randomUUID().toString());
     }
 
@@ -90,10 +90,7 @@ public class ApiClientAdvisor extends AbstractPointcutAdvisor {
     private static final class ApiClientAnnotationOnClassOrInheritedInterfacePointcut extends StaticMethodMatcherPointcut {
         @Override
         public boolean matches(@NonNull Method method, @NonNull Class<?> targetClass) {
-            if (AnnotationUtils.findAnnotation(method, ApiClient.class) != null) {
-                return true;
-            }
-            return AnnotationUtils.findAnnotation(targetClass, ApiClient.class) != null;
+            return Objects.nonNull(AnnotationUtils.findAnnotation(targetClass, ApiClient.class));
         }
     }
 }

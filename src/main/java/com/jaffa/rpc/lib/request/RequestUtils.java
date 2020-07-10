@@ -7,12 +7,14 @@ import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RequestUtils {
     public static String getTopicForService(String service, String moduleId, boolean sync) {
         String serviceInterface = Utils.getServiceInterfaceNameFromClient(service);
         String availableModuleId = moduleId;
-        if (moduleId != null) {
+        if (Objects.nonNull(moduleId)) {
             Utils.getHostForService(serviceInterface, moduleId, Protocol.KAFKA);
         } else {
             availableModuleId = Utils.getModuleForService(serviceInterface, Protocol.KAFKA);

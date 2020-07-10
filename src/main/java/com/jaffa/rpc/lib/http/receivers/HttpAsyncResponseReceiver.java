@@ -1,6 +1,7 @@
 package com.jaffa.rpc.lib.http.receivers;
 
 import com.google.common.io.ByteStreams;
+import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
@@ -28,9 +29,13 @@ public class HttpAsyncResponseReceiver implements Runnable, Closeable {
     @Override
     public void run() {
         try {
-            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", String.valueOf(false)))) {
+            if (Boolean.parseBoolean(System.getProperty(Options.USE_HTTPS, String.valueOf(false)))) {
                 HttpsServer httpsServer = HttpsServer.create(Utils.getHttpCallbackBindAddress(), 0);
-                HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer);
+                HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,
+                        Utils.getRequiredOption(Options.HTTP_SSL_TRUSTSTORE_LOCATION),
+                        Utils.getRequiredOption(Options.HTTP_SSL_KEYSTORE_LOCATION),
+                        Utils.getRequiredOption(Options.HTTP_SSL_TRUSTSTORE_PASSWORD),
+                        Utils.getRequiredOption(Options.HTTP_SSL_KEYSTORE_PASSWORD));
                 server = httpsServer;
             } else {
                 server = HttpServer.create(Utils.getHttpCallbackBindAddress(), 0);

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 @AllArgsConstructor
 @Getter
@@ -19,8 +20,9 @@ public enum Protocol implements Serializable {
     private final String fullName;
 
     public static Protocol getByName(String name) {
-        for (Protocol protocol : Protocol.values())
-            if (protocol.getShortName().equals(name)) return protocol;
-        return null;
+        return Arrays.stream(Protocol.values()).
+                filter(x -> x.getShortName().equals(name)).
+                findFirst().
+                orElse(null);
     }
 }

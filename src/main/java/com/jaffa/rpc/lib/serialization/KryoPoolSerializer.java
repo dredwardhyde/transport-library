@@ -11,43 +11,41 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+
 @Slf4j
+@SuppressWarnings("squid:S1168")
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 class KryoPoolSerializer {
     private static final KryoPool pool = new KryoPool.Builder(Kryo::new).softReferences().build();
 
     public static byte[] serialize(Object obj) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Output output = new Output(baos);
-        Kryo kryo = pool.borrow();
-        kryo.writeObject(output, obj);
-        output.flush();
-        output.close();
-        pool.release(kryo);
-        byte[] serialized = baos.toByteArray();
-        try {
-            baos.close();
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            Output output = new Output(baos);
+            Kryo kryo = pool.borrow();
+            kryo.writeObject(output, obj);
+            output.flush();
+            output.close();
+            pool.release(kryo);
+            return baos.toByteArray();
         } catch (IOException e) {
             log.error("Error during Kryo object serialization", e);
         }
-        return serialized;
+        return null;
     }
 
     public static byte[] serializeWithClass(Object obj) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Output output = new Output(baos);
-        Kryo kryo = pool.borrow();
-        kryo.writeClassAndObject(output, obj);
-        output.flush();
-        output.close();
-        pool.release(kryo);
-        byte[] serialized = baos.toByteArray();
-        try {
-            baos.close();
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            Output output = new Output(baos);
+            Kryo kryo = pool.borrow();
+            kryo.writeClassAndObject(output, obj);
+            output.flush();
+            output.close();
+            pool.release(kryo);
+            return baos.toByteArray();
         } catch (IOException e) {
             log.error("Error during Kryo object with class serialization", e);
         }
-        return serialized;
+        return null;
     }
 
     public static Object deserializeWithClass(byte[] serialized) {

@@ -1,9 +1,9 @@
 package com.jaffa.rpc.lib.http.receivers;
 
 import com.google.common.io.ByteStreams;
+import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.Command;
-import com.jaffa.rpc.lib.entities.RequestContext;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -46,7 +47,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     private HttpServer server;
 
     public static void initClient() {
-        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", String.valueOf(false)))) {
+        if (Boolean.parseBoolean(System.getProperty(Options.USE_HTTPS, String.valueOf(false)))) {
             TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
             SSLContext sslContext;
             try {
@@ -67,16 +68,20 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         }
     }
 
-    public static void initSSLForHttpsServer(HttpsServer httpsServer) throws NoSuchAlgorithmException, KeyStoreException, IOException,
+    public static void initSSLForHttpsServer(HttpsServer httpsServer,
+                                             String trustStoreLocation,
+                                             String keyStoreLocation,
+                                             String trustStorePassword,
+                                             String keyStorePassword) throws NoSuchAlgorithmException, KeyStoreException, IOException,
             CertificateException, UnrecoverableKeyException, KeyManagementException {
-        char[] keyPassphrase = Utils.getRequiredOption("jaffa.rpc.protocol.http.ssl.keystore.password").toCharArray();
+        char[] keyPassphrase = keyStorePassword.toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(new FileInputStream(Utils.getRequiredOption("jaffa.rpc.protocol.http.ssl.keystore.location")), keyPassphrase);
+        ks.load(new FileInputStream(keyStoreLocation), keyPassphrase);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
         kmf.init(ks, keyPassphrase);
-        char[] trustPassphrase = Utils.getRequiredOption("jaffa.rpc.protocol.http.ssl.truststore.password").toCharArray();
+        char[] trustPassphrase = trustStorePassword.toCharArray();
         KeyStore tks = KeyStore.getInstance("JKS");
-        tks.load(new FileInputStream(Utils.getRequiredOption("jaffa.rpc.protocol.http.ssl.truststore.location")), trustPassphrase);
+        tks.load(new FileInputStream(trustStoreLocation), trustPassphrase);
         TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
         tmf.init(tks);
         SSLContext c = SSLContext.getInstance("TLSv1.2");
@@ -103,9 +108,13 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     @Override
     public void run() {
         try {
-            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", String.valueOf(false)))) {
+            if (Boolean.parseBoolean(System.getProperty(Options.USE_HTTPS, String.valueOf(false)))) {
                 HttpsServer httpsServer = HttpsServer.create(Utils.getHttpBindAddress(), 0);
-                initSSLForHttpsServer(httpsServer);
+                initSSLForHttpsServer(httpsServer,
+                        Utils.getRequiredOption(Options.HTTP_SSL_TRUSTSTORE_LOCATION),
+                        Utils.getRequiredOption(Options.HTTP_SSL_KEYSTORE_LOCATION),
+                        Utils.getRequiredOption(Options.HTTP_SSL_TRUSTSTORE_PASSWORD),
+                        Utils.getRequiredOption(Options.HTTP_SSL_KEYSTORE_PASSWORD));
                 server = httpsServer;
             } else {
                 server = HttpServer.create(Utils.getHttpBindAddress(), 0);
@@ -137,28 +146,24 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         @Override
         public void handle(HttpExchange request) throws IOException {
             final Command command = Serializer.deserialize(ByteStreams.toByteArray(request.getRequestBody()), Command.class);
-            if (command.getCallbackKey() != null && command.getCallbackClass() != null) {
+            if (Objects.nonNull(command.getCallbackKey()) && Objects.nonNull(command.getCallbackClass())) {
                 String response = "OK";
                 request.sendResponseHeaders(200, response.getBytes().length);
                 OutputStream os = request.getResponseBody();
                 os.write(response.getBytes());
                 os.close();
                 request.close();
-            }
-            if (command.getCallbackKey() != null && command.getCallbackClass() != null) {
                 Runnable runnable = () -> {
                     try {
-                        RequestContext.setMetaData(command);
                         Object result = RequestInvoker.invoke(command);
-                        RequestContext.removeMetaData();
                         byte[] serializedResponse = Serializer.serialize(RequestInvoker.constructCallbackContainer(command, result));
                         HttpPost httpPost = new HttpPost(command.getCallBackZMQ() + "/response");
                         HttpEntity postParams = new ByteArrayEntity(serializedResponse);
                         httpPost.setEntity(postParams);
                         CloseableHttpResponse httpResponse = client.execute(httpPost);
-                        int response = httpResponse.getStatusLine().getStatusCode();
+                        int callBackResponse = httpResponse.getStatusLine().getStatusCode();
                         httpResponse.close();
-                        if (response != 200) {
+                        if (callBackResponse != 200) {
                             throw new JaffaRpcExecutionException("Response for RPC request " + command.getRqUid() + " returned status " + response);
                         }
                     } catch (ClassNotFoundException | NoSuchMethodException | IOException e) {
@@ -168,9 +173,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 };
                 service.execute(runnable);
             } else {
-                RequestContext.setMetaData(command);
                 Object result = RequestInvoker.invoke(command);
-                RequestContext.removeMetaData();
                 byte[] response = Serializer.serializeWithClass(RequestInvoker.getResult(result));
                 request.sendResponseHeaders(200, response.length);
                 OutputStream os = request.getResponseBody();

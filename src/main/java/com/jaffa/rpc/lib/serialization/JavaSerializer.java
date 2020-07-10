@@ -38,7 +38,7 @@ public final class JavaSerializer {
     }
 
     @SuppressWarnings("unchecked")
-    public static <T> T deserialize(byte[] serialized, Class<T> clazz) {
+    public static <T> T deserialize(byte[] serialized) {
         ByteArrayInputStream bis = new ByteArrayInputStream(serialized);
         try (ObjectInput in = new ObjectInputStream(bis)) {
             return (T) in.readObject();

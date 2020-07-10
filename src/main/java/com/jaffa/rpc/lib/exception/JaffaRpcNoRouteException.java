@@ -2,11 +2,13 @@ package com.jaffa.rpc.lib.exception;
 
 import com.jaffa.rpc.lib.entities.Protocol;
 
+import java.util.Objects;
+
 public class JaffaRpcNoRouteException extends RuntimeException {
     private static final String MESSAGE_PREFIX = "No route for service: ";
 
     public JaffaRpcNoRouteException(String service, String moduleId) {
-        super(MESSAGE_PREFIX + service + (moduleId != null ? (" and jaffa.rpc.module.id " + moduleId) : ""));
+        super(MESSAGE_PREFIX + service + (Objects.nonNull(moduleId) ? (" and jaffa.rpc.module.id " + moduleId) : ""));
     }
 
     public JaffaRpcNoRouteException(String service) {

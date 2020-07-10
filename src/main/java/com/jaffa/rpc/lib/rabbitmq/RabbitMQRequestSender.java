@@ -1,6 +1,7 @@
 package com.jaffa.rpc.lib.rabbitmq;
 
 import com.jaffa.rpc.lib.JaffaService;
+import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -8,11 +9,13 @@ import com.jaffa.rpc.lib.request.Sender;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import com.rabbitmq.client.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.connection.Connection;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
@@ -20,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class RabbitMQRequestSender extends Sender {
 
-    private static final String NAME_PREFIX = Utils.getRequiredOption("jaffa.rpc.module.id");
+    private static final String NAME_PREFIX = Utils.getRequiredOption(Options.MODULE_ID);
     public static final String EXCHANGE_NAME = NAME_PREFIX;
     public static final String CLIENT_SYNC_NAME = NAME_PREFIX + "-client-sync";
     public static final String CLIENT_ASYNC_NAME = NAME_PREFIX + "-client-async";
@@ -41,9 +44,9 @@ public class RabbitMQRequestSender extends Sender {
                         Envelope envelope,
                         AMQP.BasicProperties properties,
                         final byte[] body) throws IOException {
-                    if (properties != null && properties.getCorrelationId() != null) {
+                    if (Objects.nonNull(properties) && Objects.nonNull(properties.getCorrelationId())) {
                         Callback callback = requests.remove(properties.getCorrelationId());
-                        if (callback != null) {
+                        if (Objects.nonNull(callback)) {
                             callback.call(body);
                             clientChannel.basicAck(envelope.getDeliveryTag(), false);
                         }
@@ -59,11 +62,11 @@ public class RabbitMQRequestSender extends Sender {
 
     public static void close() {
         try {
-            if (clientChannel != null) clientChannel.close();
+            if (Objects.nonNull(clientChannel)) clientChannel.close();
         } catch (IOException | TimeoutException ignore) {
             // No-op
         }
-        if (connection != null) connection.close();
+        if (Objects.nonNull(connection)) connection.close();
     }
 
     @Override
@@ -76,7 +79,7 @@ public class RabbitMQRequestSender extends Sender {
             long start = System.currentTimeMillis();
             while (!((timeout != -1 && System.currentTimeMillis() - start > timeout) || (System.currentTimeMillis() - start > (1000 * 60 * 60)))) {
                 byte[] result = atomicReference.get();
-                if (result != null) {
+                if (Objects.nonNull(result)) {
                     return result;
                 }
             }
@@ -90,7 +93,7 @@ public class RabbitMQRequestSender extends Sender {
 
     private void sendSync(byte[] message) throws IOException {
         String targetModuleId;
-        if (moduleId != null && !moduleId.isEmpty()) {
+        if (StringUtils.isNotBlank(moduleId)) {
             targetModuleId = moduleId;
         } else {
             targetModuleId = Utils.getModuleForService(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()), Protocol.RABBIT);

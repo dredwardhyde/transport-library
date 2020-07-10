@@ -36,18 +36,16 @@ public class BeanStubLoader implements BeanDefinitionRegistryPostProcessor {
                 throw new IllegalArgumentException("Class " + client.getName() + " is not annotated as ApiClient!");
             annotated.add(client);
         }
-        for (Class<?> client : annotated) {
-            if (client.isInterface()) {
-                Class<?> stubClass = new ByteBuddy()
-                        .subclass(client)
-                        .method(any())
-                        .intercept(StubMethod.INSTANCE)
-                        .make().load(cl, ClassLoadingStrategy.Default.INJECTION)
-                        .getLoaded();
-                BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(stubClass);
-                registry.registerBeanDefinition(client.getSimpleName() + "Stub", builder.getBeanDefinition());
-            }
-        }
+        annotated.stream().filter(Class::isInterface).forEach(c -> {
+            Class<?> stubClass = new ByteBuddy()
+                    .subclass(c)
+                    .method(any())
+                    .intercept(StubMethod.INSTANCE)
+                    .make().load(cl, ClassLoadingStrategy.Default.INJECTION)
+                    .getLoaded();
+            BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition(stubClass);
+            registry.registerBeanDefinition(c.getSimpleName() + "Stub", builder.getBeanDefinition());
+        });
     }
 
     @Override

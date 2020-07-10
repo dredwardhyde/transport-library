@@ -1,5 +1,6 @@
 package com.jaffa.rpc.lib.serialization;
 
+import com.jaffa.rpc.lib.common.Options;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +12,7 @@ public class Serializer {
     public static boolean isKryo = true;
 
     public static void init() {
-        isKryo = System.getProperty("jaffa.rpc.serializer", "kryo").equals("kryo");
+        isKryo = System.getProperty(Options.SERIALIZER, "kryo").equals("kryo");
     }
 
     public static byte[] serialize(Object obj) {
@@ -42,7 +43,7 @@ public class Serializer {
         if (isKryo) {
             return KryoPoolSerializer.deserialize(serialized, clazz);
         } else {
-            return JavaSerializer.deserialize(serialized, clazz);
+            return JavaSerializer.deserialize(serialized);
         }
     }
 }

@@ -25,10 +25,11 @@ public class HttpRequestSender extends Sender {
     @Override
     public byte[] executeSync(byte[] message) {
         try {
+            int totalTimeout = (int)(this.timeout == -1 ? 1000 * 60 * 60 : this.timeout);
             RequestConfig config = RequestConfig.custom()
-                    .setConnectTimeout((int) this.timeout)
-                    .setConnectionRequestTimeout((int) this.timeout)
-                    .setSocketTimeout((int) this.timeout).build();
+                    .setConnectTimeout(totalTimeout)
+                    .setConnectionRequestTimeout(totalTimeout)
+                    .setSocketTimeout(totalTimeout).build();
             HttpPost httpPost = new HttpPost(Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.HTTP).getLeft() + "/request");
             httpPost.setConfig(config);
             HttpEntity postParams = new ByteArrayEntity(message);

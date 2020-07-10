@@ -1,5 +1,6 @@
 package com.jaffa.rpc.lib.zookeeper;
 
+import com.jaffa.rpc.lib.common.Options;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.client.ZKClientConfig;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 @Slf4j
@@ -20,15 +22,15 @@ public class ZooKeeperConnection {
     private ZooKeeper zoo;
 
     ZooKeeper connect(String host) throws IOException, InterruptedException {
-        if (zkConfig == null) {
+        if (Objects.isNull(zkConfig)) {
             ZKClientConfig zkClientConfig = new ZKClientConfig();
-            zkClientConfig.setProperty("zookeeper.clientCnxnSocket", System.getProperty("jaffa.rpc.zookeeper.clientCnxnSocket", "org.apache.zookeeper.ClientCnxnSocketNetty"));
-            zkClientConfig.setProperty("zookeeper.client.secure", System.getProperty("jaffa.rpc.zookeeper.client.secure", String.valueOf(false)));
-            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.zookeeper.client.secure", String.valueOf(false)))) {
-                zkClientConfig.setProperty("zookeeper.ssl.keyStore.location", Utils.getRequiredOption("jaffa.rpc.zookeeper.ssl.keyStore.location"));
-                zkClientConfig.setProperty("zookeeper.ssl.keyStore.password", Utils.getRequiredOption("jaffa.rpc.zookeeper.ssl.keyStore.password"));
-                zkClientConfig.setProperty("zookeeper.ssl.trustStore.location", Utils.getRequiredOption("jaffa.rpc.zookeeper.ssl.trustStore.location"));
-                zkClientConfig.setProperty("zookeeper.ssl.trustStore.password", Utils.getRequiredOption("jaffa.rpc.zookeeper.ssl.trustStore.password"));
+            zkClientConfig.setProperty("zookeeper.clientCnxnSocket", System.getProperty(Options.ZOOKEEPER_CLIENT_CONTEXT, "org.apache.zookeeper.ClientCnxnSocketNetty"));
+            zkClientConfig.setProperty("zookeeper.client.secure", System.getProperty(Options.ZOOKEEPER_CLIENT_SECURE, String.valueOf(false)));
+            if (Boolean.parseBoolean(System.getProperty(Options.ZOOKEEPER_CLIENT_SECURE, String.valueOf(false)))) {
+                zkClientConfig.setProperty("zookeeper.ssl.keyStore.location", Utils.getRequiredOption(Options.ZOOKEEPER_SSL_KEYSTORE_LOCATION));
+                zkClientConfig.setProperty("zookeeper.ssl.keyStore.password", Utils.getRequiredOption(Options.ZOOKEEPER_SSL_KEYSTORE_PASSWORD));
+                zkClientConfig.setProperty("zookeeper.ssl.trustStore.location", Utils.getRequiredOption(Options.ZOOKEEPER_SSL_TRUSTSTORE_LOCATION));
+                zkClientConfig.setProperty("zookeeper.ssl.trustStore.password", Utils.getRequiredOption(Options.ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD));
             }
             ZooKeeperConnection.setZkConfig(zkClientConfig);
         }
@@ -38,7 +40,7 @@ public class ZooKeeperConnection {
             }
             if (watchedEvent.getType() == Watcher.Event.EventType.NodeDataChanged) {
                 Utils.cache.invalidate(watchedEvent.getPath());
-                log.info("Service {} changed for instance {} ", watchedEvent.getPath(), Utils.getRequiredOption("jaffa.rpc.module.id"));
+                log.info("Service {} changed for instance {} ", watchedEvent.getPath(), Utils.getRequiredOption(Options.MODULE_ID));
             }
         }), zkConfig);
         connectedSignal.await();

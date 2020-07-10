@@ -1,5 +1,6 @@
 package com.jaffa.rpc.lib.zeromq;
 
+import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.request.Sender;
@@ -10,17 +11,19 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
+import java.util.Objects;
+
 @Slf4j
 public class ZeroMqRequestSender extends Sender {
 
     public static final ZContext context = new ZContext(10);
 
     public static void addCurveKeysToSocket(ZMQ.Socket socket, String moduleId) {
-        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", String.valueOf(false)))) {
+        if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             socket.setCurvePublicKey(CurveUtils.getServerPublicKey().getBytes());
             socket.setCurveSecretKey(CurveUtils.getServerSecretKey().getBytes());
             String clientPublicKey = CurveUtils.getClientPublicKey(moduleId);
-            if (clientPublicKey == null)
+            if (Objects.isNull(clientPublicKey))
                 throw new JaffaRpcExecutionException("No Curve client key was provided for jaffa.rpc.module.id " + moduleId);
             socket.setCurveServerKey(clientPublicKey.getBytes());
         }
@@ -35,9 +38,7 @@ public class ZeroMqRequestSender extends Sender {
             addCurveKeysToSocket(socket, hostAndModuleId.getRight());
             socket.connect("tcp://" + hostAndModuleId.getLeft());
             socket.send(message, 0);
-            if (timeout != -1) {
-                socket.setReceiveTimeOut((int) timeout);
-            }
+            socket.setReceiveTimeOut((int) (this.timeout == -1 ? 1000 * 60 * 60 : this.timeout));
             response = socket.recv(0);
         }
         log.info(">>>>>> Executed sync request {} in {} ms", command.getRqUid(), System.currentTimeMillis() - start);

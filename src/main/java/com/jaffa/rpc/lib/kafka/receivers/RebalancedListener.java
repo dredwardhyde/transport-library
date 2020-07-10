@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
@@ -33,7 +34,7 @@ public class RebalancedListener implements ConsumerRebalanceListener {
         Map<TopicPartition, Long> query = new HashMap<>();
         partitions.forEach(x -> query.put(x, threeMinAgo));
         for (Map.Entry<TopicPartition, OffsetAndTimestamp> entry : consumer.offsetsForTimes(query).entrySet()) {
-            if (entry.getValue() == null) continue;
+            if (Objects.isNull(entry.getValue())) continue;
             consumer.seek(entry.getKey(), entry.getValue().offset());
         }
         countDownLatch.countDown();

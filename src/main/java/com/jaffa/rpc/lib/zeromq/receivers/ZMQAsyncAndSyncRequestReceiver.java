@@ -1,8 +1,8 @@
 package com.jaffa.rpc.lib.zeromq.receivers;
 
+import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.Command;
-import com.jaffa.rpc.lib.entities.RequestContext;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
@@ -16,6 +16,7 @@ import zmq.ZError;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,10 +34,10 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         try {
             context = new ZContext(10);
             context.setLinger(0);
-            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", String.valueOf(false)))) {
+            if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
                 auth = new ZAuth(context);
                 auth.setVerbose(true);
-                auth.configureCurve(Utils.getRequiredOption("jaffa.rpc.protocol.zmq.client.dir"));
+                auth.configureCurve(Utils.getRequiredOption(Options.ZMQ_CLIENT_DIR));
             }
             socket = context.createSocket(SocketType.REP);
             CurveUtils.makeSocketSecure(socket);
@@ -49,15 +50,11 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             try {
                 byte[] bytes = socket.recv();
                 final Command command = Serializer.deserialize(bytes, Command.class);
-                if (command.getCallbackKey() != null && command.getCallbackClass() != null) {
+                if (Objects.nonNull(command.getCallbackKey()) && Objects.nonNull(command.getCallbackClass())) {
                     socket.send("OK");
-                }
-                if (command.getCallbackKey() != null && command.getCallbackClass() != null) {
                     Runnable runnable = () -> {
                         try {
-                            RequestContext.setMetaData(command);
                             Object result = RequestInvoker.invoke(command);
-                            RequestContext.removeMetaData();
                             byte[] serializedResponse = Serializer.serialize(RequestInvoker.constructCallbackContainer(command, result));
                             ZMQ.Socket socketAsync = context.createSocket(SocketType.REQ);
                             ZeroMqRequestSender.addCurveKeysToSocket(socketAsync, command.getSourceModuleId());
@@ -71,9 +68,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     };
                     service.execute(runnable);
                 } else {
-                    RequestContext.setMetaData(command);
                     Object result = RequestInvoker.invoke(command);
-                    RequestContext.removeMetaData();
                     byte[] serializedResponse = Serializer.serializeWithClass(RequestInvoker.getResult(result));
                     socket.send(serializedResponse);
                 }
@@ -89,7 +84,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
     @Override
     public void close() {
-        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", String.valueOf(false)))) {
+        if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             try {
                 auth.close();
             } catch (IOException ioException) {

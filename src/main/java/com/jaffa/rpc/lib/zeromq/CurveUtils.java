@@ -1,6 +1,7 @@
 package com.jaffa.rpc.lib.zeromq;
 
-import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
+import com.jaffa.rpc.lib.common.Options;
+import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +19,6 @@ import java.util.Map;
 public class CurveUtils {
 
     private static final Map<String, String> moduleIdWithClientKeys = new HashMap<>();
-    private static final String CLIENT_KEY_PREFIX = "jaffa.rpc.protocol.zmq.client.key.";
-    private static final String SERVER_PROPERTY_NAME = "jaffa.rpc.protocol.zmq.server.keys";
     @Getter
     private static String serverPublicKey;
     @Getter
@@ -36,7 +35,7 @@ public class CurveUtils {
     }
 
     public static void makeSocketSecure(ZMQ.Socket socket) {
-        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", String.valueOf(false)))) {
+        if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             socket.setZAPDomain("global".getBytes());
             socket.setCurveServer(true);
             socket.setCurvePublicKey(CurveUtils.getServerPublicKey().getBytes());
@@ -63,17 +62,15 @@ public class CurveUtils {
     public static void readClientKeys() {
         for (Map.Entry<Object, Object> property : System.getProperties().entrySet()) {
             String name = String.valueOf(property.getKey());
-            if (!name.startsWith(CLIENT_KEY_PREFIX)) continue;
+            if (!name.startsWith(Options.ZMQ_CLIENT_KEY)) continue;
             String path = String.valueOf(property.getValue());
-            String moduleId = name.replace(CLIENT_KEY_PREFIX, "");
+            String moduleId = name.replace(Options.ZMQ_CLIENT_KEY, "");
             moduleIdWithClientKeys.put(moduleId, getPublicKeyFromPath(path));
         }
     }
 
     public static void readServerKeys() {
-        String localServerKeys = System.getProperty(SERVER_PROPERTY_NAME);
-        if (localServerKeys == null)
-            throw new JaffaRpcSystemException("No local server keys were provided with ZeroMQ Curve enabled!");
+        String localServerKeys = Utils.getRequiredOption(Options.ZMQ_SERVER_KEYS);
         serverPublicKey = getPublicKeyFromPath(localServerKeys);
         serverSecretKey = getSecretKeyFromPath(localServerKeys);
     }

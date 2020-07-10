@@ -4,19 +4,15 @@ import com.jaffa.rpc.lib.callbacks.Callback;
 import com.jaffa.rpc.lib.common.FinalizationWorker;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.ExceptionHolder;
-import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
-import com.jaffa.rpc.lib.http.HttpRequestSender;
-import com.jaffa.rpc.lib.kafka.KafkaRequestSender;
-import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.ui.AdminServer;
-import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -29,22 +25,10 @@ public class RequestImpl<T> implements Request<T> {
 
     public RequestImpl(Command command) {
         this.command = command;
-        Protocol protocol = Utils.getRpcProtocol();
-        switch (protocol) {
-            case ZMQ:
-                sender = new ZeroMqRequestSender();
-                break;
-            case KAFKA:
-                sender = new KafkaRequestSender();
-                break;
-            case HTTP:
-                sender = new HttpRequestSender();
-                break;
-            case RABBIT:
-                sender = new RabbitMQRequestSender();
-                break;
-            default:
-                throw new JaffaRpcSystemException(JaffaRpcSystemException.NO_PROTOCOL_DEFINED);
+        try {
+            sender = Utils.getCurrentSenderClass().getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            throw new JaffaRpcSystemException("Can not initialize sender!");
         }
     }
 
@@ -71,7 +55,7 @@ public class RequestImpl<T> implements Request<T> {
         command.setLocalRequestTime(System.nanoTime());
         byte[] out = Serializer.serialize(command);
         byte[] response = sender.executeSync(out);
-        if (response == null) {
+        if (Objects.isNull(response)) {
             throw new JaffaRpcExecutionTimeoutException();
         }
         Object result = Serializer.deserializeWithClass(response);

@@ -78,7 +78,7 @@ public class TestServer {
                     .executeSync();
         } catch (Throwable e) {
             log.error("Exception during sync call:", e);
-            assertTrue(e.getMessage().contains("very bad in") || (e.getCause() != null && e.getCause().getMessage().contains("very bad in")));
+            assertTrue(e.getMessage().contains("very bad in") || (Objects.nonNull(e.getCause()) && e.getCause().getMessage().contains("very bad in")));
         }
         personService.testError().onModule("test.server").executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
     }

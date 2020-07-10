@@ -1,9 +1,13 @@
 package com.jaffa.rpc.lib.ui;
 
 import com.google.common.io.ByteStreams;
+import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.entities.Command;
+import com.jaffa.rpc.lib.http.receivers.HttpAsyncAndSyncRequestReceiver;
 import com.jaffa.rpc.lib.zookeeper.Utils;
-import com.sun.net.httpserver.*;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsServer;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -14,15 +18,17 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.net.ssl.*;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.security.*;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.Executors;
 
@@ -44,7 +50,7 @@ public class AdminServer {
     private void respondWithFile(HttpExchange exchange, String fileName) throws IOException {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         InputStream is = classloader.getResourceAsStream(fileName);
-        if (is == null) throw new IOException("No such file in resources: " + fileName);
+        if (Objects.isNull(is)) throw new IOException("No such file in resources: " + fileName);
         byte[] page = ByteStreams.toByteArray(is);
         exchange.sendResponseHeaders(200, page.length);
         OutputStream os = exchange.getResponseBody();
@@ -70,37 +76,14 @@ public class AdminServer {
     @PostConstruct
     public void init() {
         try {
-            boolean useHttps = Boolean.parseBoolean(System.getProperty("jaffa.admin.use.https", String.valueOf(false)));
+            boolean useHttps = Boolean.parseBoolean(System.getProperty(Options.ADMIN_USE_HTTPS, String.valueOf(false)));
             if (useHttps) {
                 HttpsServer httpsServer = HttpsServer.create(new InetSocketAddress(Utils.getLocalHost(), getFreePort()), 0);
-                char[] keyPassphrase = Utils.getRequiredOption("jaffa.rpc.admin.ssl.keystore.password").toCharArray();
-                KeyStore ks = KeyStore.getInstance("JKS");
-                ks.load(new FileInputStream(Utils.getRequiredOption("jaffa.rpc.admin.ssl.keystore.location")), keyPassphrase);
-                KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
-                kmf.init(ks, keyPassphrase);
-                char[] trustPassphrase = Utils.getRequiredOption("jaffa.rpc.admin.ssl.truststore.password").toCharArray();
-                KeyStore tks = KeyStore.getInstance("JKS");
-                tks.load(new FileInputStream(Utils.getRequiredOption("jaffa.rpc.admin.ssl.truststore.location")), trustPassphrase);
-                TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
-                tmf.init(tks);
-                SSLContext c = SSLContext.getInstance("TLSv1.2");
-                c.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-                httpsServer.setHttpsConfigurator(new HttpsConfigurator(c) {
-                    @Override
-                    public void configure(HttpsParameters params) {
-                        try {
-                            SSLContext c = SSLContext.getDefault();
-                            SSLEngine engine = c.createSSLEngine();
-                            params.setNeedClientAuth(true);
-                            params.setCipherSuites(engine.getEnabledCipherSuites());
-                            params.setProtocols(engine.getEnabledProtocols());
-                            SSLParameters defaultSSLParameters = c.getDefaultSSLParameters();
-                            params.setSSLParameters(defaultSSLParameters);
-                        } catch (Exception ex) {
-                            log.error("Failed to create Jaffa HTTPS server", ex);
-                        }
-                    }
-                });
+                HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,
+                        Utils.getRequiredOption(Options.ADMIN_SSL_TRUSTSTORE_LOCATION),
+                        Utils.getRequiredOption(Options.ADMIN_SSL_KEYSTORE_LOCATION),
+                        Utils.getRequiredOption(Options.ADMIN_SSL_TRUSTSTORE_PASSWORD),
+                        Utils.getRequiredOption(Options.ADMIN_SSL_KEYSTORE_PASSWORD));
                 server = httpsServer;
             } else {
                 server = HttpServer.create(new InetSocketAddress(Utils.getLocalHost(), getFreePort()), 0);
@@ -121,11 +104,11 @@ public class AdminServer {
                     ResponseMetric metric;
                     do {
                         metric = responses.poll();
-                        if (metric != null) {
+                        if (Objects.nonNull(metric)) {
                             count++;
                             builder.append(metric.getTime()).append(':').append(metric.getDuration()).append(';');
                         }
-                    } while (metric != null && count < 30);
+                    } while (Objects.nonNull(metric) && count < 30);
                     respondWithString(exchange, builder.toString());
                 } else {
                     respondWithString(exchange, "OK");
@@ -141,7 +124,7 @@ public class AdminServer {
 
     @PreDestroy
     public void destroy() {
-        if (server != null) {
+        if (Objects.nonNull(server)) {
             server.stop(2);
         }
     }

@@ -3,6 +3,7 @@ package com.jaffa.rpc.lib.common;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.ExceptionHolder;
+import com.jaffa.rpc.lib.entities.RequestContext;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
@@ -13,6 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.springframework.context.ApplicationContext;
 
 import java.io.PrintWriter;
@@ -21,29 +24,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RequestInvoker {
 
-    private static final Map<Class<?>, Class<?>> primitiveToWrappers = new HashMap<>();
     @Getter
     private static final Map<Class<?>, Object> wrappedServices = new HashMap<>();
 
     @Setter
     private static ApplicationContext context;
-
-    static {
-        primitiveToWrappers.put(boolean.class, Boolean.class);
-        primitiveToWrappers.put(byte.class, Byte.class);
-        primitiveToWrappers.put(short.class, Short.class);
-        primitiveToWrappers.put(char.class, Character.class);
-        primitiveToWrappers.put(int.class, Integer.class);
-        primitiveToWrappers.put(long.class, Long.class);
-        primitiveToWrappers.put(float.class, Float.class);
-        primitiveToWrappers.put(double.class, Double.class);
-        primitiveToWrappers.put(void.class, Void.class);
-    }
 
     private static Object getTargetService(Command command) throws ClassNotFoundException {
         return wrappedServices.get(Class.forName(Utils.getServiceInterfaceNameFromClient(command.getServiceClass())));
@@ -51,7 +42,7 @@ public class RequestInvoker {
 
     private static Method getTargetMethod(Command command) throws ClassNotFoundException, NoSuchMethodException {
         Object wrappedService = getTargetService(command);
-        if (command.getMethodArgs() != null && command.getMethodArgs().length > 0) {
+        if (ArrayUtils.isNotEmpty(command.getMethodArgs())) {
             Class<?>[] methodArgClasses = new Class[command.getMethodArgs().length];
             for (int i = 0; i < command.getMethodArgs().length; i++) {
                 methodArgClasses[i] = Class.forName(command.getMethodArgs()[i]);
@@ -64,17 +55,24 @@ public class RequestInvoker {
 
     public static Object invoke(Command command) {
         try {
+            RequestContext.setMetaData(command);
             Object targetService = getTargetService(command);
             Method targetMethod = getTargetMethod(command);
             Object result;
-            if (command.getMethodArgs() != null && command.getMethodArgs().length > 0)
+            if (ArrayUtils.isNotEmpty(command.getMethodArgs())) {
                 result = targetMethod.invoke(targetService, command.getArgs());
-            else
+            } else {
                 result = targetMethod.invoke(targetService);
-            if (targetMethod.getReturnType().equals(Void.TYPE)) return Void.TYPE;
-            else return result;
+            }
+            if (targetMethod.getReturnType().equals(Void.TYPE)) {
+                return Void.TYPE;
+            } else {
+                return result;
+            }
         } catch (Exception e) {
             return e.getCause();
+        } finally {
+            RequestContext.removeMetaData();
         }
     }
 
@@ -86,45 +84,52 @@ public class RequestInvoker {
         } else return result;
     }
 
+    private static Class<?> primitiveToWrapper(Class<?> clz){
+        if(clz.equals(void.class))
+            return Void.class;
+        else
+            return ClassUtils.primitiveToWrapper(clz);
+    }
+
     public static CallbackContainer constructCallbackContainer(Command command, Object result) throws ClassNotFoundException, NoSuchMethodException {
         CallbackContainer callbackContainer = new CallbackContainer();
         callbackContainer.setKey(command.getCallbackKey());
         callbackContainer.setListener(command.getCallbackClass());
         callbackContainer.setResult(getResult(result));
         Method targetMethod = getTargetMethod(command);
-        if (primitiveToWrappers.containsKey(targetMethod.getReturnType())) {
-            callbackContainer.setResultClass(primitiveToWrappers.get(targetMethod.getReturnType()).getName());
-        } else {
-            callbackContainer.setResultClass(targetMethod.getReturnType().getName());
-        }
+        callbackContainer.setResultClass(primitiveToWrapper(targetMethod.getReturnType()).getName());
         return callbackContainer;
     }
 
-    public static void processCallbackContainer(CallbackContainer callbackContainer) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        Class<?> callbackClass = Class.forName(callbackContainer.getListener());
-        Object callBackBean = context.getBean(callbackClass);
+    public static boolean processCallbackContainer(CallbackContainer callbackContainer) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String key = callbackContainer.getKey();
         Command command = FinalizationWorker.getEventsToConsume().remove(callbackContainer.getKey());
-        if (command != null) {
-            if (callbackContainer.getResult() instanceof ExceptionHolder) {
-                Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
-                method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException(((ExceptionHolder) callbackContainer.getResult()).getStackTrace()));
-            } else if (callbackContainer.getResult() instanceof Throwable) {
+        if (Objects.nonNull(command)) {
+            Class<?> callbackClass = Class.forName(callbackContainer.getListener());
+            Object callBackBean = context.getBean(callbackClass);
+            Method onErrorMethod = callbackClass.getMethod("onError", String.class, Throwable.class);
+            Object result = callbackContainer.getResult();
+            Class<?> resultClazz = Class.forName(callbackContainer.getResultClass());
+            if (result instanceof ExceptionHolder) {
+                onErrorMethod.invoke(callBackBean, key, new JaffaRpcExecutionException(((ExceptionHolder) result).getStackTrace()));
+            } else if (result instanceof Throwable) {
                 if (!Serializer.isKryo) {
-                    Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
-                    method.invoke(callBackBean, callbackContainer.getKey(), new JaffaRpcExecutionException((Throwable) callbackContainer.getResult()));
+                    onErrorMethod.invoke(callBackBean, key, new JaffaRpcExecutionException((Throwable) result));
                 } else {
                     throw new JaffaRpcSystemException("Same serialization protocol must be enabled cluster-wide!");
                 }
             } else {
-                Method method = callbackClass.getMethod("onSuccess", String.class, Class.forName(callbackContainer.getResultClass()));
-                if (Class.forName(callbackContainer.getResultClass()).equals(Void.class)) {
-                    method.invoke(callBackBean, callbackContainer.getKey(), null);
+                Method method = callbackClass.getMethod("onSuccess", String.class, resultClazz);
+                if (resultClazz.equals(Void.class)) {
+                    method.invoke(callBackBean, key, null);
                 } else
-                    method.invoke(callBackBean, callbackContainer.getKey(), callbackContainer.getResult());
+                    method.invoke(callBackBean, key, result);
             }
             AdminServer.addMetric(command);
+            return true;
         } else {
             log.warn("Response {} already expired", callbackContainer.getKey());
+            return false;
         }
     }
 }

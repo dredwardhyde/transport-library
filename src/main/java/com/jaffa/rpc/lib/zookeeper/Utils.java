@@ -2,12 +2,19 @@ package com.jaffa.rpc.lib.zookeeper;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
+import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
+import com.jaffa.rpc.lib.http.HttpRequestSender;
+import com.jaffa.rpc.lib.kafka.KafkaRequestSender;
+import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender;
+import com.jaffa.rpc.lib.request.Sender;
+import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.zookeeper.CreateMode;
@@ -23,10 +30,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -34,17 +38,24 @@ public class Utils {
 
     @Getter
     private static final List<String> services = new ArrayList<>();
+    private static final Map<Protocol, Class<? extends Sender>> senders = new HashMap<>();
     @Getter
     @Setter
     private static volatile ZooKeeperConnection conn;
     private static ZooKeeper zk;
-
     public static final LoadingCache<String, byte[]> cache = Caffeine.newBuilder().maximumSize(100).expireAfterWrite(10, TimeUnit.MINUTES).build(k -> zk.getData(k, true, null));
+
+    static {
+        senders.put(Protocol.ZMQ, ZeroMqRequestSender.class);
+        senders.put(Protocol.HTTP, HttpRequestSender.class);
+        senders.put(Protocol.KAFKA, KafkaRequestSender.class);
+        senders.put(Protocol.RABBIT, RabbitMQRequestSender.class);
+    }
 
     public static void loadExternalProperties() {
         try {
             String path = System.getProperty("jaffa-rpc-config");
-            if (path != null) {
+            if (Objects.nonNull(path)) {
                 log.info("Loading Jaffa RPC properies from file {}", path);
                 Properties p = new Properties();
                 InputStream is = new FileInputStream(path);
@@ -77,9 +88,9 @@ public class Utils {
 
     public static String getRequiredOption(String option) {
         String optionValue = System.getProperty(option);
-        if (optionValue == null || optionValue.trim().isEmpty())
+        if (StringUtils.isBlank(optionValue))
             throw new IllegalArgumentException("Property " + option + "  was not set");
-        else return optionValue;
+        else return optionValue.trim();
     }
 
     public static String getServiceInterfaceNameFromClient(String clientName) {
@@ -100,12 +111,12 @@ public class Utils {
     }
 
     private static String getHttpPrefix() {
-        return (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.use.https", String.valueOf(false))) ? "https" : "http") + "://";
+        return (Boolean.parseBoolean(System.getProperty(Options.USE_HTTPS, String.valueOf(false))) ? "https" : "http") + "://";
     }
 
     private static ArrayList<MutablePair<String, String>> getHostsForService(String service, String moduleId, Protocol protocol) throws ParseException {
         byte[] zkData = cache.get(service);
-        if(zkData == null)
+        if (Objects.isNull(zkData))
             throw new JaffaRpcNoRouteException(service);
         JSONArray jArray = (JSONArray) new JSONParser().parse(new String(zkData));
         if (jArray.isEmpty())
@@ -114,7 +125,7 @@ public class Utils {
             ArrayList<MutablePair<String, String>> hosts = new ArrayList<>();
             for (Object json : jArray) {
                 String[] params = ((String) json).split("#");
-                if (moduleId != null) {
+                if (Objects.nonNull(moduleId)) {
                     if (moduleId.equals(params[1]) && protocol.getShortName().equals(params[2]))
                         hosts.add(new MutablePair<>(params[0], params[1]));
                 } else {
@@ -152,7 +163,7 @@ public class Utils {
     public static void registerService(String service, Protocol protocol) {
         try {
             Stat stat = isZNodeExists("/" + service);
-            if (stat != null) {
+            if (Objects.nonNull(stat)) {
                 update("/" + service, protocol);
             } else {
                 create("/" + service, protocol);
@@ -166,13 +177,21 @@ public class Utils {
     }
 
     public static Protocol getRpcProtocol() {
-        return Protocol.getByName(Utils.getRequiredOption("jaffa.rpc.protocol"));
+        return Protocol.getByName(Utils.getRequiredOption(Options.PROTOCOL));
+    }
+
+    public static Class<? extends Sender> getCurrentSenderClass() {
+        Class<? extends Sender> sender = senders.get(getRpcProtocol());
+        if (Objects.isNull(sender))
+            throw new JaffaRpcSystemException(JaffaRpcSystemException.NO_PROTOCOL_DEFINED);
+        else
+            return sender;
     }
 
     private static int getServicePort() {
         int defaultPort = 4242;
         try {
-            return Integer.parseInt(System.getProperty("jaffa.rpc.protocol." + getRpcProtocol().getShortName() + ".service.port", String.valueOf(defaultPort)));
+            return Integer.parseInt(System.getProperty(Options.PROTOCOL_OPTION_PREFIX + getRpcProtocol().getShortName() + Options.SERVICE_PORT_OPTION_SUFFIX, String.valueOf(defaultPort)));
         } catch (NumberFormatException e) {
             return defaultPort;
         }
@@ -181,7 +200,7 @@ public class Utils {
     private static int getCallbackPort() {
         int defaultPort = 4342;
         try {
-            return Integer.parseInt(System.getProperty("jaffa.rpc.protocol." + getRpcProtocol().getShortName() + ".callback.port", String.valueOf(defaultPort)));
+            return Integer.parseInt(System.getProperty(Options.PROTOCOL_OPTION_PREFIX + getRpcProtocol().getShortName() + Options.CALLBACK_PORT_OPTION_SUFFIX, String.valueOf(defaultPort)));
         } catch (NumberFormatException e) {
             return defaultPort;
         }
@@ -227,7 +246,7 @@ public class Utils {
     }
 
     private static String getServiceBindAddress(Protocol protocol) throws UnknownHostException {
-        return getLocalHostLANAddress().getHostAddress() + ":" + getServicePort() + "#" + Utils.getRequiredOption("jaffa.rpc.module.id") + "#" + protocol.getShortName();
+        return getLocalHostLANAddress().getHostAddress() + ":" + getServicePort() + "#" + Utils.getRequiredOption(Options.MODULE_ID) + "#" + protocol.getShortName();
     }
 
     public static String getZeroMQBindAddress() throws UnknownHostException {
@@ -268,17 +287,17 @@ public class Utils {
                     if (!inetAddr.isLoopbackAddress()) {
                         if (inetAddr.isSiteLocalAddress()) {
                             return inetAddr;
-                        } else if (candidateAddress == null) {
+                        } else if (Objects.isNull(candidateAddress)) {
                             candidateAddress = inetAddr;
                         }
                     }
                 }
             }
-            if (candidateAddress != null) {
+            if (Objects.nonNull(candidateAddress)) {
                 return candidateAddress;
             }
             InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
-            if (jdkSuppliedAddress == null) {
+            if (Objects.isNull(jdkSuppliedAddress)) {
                 throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
             }
             return jdkSuppliedAddress;
@@ -294,11 +313,11 @@ class ShutdownHook extends Thread {
     @Override
     public void run() {
         try {
-            if (Utils.getConn() != null) {
+            if (Objects.nonNull(Utils.getConn())) {
                 for (String service : Utils.getServices()) {
                     Utils.deleteAllRegistrations(service);
                 }
-                if (Utils.getConn() != null) Utils.getConn().close();
+                if (Objects.nonNull(Utils.getConn())) Utils.getConn().close();
             }
             Utils.setConn(null);
         } catch (KeeperException | InterruptedException | ParseException | IOException e) {

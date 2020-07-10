@@ -4,7 +4,6 @@ import com.jaffa.rpc.lib.JaffaService;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.entities.Command;
-import com.jaffa.rpc.lib.entities.RequestContext;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender;
@@ -18,6 +17,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeoutException;
@@ -28,6 +28,7 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
     private static final ExecutorService responseService = Executors.newFixedThreadPool(3);
     private static final ExecutorService requestService = Executors.newFixedThreadPool(3);
     private static final Map<String, Object> asyncHeaders = new HashMap<>();
+
     static {
         asyncHeaders.put("communication-type", "async");
     }
@@ -53,12 +54,10 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                     requestService.execute(() -> {
                                 try {
                                     final com.jaffa.rpc.lib.entities.Command command = Serializer.deserialize(body, Command.class);
-                                    if (command.getCallbackKey() != null && command.getCallbackClass() != null) {
+                                    if (Objects.nonNull(command.getCallbackKey()) && Objects.nonNull(command.getCallbackClass())) {
                                         Runnable runnable = () -> {
                                             try {
-                                                RequestContext.setMetaData(command);
                                                 Object result = RequestInvoker.invoke(command);
-                                                RequestContext.removeMetaData();
                                                 CallbackContainer callbackContainer = RequestInvoker.constructCallbackContainer(command, result);
                                                 byte[] response = Serializer.serialize(callbackContainer);
                                                 AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers(asyncHeaders).build();
@@ -71,9 +70,7 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                                         };
                                         responseService.execute(runnable);
                                     } else {
-                                        RequestContext.setMetaData(command);
                                         Object result = RequestInvoker.invoke(command);
-                                        RequestContext.removeMetaData();
                                         byte[] response = Serializer.serializeWithClass(RequestInvoker.getResult(result));
                                         AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().correlationId(command.getRqUid()).build();
                                         clientChannel.basicPublish(command.getSourceModuleId(), command.getSourceModuleId() + "-client-sync", props, response);

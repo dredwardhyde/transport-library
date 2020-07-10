@@ -1,5 +1,6 @@
 package com.jaffa.rpc.lib.zeromq.receivers;
 
+import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
@@ -28,10 +29,10 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
         try {
             context = new ZContext(10);
             context.setLinger(0);
-            if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", String.valueOf(false)))) {
+            if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
                 auth = new ZAuth(context);
                 auth.setVerbose(true);
-                auth.configureCurve(Utils.getRequiredOption("jaffa.rpc.protocol.zmq.client.dir"));
+                auth.configureCurve(Utils.getRequiredOption(Options.ZMQ_CLIENT_DIR));
             }
             socket = context.createSocket(SocketType.REP);
             CurveUtils.makeSocketSecure(socket);
@@ -60,7 +61,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
 
     @Override
     public void close() {
-        if (Boolean.parseBoolean(System.getProperty("jaffa.rpc.protocol.zmq.curve.enabled", String.valueOf(false)))) {
+        if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             try {
                 auth.close();
             } catch (IOException ioException) {

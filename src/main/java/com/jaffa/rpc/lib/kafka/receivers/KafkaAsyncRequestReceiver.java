@@ -3,7 +3,6 @@ package com.jaffa.rpc.lib.kafka.receivers;
 import com.jaffa.rpc.lib.JaffaService;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.Command;
-import com.jaffa.rpc.lib.entities.RequestContext;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
@@ -52,9 +51,7 @@ public class KafkaAsyncRequestReceiver extends KafkaReceiver implements Runnable
                 for (ConsumerRecord<String, byte[]> record : records) {
                     try {
                         Command command = Serializer.deserialize(record.value(), Command.class);
-                        RequestContext.setMetaData(command);
                         Object result = RequestInvoker.invoke(command);
-                        RequestContext.removeMetaData();
                         byte[] serializedResponse = Serializer.serialize(RequestInvoker.constructCallbackContainer(command, result));
                         ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()) + "-" + command.getSourceModuleId() + "-client-async", UUID.randomUUID().toString(), serializedResponse);
                         producer.send(resultPackage).get();
