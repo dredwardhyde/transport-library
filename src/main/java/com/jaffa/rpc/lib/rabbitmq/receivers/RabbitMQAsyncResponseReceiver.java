@@ -40,7 +40,7 @@ public class RabbitMQAsyncResponseReceiver implements Runnable, Closeable {
                     Object type = properties.getHeaders().get("communication-type");
                     if (Objects.isNull(type) || !"async".equals(String.valueOf(type))) return;
                     try {
-                        CallbackContainer callbackContainer = Serializer.deserialize(body, CallbackContainer.class);
+                        CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(body, CallbackContainer.class);
                         if (RequestInvoker.processCallbackContainer(callbackContainer))
                             clientChannel.basicAck(envelope.getDeliveryTag(), false);
                     } catch (IOException ioException) {

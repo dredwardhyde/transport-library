@@ -50,9 +50,9 @@ public class KafkaSyncRequestReceiver extends KafkaReceiver implements Runnable 
                 }
                 for (ConsumerRecord<String, byte[]> record : records) {
                     try {
-                        Command command = Serializer.deserialize(record.value(), Command.class);
+                        Command command = Serializer.getCurrent().deserialize(record.value(), Command.class);
                         Object result = RequestInvoker.invoke(command);
-                        byte[] serializedResponse = Serializer.serializeWithClass(RequestInvoker.getResult(result));
+                        byte[] serializedResponse = Serializer.getCurrent().serializeWithClass(RequestInvoker.getResult(result));
                         ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()) + "-" + Utils.getRequiredOption(Options.MODULE_ID) + "-client-sync", command.getRqUid(), serializedResponse);
                         producer.send(resultPackage).get();
                         Map<TopicPartition, OffsetAndMetadata> commitData = new HashMap<>();

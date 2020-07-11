@@ -53,12 +53,12 @@ public class RequestImpl<T> implements Request<T> {
         initSender();
         command.setRequestTime(System.currentTimeMillis());
         command.setLocalRequestTime(System.nanoTime());
-        byte[] out = Serializer.serialize(command);
+        byte[] out = Serializer.getCurrent().serialize(command);
         byte[] response = sender.executeSync(out);
         if (Objects.isNull(response)) {
             throw new JaffaRpcExecutionTimeoutException();
         }
-        Object result = Serializer.deserializeWithClass(response);
+        Object result = Serializer.getCurrent().deserializeWithClass(response);
         AdminServer.addMetric(command);
         if (result instanceof ExceptionHolder)
             throw new JaffaRpcExecutionException(((ExceptionHolder) result).getStackTrace());
@@ -76,6 +76,6 @@ public class RequestImpl<T> implements Request<T> {
         command.setAsyncExpireTime(System.currentTimeMillis() + (timeout != -1 ? timeout : 1000 * 60 * 60));
         log.debug("Async command {} added to finalization queue", command);
         FinalizationWorker.getEventsToConsume().put(command.getCallbackKey(), command);
-        sender.executeAsync(Serializer.serialize(command));
+        sender.executeAsync(Serializer.getCurrent().serialize(command));
     }
 }

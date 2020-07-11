@@ -49,13 +49,13 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] bytes = socket.recv();
-                final Command command = Serializer.deserialize(bytes, Command.class);
+                final Command command = Serializer.getCurrent().deserialize(bytes, Command.class);
                 if (Objects.nonNull(command.getCallbackKey()) && Objects.nonNull(command.getCallbackClass())) {
                     socket.send("OK");
                     Runnable runnable = () -> {
                         try {
                             Object result = RequestInvoker.invoke(command);
-                            byte[] serializedResponse = Serializer.serialize(RequestInvoker.constructCallbackContainer(command, result));
+                            byte[] serializedResponse = Serializer.getCurrent().serialize(RequestInvoker.constructCallbackContainer(command, result));
                             ZMQ.Socket socketAsync = context.createSocket(SocketType.REQ);
                             ZeroMqRequestSender.addCurveKeysToSocket(socketAsync, command.getSourceModuleId());
                             socketAsync.connect("tcp://" + command.getCallBackZMQ());
@@ -69,7 +69,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     service.execute(runnable);
                 } else {
                     Object result = RequestInvoker.invoke(command);
-                    byte[] serializedResponse = Serializer.serializeWithClass(RequestInvoker.getResult(result));
+                    byte[] serializedResponse = Serializer.getCurrent().serializeWithClass(RequestInvoker.getResult(result));
                     socket.send(serializedResponse);
                 }
             } catch (ZMQException | ZError.IOException recvTerminationException) {

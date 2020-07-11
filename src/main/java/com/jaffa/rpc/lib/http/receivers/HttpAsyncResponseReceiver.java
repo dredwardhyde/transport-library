@@ -61,7 +61,7 @@ public class HttpAsyncResponseReceiver implements Runnable, Closeable {
         @Override
         public void handle(HttpExchange request) throws IOException {
             try {
-                CallbackContainer callbackContainer = Serializer.deserialize(ByteStreams.toByteArray(request.getRequestBody()), CallbackContainer.class);
+                CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(ByteStreams.toByteArray(request.getRequestBody()), CallbackContainer.class);
                 RequestInvoker.processCallbackContainer(callbackContainer);
                 String response = "OK";
                 request.sendResponseHeaders(200, response.getBytes().length);

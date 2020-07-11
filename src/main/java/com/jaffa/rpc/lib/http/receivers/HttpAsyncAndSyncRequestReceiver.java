@@ -145,7 +145,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
         @Override
         public void handle(HttpExchange request) throws IOException {
-            final Command command = Serializer.deserialize(ByteStreams.toByteArray(request.getRequestBody()), Command.class);
+            final Command command = Serializer.getCurrent().deserialize(ByteStreams.toByteArray(request.getRequestBody()), Command.class);
             if (Objects.nonNull(command.getCallbackKey()) && Objects.nonNull(command.getCallbackClass())) {
                 String response = "OK";
                 request.sendResponseHeaders(200, response.getBytes().length);
@@ -156,7 +156,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 Runnable runnable = () -> {
                     try {
                         Object result = RequestInvoker.invoke(command);
-                        byte[] serializedResponse = Serializer.serialize(RequestInvoker.constructCallbackContainer(command, result));
+                        byte[] serializedResponse = Serializer.getCurrent().serialize(RequestInvoker.constructCallbackContainer(command, result));
                         HttpPost httpPost = new HttpPost(command.getCallBackZMQ() + "/response");
                         HttpEntity postParams = new ByteArrayEntity(serializedResponse);
                         httpPost.setEntity(postParams);
@@ -174,7 +174,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 service.execute(runnable);
             } else {
                 Object result = RequestInvoker.invoke(command);
-                byte[] response = Serializer.serializeWithClass(RequestInvoker.getResult(result));
+                byte[] response = Serializer.getCurrent().serializeWithClass(RequestInvoker.getResult(result));
                 request.sendResponseHeaders(200, response.length);
                 OutputStream os = request.getResponseBody();
                 os.write(response);

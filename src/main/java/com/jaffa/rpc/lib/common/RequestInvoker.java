@@ -77,7 +77,7 @@ public class RequestInvoker {
     }
 
     public static Object getResult(Object result) {
-        if (result instanceof Throwable && Serializer.isKryo) {
+        if (result instanceof Throwable && Serializer.isKryo()) {
             StringWriter sw = new StringWriter();
             ((Throwable) result).printStackTrace(new PrintWriter(sw));
             return new ExceptionHolder(sw.toString());
@@ -113,7 +113,7 @@ public class RequestInvoker {
             if (result instanceof ExceptionHolder) {
                 onErrorMethod.invoke(callBackBean, key, new JaffaRpcExecutionException(((ExceptionHolder) result).getStackTrace()));
             } else if (result instanceof Throwable) {
-                if (!Serializer.isKryo) {
+                if (!Serializer.isKryo()) {
                     onErrorMethod.invoke(callBackBean, key, new JaffaRpcExecutionException((Throwable) result));
                 } else {
                     throw new JaffaRpcSystemException("Same serialization protocol must be enabled cluster-wide!");

@@ -44,7 +44,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] bytes = socket.recv();
-                CallbackContainer callbackContainer = Serializer.deserialize(bytes, CallbackContainer.class);
+                CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(bytes, CallbackContainer.class);
                 RequestInvoker.processCallbackContainer(callbackContainer);
             } catch (ZMQException | ZError.IOException recvTerminationException) {
                 if (!recvTerminationException.getMessage().contains("Errno 4") && !recvTerminationException.getMessage().contains("156384765")) {

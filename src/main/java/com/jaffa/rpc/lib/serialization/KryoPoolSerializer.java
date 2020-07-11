@@ -4,8 +4,6 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.pool.KryoPool;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
@@ -14,11 +12,15 @@ import java.io.IOException;
 
 @Slf4j
 @SuppressWarnings("squid:S1168")
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-class KryoPoolSerializer {
-    private static final KryoPool pool = new KryoPool.Builder(Kryo::new).softReferences().build();
+class KryoPoolSerializer implements ObjectSerializer {
+    private final KryoPool pool;
 
-    public static byte[] serialize(Object obj) {
+    public KryoPoolSerializer() {
+        pool = new KryoPool.Builder(Kryo::new).softReferences().build();
+    }
+
+    @Override
+    public byte[] serialize(Object obj) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             Output output = new Output(baos);
             Kryo kryo = pool.borrow();
@@ -33,7 +35,8 @@ class KryoPoolSerializer {
         return null;
     }
 
-    public static byte[] serializeWithClass(Object obj) {
+    @Override
+    public byte[] serializeWithClass(Object obj) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             Output output = new Output(baos);
             Kryo kryo = pool.borrow();
@@ -48,7 +51,8 @@ class KryoPoolSerializer {
         return null;
     }
 
-    public static Object deserializeWithClass(byte[] serialized) {
+    @Override
+    public Object deserializeWithClass(byte[] serialized) {
         Object obj;
         Kryo kryo = pool.borrow();
         Input input = new Input(serialized);
@@ -57,7 +61,8 @@ class KryoPoolSerializer {
         return obj;
     }
 
-    public static <T> T deserialize(byte[] serialized, Class<T> clazz) {
+    @Override
+    public <T> T deserialize(byte[] serialized, Class<T> clazz) {
         T obj;
         Kryo kryo = pool.borrow();
         Input input = new Input(serialized);
