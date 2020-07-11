@@ -12,7 +12,7 @@ import java.io.IOException;
 
 @Slf4j
 @SuppressWarnings("squid:S1168")
-class KryoPoolSerializer implements ObjectSerializer {
+public final class KryoPoolSerializer implements ObjectSerializer {
     private final KryoPool pool;
 
     public KryoPoolSerializer() {

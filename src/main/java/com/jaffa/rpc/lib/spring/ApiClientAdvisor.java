@@ -31,6 +31,7 @@ import java.util.UUID;
 @Slf4j
 @Component
 @EqualsAndHashCode(callSuper = false)
+@SuppressWarnings("unused")
 public class ApiClientAdvisor extends AbstractPointcutAdvisor {
 
     private final transient MethodInterceptor interceptor;
