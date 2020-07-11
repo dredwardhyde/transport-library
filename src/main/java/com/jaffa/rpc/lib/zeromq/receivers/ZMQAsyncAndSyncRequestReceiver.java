@@ -58,7 +58,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                             byte[] serializedResponse = Serializer.getCurrent().serialize(RequestInvoker.constructCallbackContainer(command, result));
                             ZMQ.Socket socketAsync = context.createSocket(SocketType.REQ);
                             ZeroMqRequestSender.addCurveKeysToSocket(socketAsync, command.getSourceModuleId());
-                            socketAsync.connect("tcp://" + command.getCallBackZMQ());
+                            socketAsync.connect("tcp://" + command.getCallBackHost());
                             socketAsync.send(serializedResponse);
                             socketAsync.close();
                         } catch (ClassNotFoundException | NoSuchMethodException e) {

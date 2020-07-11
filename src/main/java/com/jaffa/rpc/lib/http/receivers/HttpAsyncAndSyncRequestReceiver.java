@@ -157,7 +157,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     try {
                         Object result = RequestInvoker.invoke(command);
                         byte[] serializedResponse = Serializer.getCurrent().serialize(RequestInvoker.constructCallbackContainer(command, result));
-                        HttpPost httpPost = new HttpPost(command.getCallBackZMQ() + "/response");
+                        HttpPost httpPost = new HttpPost(command.getCallBackHost() + "/response");
                         HttpEntity postParams = new ByteArrayEntity(serializedResponse);
                         httpPost.setEntity(postParams);
                         CloseableHttpResponse httpResponse = client.execute(httpPost);

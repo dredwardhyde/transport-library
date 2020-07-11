@@ -20,7 +20,7 @@ public class Command implements Serializable {
     private Object[] args;
     private String callbackClass;
     private String callbackKey;
-    private String callBackZMQ;
+    private String callBackHost;
     private String sourceModuleId;
     private String rqUid;
     private SecurityTicket ticket;

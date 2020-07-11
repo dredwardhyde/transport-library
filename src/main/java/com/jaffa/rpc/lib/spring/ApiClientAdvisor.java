@@ -64,9 +64,9 @@ public class ApiClientAdvisor extends AbstractPointcutAdvisor {
     public void setMetadata(Command command) {
         try {
             if (Utils.getRpcProtocol().equals(Protocol.ZMQ))
-                command.setCallBackZMQ(Utils.getZeroMQCallbackBindAddress());
+                command.setCallBackHost(Utils.getZeroMQCallbackBindAddress());
             if (Utils.getRpcProtocol().equals(Protocol.HTTP))
-                command.setCallBackZMQ(Utils.getHttpCallbackStringAddress());
+                command.setCallBackHost(Utils.getHttpCallbackStringAddress());
         } catch (UnknownHostException e) {
             log.error("Error during metadata setting", e);
             throw new JaffaRpcSystemException(e);
