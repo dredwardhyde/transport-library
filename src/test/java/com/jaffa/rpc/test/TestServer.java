@@ -89,7 +89,7 @@ public class TestServer {
         }.getClass().getEnclosingMethod().getName());
         final String javaCmd = getJavaCmdFromParent();
         final String classpath = getClassPathFromParent();
-        final ProcessBuilder proc = new ProcessBuilder(javaCmd, "-cp", classpath, MainServer.class.getName());
+        final ProcessBuilder proc = new ProcessBuilder(javaCmd, "-Djdk.tls.acknowledgeCloseNotify=true", "-cp", classpath, MainServer.class.getName());
         proc.redirectErrorStream(true);
         proc.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         try {
