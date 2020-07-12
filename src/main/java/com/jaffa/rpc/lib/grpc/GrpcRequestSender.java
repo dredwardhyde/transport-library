@@ -6,12 +6,13 @@ import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException;
+import com.jaffa.rpc.lib.grpc.receivers.GrpcAsyncAndSyncRequestReceiver;
 import com.jaffa.rpc.lib.request.Sender;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.grpc.netty.NettyChannelBuilder;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.concurrent.TimeUnit;
@@ -48,7 +49,9 @@ public class GrpcRequestSender extends Sender {
 
     private ManagedChannel getManagedChannel() {
         Pair<String, Integer> hostAndPort = Utils.getHostAndPort(Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.GRPC).getLeft(), ":");
-        return ManagedChannelBuilder.forAddress(hostAndPort.getLeft(), hostAndPort.getRight()).usePlaintext().build();
+        NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(hostAndPort.getLeft(), hostAndPort.getRight());
+        channelBuilder = GrpcAsyncAndSyncRequestReceiver.addSecurityContext(channelBuilder);
+        return channelBuilder.build();
     }
 
     @Override

@@ -50,4 +50,10 @@ public final class Options {
     public static final String RABBIT_SSL_KEYSTORE_PASSWORD         = PROTOCOL_OPTION_PREFIX + "rabbit.ssl.keystore.password";
     public static final String RABBIT_SSL_TRUSTSTORE_LOCATION       = PROTOCOL_OPTION_PREFIX + "rabbit.ssl.truststore.location";
     public static final String RABBIT_SSL_TRUSTSTORE_PASSWORD       = PROTOCOL_OPTION_PREFIX + "rabbit.ssl.truststore.password";
+
+    public static final String GRPC_USE_SSL                         = PROTOCOL_OPTION_PREFIX + "grpc.use.ssl";
+    public static final String GRPC_SSL_SERVER_KEY_LOCATION         = PROTOCOL_OPTION_PREFIX + "grpc.ssl.server.key.location";
+    public static final String GRPC_SSL_SERVER_STORE_LOCATION       = PROTOCOL_OPTION_PREFIX + "grpc.ssl.server.store.location";
+    public static final String GRPC_SSL_CLIENT_KEY_LOCATION         = PROTOCOL_OPTION_PREFIX + "grpc.ssl.client.key.location";
+    public static final String GRPC_SSL_CLIENT_STORE_LOCATION       = PROTOCOL_OPTION_PREFIX + "grpc.ssl.client.store.location";
 }

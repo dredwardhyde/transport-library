@@ -10,7 +10,7 @@ import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.grpc.MessageConverters;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 
@@ -29,10 +29,9 @@ public class GrpcAsyncResponseReceiver implements Runnable, Closeable {
     @Override
     public void run() {
         try {
-            server = ServerBuilder
-                    .forPort(Utils.getCallbackPort())
-                    .executor(requestService)
-                    .addService(new CallbackServiceImpl()).build();
+            NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(Utils.getCallbackPort());
+            serverBuilder = GrpcAsyncAndSyncRequestReceiver.addSecurityContext(serverBuilder);
+            server = serverBuilder.executor(requestService).addService(new CallbackServiceImpl()).build();
             server.start();
             server.awaitTermination();
         } catch (InterruptedException | IOException zmqStartupException) {

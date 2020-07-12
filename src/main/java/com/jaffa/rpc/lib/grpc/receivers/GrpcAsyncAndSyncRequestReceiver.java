@@ -2,6 +2,7 @@ package com.jaffa.rpc.lib.grpc.receivers;
 
 import com.google.protobuf.ByteString;
 import com.jaffa.rpc.grpc.services.*;
+import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
@@ -9,15 +10,19 @@ import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.grpc.MessageConverters;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
 import io.grpc.Server;
-import io.grpc.ServerBuilder;
+import io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.netty.NettyServerBuilder;
 import io.grpc.stub.StreamObserver;
+import io.netty.handler.ssl.SslContextBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
+import javax.net.ssl.SSLException;
 import java.io.Closeable;
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,10 +38,9 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     @Override
     public void run() {
         try {
-            server = ServerBuilder
-                    .forPort(Utils.getServicePort())
-                    .executor(requestService)
-                    .addService(new CommandServiceImpl()).build();
+            NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(Utils.getServicePort());
+            serverBuilder = addSecurityContext(serverBuilder);
+            server = serverBuilder.executor(requestService).addService(new CommandServiceImpl()).build();
             server.start();
             server.awaitTermination();
         } catch (InterruptedException | IOException zmqStartupException) {
@@ -58,10 +62,11 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                             Object result = RequestInvoker.invoke(command);
                             CallbackRequest callbackResponse = MessageConverters.toGRPCCallbackRequest(RequestInvoker.constructCallbackContainer(command, result));
                             Pair<String, Integer> hostAndPort = Utils.getHostAndPort(command.getCallBackHost(), ":");
-                            ManagedChannel channel = ManagedChannelBuilder.forAddress(hostAndPort.getLeft(), hostAndPort.getRight()).usePlaintext().build();
+                            NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(hostAndPort.getLeft(), hostAndPort.getRight());
+                            ManagedChannel channel = addSecurityContext(channelBuilder).build();
                             CallbackServiceGrpc.CallbackServiceBlockingStub stub = CallbackServiceGrpc.newBlockingStub(channel);
                             CallbackResponse response = stub.execute(callbackResponse);
-                            if(!response.getResponse().equals("OK"))
+                            if (!response.getResponse().equals("OK"))
                                 throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
                             channel.shutdown();
                         } catch (ClassNotFoundException | NoSuchMethodException e) {
@@ -81,6 +86,37 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 log.error("Error while receiving request ", exception);
                 throw new JaffaRpcSystemException(exception);
             }
+        }
+    }
+
+    public static NettyServerBuilder addSecurityContext(NettyServerBuilder serverBuilder) {
+        try {
+            if (Boolean.parseBoolean(System.getProperty(Options.GRPC_USE_SSL, "false"))) {
+                return serverBuilder.sslContext(GrpcSslContexts.configure(SslContextBuilder.forServer(new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_STORE_LOCATION)),
+                        new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_KEY_LOCATION)))).build());
+            } else {
+                return serverBuilder;
+            }
+        } catch (SSLException sslException) {
+            log.error("Exception occurred while creating SSL context for gRPC", sslException);
+            throw new JaffaRpcSystemException(sslException);
+        }
+    }
+
+    public static NettyChannelBuilder addSecurityContext(NettyChannelBuilder channelBuilder) {
+        try {
+            if (Boolean.parseBoolean(System.getProperty(Options.GRPC_USE_SSL, "false"))) {
+                return channelBuilder.sslContext(GrpcSslContexts.
+                        configure(SslContextBuilder.forClient().
+                                keyManager(new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_STORE_LOCATION)),
+                                        new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_KEY_LOCATION))))
+                        .build()).useTransportSecurity();
+            } else {
+                return channelBuilder.usePlaintext();
+            }
+        } catch (SSLException sslException) {
+            log.error("Exception occurred while creating SSL context for gRPC", sslException);
+            throw new JaffaRpcSystemException(sslException);
         }
     }
 
