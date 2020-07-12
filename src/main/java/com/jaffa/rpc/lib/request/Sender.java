@@ -11,7 +11,19 @@ public abstract class Sender {
     protected String moduleId;
     protected Command command;
 
-    public abstract byte[] executeSync(byte[] message);
+    public byte[] executeSync(byte[] message) {
+        throw new UnsupportedOperationException();
+    }
 
-    public abstract void executeAsync(byte[] message);
+    public void executeAsync(byte[] message) {
+        throw new UnsupportedOperationException();
+    }
+
+    public Object executeSync(Command command) {
+        throw new UnsupportedOperationException();
+    }
+
+    public void executeAsync(Command command) {
+        throw new UnsupportedOperationException();
+    }
 }

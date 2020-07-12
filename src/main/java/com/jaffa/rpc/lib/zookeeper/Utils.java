@@ -6,6 +6,7 @@ import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
+import com.jaffa.rpc.lib.grpc.GrpcRequestSender;
 import com.jaffa.rpc.lib.http.HttpRequestSender;
 import com.jaffa.rpc.lib.kafka.KafkaRequestSender;
 import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender;
@@ -50,6 +51,7 @@ public class Utils {
         senders.put(Protocol.HTTP, HttpRequestSender.class);
         senders.put(Protocol.KAFKA, KafkaRequestSender.class);
         senders.put(Protocol.RABBIT, RabbitMQRequestSender.class);
+        senders.put(Protocol.GRPC, GrpcRequestSender.class);
     }
 
     public static void loadExternalProperties() {
@@ -188,7 +190,7 @@ public class Utils {
             return sender;
     }
 
-    private static int getServicePort() {
+    public static int getServicePort() {
         int defaultPort = 4242;
         try {
             return Integer.parseInt(System.getProperty(Options.PROTOCOL_OPTION_PREFIX + getRpcProtocol().getShortName() + Options.SERVICE_PORT_OPTION_SUFFIX, String.valueOf(defaultPort)));
@@ -197,7 +199,7 @@ public class Utils {
         }
     }
 
-    private static int getCallbackPort() {
+    public static int getCallbackPort() {
         int defaultPort = 4342;
         try {
             return Integer.parseInt(System.getProperty(Options.PROTOCOL_OPTION_PREFIX + getRpcProtocol().getShortName() + Options.CALLBACK_PORT_OPTION_SUFFIX, String.valueOf(defaultPort)));

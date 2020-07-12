@@ -8,6 +8,8 @@ import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
+import com.jaffa.rpc.lib.grpc.receivers.GrpcAsyncAndSyncRequestReceiver;
+import com.jaffa.rpc.lib.grpc.receivers.GrpcAsyncResponseReceiver;
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncAndSyncRequestReceiver;
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncResponseReceiver;
 import com.jaffa.rpc.lib.kafka.KafkaRequestSender;
@@ -291,6 +293,18 @@ public class JaffaService {
                         HttpAsyncResponseReceiver httpAsyncResponseReceiver = new HttpAsyncResponseReceiver();
                         this.zmqReceivers.add(httpAsyncResponseReceiver);
                         this.receiverThreads.add(new Thread(httpAsyncResponseReceiver));
+                    }
+                    break;
+                case GRPC:
+                    if (serverEndpoints.getEndpoints().length != 0) {
+                        GrpcAsyncAndSyncRequestReceiver grpcAsyncAndSyncRequestReceiver = new GrpcAsyncAndSyncRequestReceiver();
+                        this.zmqReceivers.add(grpcAsyncAndSyncRequestReceiver);
+                        this.receiverThreads.add(new Thread(grpcAsyncAndSyncRequestReceiver));
+                    }
+                    if (clientEndpoints.getEndpoints().length != 0) {
+                        GrpcAsyncResponseReceiver grpcAsyncResponseReceiver = new GrpcAsyncResponseReceiver();
+                        this.zmqReceivers.add(grpcAsyncResponseReceiver);
+                        this.receiverThreads.add(new Thread(grpcAsyncResponseReceiver));
                     }
                     break;
                 case RABBIT:

@@ -11,9 +11,12 @@ import com.jaffa.rpc.lib.security.SecurityTicket;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Objects;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings("unused")
 public class Converters {
@@ -29,44 +32,61 @@ public class Converters {
         command.setRqUid(request.getRqUid());
         command.setSourceModuleId(request.getSourceModuleId());
         command.setServiceClass(request.getServiceClass());
-        if (Objects.nonNull(request.getToken()) && Objects.nonNull(request.getUser())) {
+        if (StringUtils.isNotBlank(request.getToken()) && StringUtils.isNotBlank(request.getUser())) {
             SecurityTicket securityTicket = new SecurityTicket();
             securityTicket.setToken(request.getToken());
             securityTicket.setUser(request.getUser());
             command.setTicket(securityTicket);
         }
-        String[] methodArgs = request.getMethodArgsList().toArray(new String[0]);
-        command.setMethodArgs(methodArgs);
-        Object[] argsObjects = new Object[request.getArgsCount()];
-        for (int i = 0; i < request.getArgsCount(); i++) {
-            argsObjects[i] = Serializer.getCurrent().deserialize(request.getArgs(i).toByteArray(), Class.forName(methodArgs[i]));
+        if (Objects.nonNull(request.getMethodArgsList()) && !request.getMethodArgsList().isEmpty()) {
+            String[] methodArgs = request.getMethodArgsList().toArray(new String[0]);
+            command.setMethodArgs(methodArgs);
+            Object[] argsObjects = new Object[methodArgs.length];
+            for (int i = 0; i < request.getArgsCount(); i++) {
+                if (request.getArgs(i).equals(ByteString.EMPTY))
+                    argsObjects[i] = null;
+                else
+                    argsObjects[i] = Serializer.getCurrent().deserialize(request.getArgs(i).toByteArray(), Class.forName(methodArgs[i]));
+            }
+            command.setArgs(argsObjects);
         }
-        command.setArgs(argsObjects);
         return command;
     }
 
     public static CommandRequest toGRPCCommandRequest(Command command) {
         CommandRequest.Builder commandRequest = CommandRequest.newBuilder();
-        commandRequest = commandRequest.setAsyncExpireTime(command.getAsyncExpireTime())
-                .setLocalRequestTime(command.getLocalRequestTime())
-                .setCallbackClass(command.getCallbackClass())
-                .setCallBackHost(command.getCallBackHost())
-                .setCallbackKey(command.getCallbackKey())
-                .setMethodName(command.getMethodName())
+        commandRequest.setAsyncExpireTime(command.getAsyncExpireTime())
+                .setAsyncExpireTime(command.getAsyncExpireTime())
                 .setRequestTime(command.getRequestTime())
-                .setRqUid(command.getRqUid())
-                .setServiceClass(command.getServiceClass())
-                .setSourceModuleId(command.getSourceModuleId())
-                .setAsyncExpireTime(command.getAsyncExpireTime());
+                .setLocalRequestTime(command.getLocalRequestTime());
+        if (StringUtils.isNotBlank(command.getCallbackClass()))
+            commandRequest = commandRequest.setCallbackClass(command.getCallbackClass());
+        if (StringUtils.isNotBlank(command.getCallBackHost()))
+            commandRequest = commandRequest.setCallBackHost(command.getCallBackHost());
+        if (StringUtils.isNotBlank(command.getCallbackKey()))
+            commandRequest = commandRequest.setCallbackKey(command.getCallbackKey());
+        if (StringUtils.isNotBlank(command.getMethodName()))
+            commandRequest = commandRequest.setMethodName(command.getMethodName());
+        if (StringUtils.isNotBlank(command.getRqUid()))
+            commandRequest = commandRequest.setRqUid(command.getRqUid());
+        if (StringUtils.isNotBlank(command.getServiceClass()))
+            commandRequest = commandRequest.setServiceClass(command.getServiceClass());
+        if (StringUtils.isNotBlank(command.getSourceModuleId()))
+            commandRequest = commandRequest.setSourceModuleId(command.getSourceModuleId());
+
         if (Objects.nonNull(command.getTicket())) {
             commandRequest = commandRequest.setUser(command.getTicket().getUser()).setToken(command.getTicket().getToken());
         }
-        for (int i = 0; i < command.getMethodArgs().length; i++) {
-            commandRequest = commandRequest.setMethodArgs(i, command.getMethodArgs()[i]);
-        }
-        for (int i = 0; i < command.getMethodArgs().length; i++) {
-            if (Objects.nonNull(command.getArgs()[i]))
-                commandRequest = commandRequest.setArgs(i, ByteString.copyFrom(Serializer.getCurrent().serialize(command.getArgs()[i])));
+        if (Objects.nonNull(command.getMethodArgs())) {
+            for (int i = 0; i < command.getMethodArgs().length; i++) {
+                commandRequest = commandRequest.addMethodArgs(command.getMethodArgs()[i]);
+            }
+            for (int i = 0; i < command.getMethodArgs().length; i++) {
+                if (Objects.nonNull(command.getArgs()[i]))
+                    commandRequest = commandRequest.addArgs(ByteString.copyFrom(Serializer.getCurrent().serialize(command.getArgs()[i])));
+                else
+                    commandRequest = commandRequest.addArgs(ByteString.EMPTY);
+            }
         }
         return commandRequest.build();
     }
@@ -87,9 +107,7 @@ public class Converters {
         callbackRequest.setKey(callbackContainer.getKey());
         callbackRequest.setListener(callbackContainer.getListener());
         callbackRequest.setResultClass(callbackContainer.getResultClass());
-        if (Objects.nonNull(callbackContainer.getResult())) {
-            callbackRequest.setResult(ByteString.copyFrom(Serializer.getCurrent().serializeWithClass(callbackRequest.getResult())));
-        }
+        callbackRequest.setResult(ByteString.copyFrom(Serializer.getCurrent().serializeWithClass(callbackContainer.getResult())));
         return callbackRequest.build();
     }
 
@@ -98,11 +116,11 @@ public class Converters {
     }
 
     public static CommandResponse toGRPCCommandResponse(Object response) {
-        ByteString responseMarshalled = Objects.nonNull(response) ? ByteString.copyFrom(Serializer.getCurrent().serializeWithClass(response)) : null;
+        ByteString responseMarshalled = ByteString.copyFrom(Serializer.getCurrent().serializeWithClass(response));
         return CommandResponse.newBuilder().setResponse(responseMarshalled).build();
     }
 
-    public static Object fromGRPCCommandResponse(CommandResponse commandResponse){
+    public static Object fromGRPCCommandResponse(CommandResponse commandResponse) {
         return Serializer.getCurrent().deserializeWithClass(commandResponse.getResponse().toByteArray());
     }
 }
