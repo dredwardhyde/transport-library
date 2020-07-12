@@ -42,7 +42,7 @@ public class Converters {
             String[] methodArgs = request.getMethodArgsList().toArray(new String[0]);
             command.setMethodArgs(methodArgs);
             Object[] argsObjects = new Object[methodArgs.length];
-            for (int i = 0; i < request.getArgsCount(); i++) {
+            for (int i = 0; i < methodArgs.length; i++) {
                 if (request.getArgs(i).equals(ByteString.EMPTY))
                     argsObjects[i] = null;
                 else
@@ -60,31 +60,29 @@ public class Converters {
                 .setRequestTime(command.getRequestTime())
                 .setLocalRequestTime(command.getLocalRequestTime());
         if (StringUtils.isNotBlank(command.getCallbackClass()))
-            commandRequest = commandRequest.setCallbackClass(command.getCallbackClass());
+            commandRequest.setCallbackClass(command.getCallbackClass());
         if (StringUtils.isNotBlank(command.getCallBackHost()))
-            commandRequest = commandRequest.setCallBackHost(command.getCallBackHost());
+            commandRequest.setCallBackHost(command.getCallBackHost());
         if (StringUtils.isNotBlank(command.getCallbackKey()))
-            commandRequest = commandRequest.setCallbackKey(command.getCallbackKey());
+            commandRequest.setCallbackKey(command.getCallbackKey());
         if (StringUtils.isNotBlank(command.getMethodName()))
-            commandRequest = commandRequest.setMethodName(command.getMethodName());
+            commandRequest.setMethodName(command.getMethodName());
         if (StringUtils.isNotBlank(command.getRqUid()))
-            commandRequest = commandRequest.setRqUid(command.getRqUid());
+            commandRequest.setRqUid(command.getRqUid());
         if (StringUtils.isNotBlank(command.getServiceClass()))
-            commandRequest = commandRequest.setServiceClass(command.getServiceClass());
+            commandRequest.setServiceClass(command.getServiceClass());
         if (StringUtils.isNotBlank(command.getSourceModuleId()))
-            commandRequest = commandRequest.setSourceModuleId(command.getSourceModuleId());
+            commandRequest.setSourceModuleId(command.getSourceModuleId());
         if (Objects.nonNull(command.getTicket())) {
-            commandRequest = commandRequest.setUser(command.getTicket().getUser()).setToken(command.getTicket().getToken());
+            commandRequest.setUser(command.getTicket().getUser()).setToken(command.getTicket().getToken());
         }
         if (Objects.nonNull(command.getMethodArgs())) {
             for (int i = 0; i < command.getMethodArgs().length; i++) {
                 commandRequest = commandRequest.addMethodArgs(command.getMethodArgs()[i]);
-            }
-            for (int i = 0; i < command.getMethodArgs().length; i++) {
                 if (Objects.nonNull(command.getArgs()[i]))
-                    commandRequest = commandRequest.addArgs(ByteString.copyFrom(Serializer.getCurrent().serialize(command.getArgs()[i])));
+                    commandRequest.addArgs(ByteString.copyFrom(Serializer.getCurrent().serialize(command.getArgs()[i])));
                 else
-                    commandRequest = commandRequest.addArgs(ByteString.EMPTY);
+                    commandRequest.addArgs(ByteString.EMPTY);
             }
         }
         return commandRequest.build();
