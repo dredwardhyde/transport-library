@@ -12,6 +12,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.concurrent.TimeUnit;
 
@@ -33,8 +34,8 @@ public class GrpcRequestSender extends Sender {
         CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
         int totalTimeout = (int) (this.timeout == -1 ? 1000 * 60 * 60 : this.timeout);
         try {
-            CommandResponse commandResponse = stub.withDeadlineAfter(totalTimeout, TimeUnit.MILLISECONDS).execute(Converters.toGRPCCommandRequest(command));
-            return Converters.fromGRPCCommandResponse(commandResponse);
+            CommandResponse commandResponse = stub.withDeadlineAfter(totalTimeout, TimeUnit.MILLISECONDS).execute(MessageConverters.toGRPCCommandRequest(command));
+            return MessageConverters.fromGRPCCommandResponse(commandResponse);
         } catch (StatusRuntimeException statusRuntimeException) {
             if (statusRuntimeException.getStatus() == Status.DEADLINE_EXCEEDED)
                 throw new JaffaRpcExecutionTimeoutException();
@@ -46,15 +47,15 @@ public class GrpcRequestSender extends Sender {
     }
 
     private ManagedChannel getManagedChannel() {
-        String[] hostAndPort = Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.GRPC).getLeft().split(":");
-        return ManagedChannelBuilder.forAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])).usePlaintext().build();
+        Pair<String, Integer> hostAndPort = Utils.getHostAndPort(Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.GRPC).getLeft(), ":");
+        return ManagedChannelBuilder.forAddress(hostAndPort.getLeft(), hostAndPort.getRight()).usePlaintext().build();
     }
 
     @Override
     public void executeAsync(Command command) {
         ManagedChannel channel = getManagedChannel();
         CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
-        stub.execute(Converters.toGRPCCommandRequest(command));
+        stub.execute(MessageConverters.toGRPCCommandRequest(command));
         channel.shutdownNow();
     }
 }

@@ -6,7 +6,7 @@ import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
-import com.jaffa.rpc.lib.grpc.Converters;
+import com.jaffa.rpc.lib.grpc.MessageConverters;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -15,6 +15,7 @@ import io.grpc.ServerBuilder;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -50,14 +51,14 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         @Override
         public void execute(CommandRequest request, StreamObserver<CommandResponse> responseObserver) {
             try {
-                final Command command = Converters.fromGRPCCommandRequest(request);
+                final Command command = MessageConverters.fromGRPCCommandRequest(request);
                 if (StringUtils.isNotBlank(command.getCallbackKey()) && StringUtils.isNotBlank(command.getCallbackClass())) {
                     Runnable runnable = () -> {
                         try {
                             Object result = RequestInvoker.invoke(command);
-                            CallbackRequest callbackResponse = Converters.toGRPCCallbackRequest(RequestInvoker.constructCallbackContainer(command, result));
-                            String[] hostAndPort = command.getCallBackHost().split(":");
-                            ManagedChannel channel = ManagedChannelBuilder.forAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])).usePlaintext().build();
+                            CallbackRequest callbackResponse = MessageConverters.toGRPCCallbackRequest(RequestInvoker.constructCallbackContainer(command, result));
+                            Pair<String, Integer> hostAndPort = Utils.getHostAndPort(command.getCallBackHost(), ":");
+                            ManagedChannel channel = ManagedChannelBuilder.forAddress(hostAndPort.getLeft(), hostAndPort.getRight()).usePlaintext().build();
                             CallbackServiceGrpc.CallbackServiceBlockingStub stub = CallbackServiceGrpc.newBlockingStub(channel);
                             stub.execute(callbackResponse);
                             channel.shutdown();
@@ -70,7 +71,7 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     responseObserver.onNext(CommandResponse.newBuilder().setResponse(ByteString.EMPTY).build());
                 } else {
                     Object result = RequestInvoker.invoke(command);
-                    CommandResponse commandResponse = Converters.toGRPCCommandResponse(RequestInvoker.getResult(result));
+                    CommandResponse commandResponse = MessageConverters.toGRPCCommandResponse(RequestInvoker.getResult(result));
                     responseObserver.onNext(commandResponse);
                 }
                 responseObserver.onCompleted();

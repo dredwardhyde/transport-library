@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.zookeeper.CreateMode;
@@ -188,6 +189,11 @@ public class Utils {
             throw new JaffaRpcSystemException(JaffaRpcSystemException.NO_PROTOCOL_DEFINED);
         else
             return sender;
+    }
+
+    public static Pair<String, Integer> getHostAndPort(String address, String delimiter) {
+        String[] s = address.split(delimiter);
+        return new ImmutablePair<>(s[0], Integer.parseInt(s[1]));
     }
 
     public static int getServicePort() {
