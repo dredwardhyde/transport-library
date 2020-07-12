@@ -29,10 +29,9 @@ public class GrpcRequestSender extends Sender {
 
     @Override
     public Object executeSync(Command command) {
-        String[] hostAndPort = Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.GRPC).getLeft().split(":");
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])).usePlaintext().build();
+        ManagedChannel channel = getManagedChannel();
         CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
-        int totalTimeout = (int)(this.timeout == -1 ? 1000 * 60 * 60 : this.timeout);
+        int totalTimeout = (int) (this.timeout == -1 ? 1000 * 60 * 60 : this.timeout);
         try {
             CommandResponse commandResponse = stub.withDeadlineAfter(totalTimeout, TimeUnit.MILLISECONDS).execute(Converters.toGRPCCommandRequest(command));
             return Converters.fromGRPCCommandResponse(commandResponse);
@@ -46,10 +45,14 @@ public class GrpcRequestSender extends Sender {
         }
     }
 
+    private ManagedChannel getManagedChannel() {
+        String[] hostAndPort = Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.GRPC).getLeft().split(":");
+        return ManagedChannelBuilder.forAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])).usePlaintext().build();
+    }
+
     @Override
     public void executeAsync(Command command) {
-        String[] hostAndPort = Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.GRPC).getLeft().split(":");
-        ManagedChannel channel = ManagedChannelBuilder.forAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])).usePlaintext().build();
+        ManagedChannel channel = getManagedChannel();
         CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
         stub.execute(Converters.toGRPCCommandRequest(command));
         channel.shutdownNow();
