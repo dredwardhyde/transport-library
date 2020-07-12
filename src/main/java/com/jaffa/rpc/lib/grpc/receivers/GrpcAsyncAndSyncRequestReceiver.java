@@ -1,7 +1,7 @@
 package com.jaffa.rpc.lib.grpc.receivers;
 
 import com.google.protobuf.ByteString;
-import com.jaffa.rpc.grpc.*;
+import com.jaffa.rpc.grpc.services.*;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;

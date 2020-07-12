@@ -1,8 +1,8 @@
 package com.jaffa.rpc.lib.grpc.receivers;
 
-import com.jaffa.rpc.grpc.CallbackRequest;
-import com.jaffa.rpc.grpc.CallbackResponse;
-import com.jaffa.rpc.grpc.CallbackServiceGrpc;
+import com.jaffa.rpc.grpc.services.CallbackRequest;
+import com.jaffa.rpc.grpc.services.CallbackResponse;
+import com.jaffa.rpc.grpc.services.CallbackServiceGrpc;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;

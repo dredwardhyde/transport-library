@@ -1,7 +1,7 @@
 package com.jaffa.rpc.lib.grpc;
 
-import com.jaffa.rpc.grpc.CommandResponse;
-import com.jaffa.rpc.grpc.CommandServiceGrpc;
+import com.jaffa.rpc.grpc.services.CommandResponse;
+import com.jaffa.rpc.grpc.services.CommandServiceGrpc;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;

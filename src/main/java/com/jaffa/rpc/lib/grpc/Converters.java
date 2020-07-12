@@ -1,10 +1,10 @@
 package com.jaffa.rpc.lib.grpc;
 
 import com.google.protobuf.ByteString;
-import com.jaffa.rpc.grpc.CallbackRequest;
-import com.jaffa.rpc.grpc.CallbackResponse;
-import com.jaffa.rpc.grpc.CommandRequest;
-import com.jaffa.rpc.grpc.CommandResponse;
+import com.jaffa.rpc.grpc.services.CallbackRequest;
+import com.jaffa.rpc.grpc.services.CallbackResponse;
+import com.jaffa.rpc.grpc.services.CommandRequest;
+import com.jaffa.rpc.grpc.services.CommandResponse;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.security.SecurityTicket;
@@ -73,7 +73,6 @@ public class Converters {
             commandRequest = commandRequest.setServiceClass(command.getServiceClass());
         if (StringUtils.isNotBlank(command.getSourceModuleId()))
             commandRequest = commandRequest.setSourceModuleId(command.getSourceModuleId());
-
         if (Objects.nonNull(command.getTicket())) {
             commandRequest = commandRequest.setUser(command.getTicket().getUser()).setToken(command.getTicket().getToken());
         }
