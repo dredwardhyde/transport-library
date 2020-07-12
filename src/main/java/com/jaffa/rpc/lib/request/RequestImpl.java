@@ -4,16 +4,12 @@ import com.jaffa.rpc.lib.callbacks.Callback;
 import com.jaffa.rpc.lib.common.FinalizationWorker;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.ExceptionHolder;
-import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
-import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.ui.AdminServer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -33,11 +29,13 @@ public class RequestImpl<T> implements Request<T> {
         }
     }
 
+    @Override
     public RequestImpl<T> withTimeout(long timeout, TimeUnit unit) {
         this.timeout = unit.toMillis(timeout);
         return this;
     }
 
+    @Override
     public RequestImpl<T> onModule(String moduleId) {
         this.moduleId = moduleId;
         return this;
@@ -49,22 +47,13 @@ public class RequestImpl<T> implements Request<T> {
         sender.setTimeout(timeout);
     }
 
+    @Override
     @SuppressWarnings("unchecked")
     public T executeSync() {
         initSender();
         command.setRequestTime(System.currentTimeMillis());
         command.setLocalRequestTime(System.nanoTime());
-        Object result;
-        if (Utils.getRpcProtocol() == Protocol.GRPC) {
-            result = sender.executeSync(command);
-        } else {
-            byte[] out = Serializer.getCurrent().serialize(command);
-            byte[] response = sender.executeSync(out);
-            if (Objects.isNull(response)) {
-                throw new JaffaRpcExecutionTimeoutException();
-            }
-            result = Serializer.getCurrent().deserializeWithClass(response);
-        }
+        Object result = sender.executeSync(command);
         AdminServer.addMetric(command);
         if (result instanceof ExceptionHolder)
             throw new JaffaRpcExecutionException(((ExceptionHolder) result).getStackTrace());
@@ -73,6 +62,7 @@ public class RequestImpl<T> implements Request<T> {
         return (T) result;
     }
 
+    @Override
     public void executeAsync(String key, Class<? extends Callback<T>> listener) {
         initSender();
         command.setCallbackClass(listener.getName());
@@ -82,10 +72,6 @@ public class RequestImpl<T> implements Request<T> {
         command.setAsyncExpireTime(System.currentTimeMillis() + (timeout != -1 ? timeout : 1000 * 60 * 60));
         log.debug("Async command {} added to finalization queue", command);
         FinalizationWorker.getEventsToConsume().put(command.getCallbackKey(), command);
-        if (Utils.getRpcProtocol() == Protocol.GRPC) {
-            sender.executeAsync(command);
-        } else {
-            sender.executeAsync(Serializer.getCurrent().serialize(command));
-        }
+        sender.executeAsync(command);
     }
 }

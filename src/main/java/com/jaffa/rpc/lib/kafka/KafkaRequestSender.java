@@ -108,7 +108,7 @@ public class KafkaRequestSender extends Sender {
     }
 
     @Override
-    public byte[] executeSync(byte[] message) {
+    protected byte[] executeSync(byte[] message) {
         long start = System.currentTimeMillis();
         String requestTopic = RequestUtils.getTopicForService(command.getServiceClass(), moduleId, true);
         try {
@@ -125,7 +125,7 @@ public class KafkaRequestSender extends Sender {
     }
 
     @Override
-    public void executeAsync(byte[] message) {
+    protected void executeAsync(byte[] message) {
         try {
             ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(RequestUtils.getTopicForService(command.getServiceClass(), moduleId, false), UUID.randomUUID().toString(), message);
             producer.send(resultPackage).get();

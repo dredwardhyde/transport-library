@@ -30,7 +30,7 @@ public class ZeroMqRequestSender extends Sender {
     }
 
     @Override
-    public byte[] executeSync(byte[] message) {
+    protected byte[] executeSync(byte[] message) {
         long start = System.currentTimeMillis();
         byte[] response;
         try (ZMQ.Socket socket = context.createSocket(SocketType.REQ)) {
@@ -46,7 +46,7 @@ public class ZeroMqRequestSender extends Sender {
     }
 
     @Override
-    public void executeAsync(byte[] message) {
+    protected void executeAsync(byte[] message) {
         long start = System.currentTimeMillis();
         try (ZMQ.Socket socket = context.createSocket(SocketType.REQ)) {
             Pair<String, String> hostAndModuleId = Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.ZMQ);

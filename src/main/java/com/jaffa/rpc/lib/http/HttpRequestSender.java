@@ -23,7 +23,7 @@ import java.net.SocketTimeoutException;
 public class HttpRequestSender extends Sender {
 
     @Override
-    public byte[] executeSync(byte[] message) {
+    protected byte[] executeSync(byte[] message) {
         try {
             int totalTimeout = (int)(this.timeout == -1 ? 1000 * 60 * 60 : this.timeout);
             RequestConfig config = RequestConfig.custom()
@@ -56,7 +56,7 @@ public class HttpRequestSender extends Sender {
     }
 
     @Override
-    public void executeAsync(byte[] message) {
+    protected void executeAsync(byte[] message) {
         try {
             HttpPost httpPost = new HttpPost(Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.HTTP).getLeft() + "/request");
             HttpEntity postParams = new ByteArrayEntity(message);

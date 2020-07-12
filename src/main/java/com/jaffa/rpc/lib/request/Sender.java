@@ -1,8 +1,12 @@
 package com.jaffa.rpc.lib.request;
 
 import com.jaffa.rpc.lib.entities.Command;
+import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException;
+import com.jaffa.rpc.lib.serialization.Serializer;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Objects;
 
 @Setter
 @Getter
@@ -11,19 +15,20 @@ public abstract class Sender {
     protected String moduleId;
     protected Command command;
 
-    public byte[] executeSync(byte[] message) {
-        throw new UnsupportedOperationException();
-    }
+    protected abstract byte[] executeSync(byte[] message);
 
-    public void executeAsync(byte[] message) {
-        throw new UnsupportedOperationException();
-    }
+    protected abstract void executeAsync(byte[] message);
 
     public Object executeSync(Command command) {
-        throw new UnsupportedOperationException();
+        byte[] out = Serializer.getCurrent().serialize(command);
+        byte[] response = executeSync(out);
+        if (Objects.isNull(response)) {
+            throw new JaffaRpcExecutionTimeoutException();
+        }
+        return Serializer.getCurrent().deserializeWithClass(response);
     }
 
     public void executeAsync(Command command) {
-        throw new UnsupportedOperationException();
+        executeAsync(Serializer.getCurrent().serialize(command));
     }
 }

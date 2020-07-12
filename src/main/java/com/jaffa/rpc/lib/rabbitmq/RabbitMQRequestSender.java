@@ -71,7 +71,7 @@ public class RabbitMQRequestSender extends Sender {
 
     @Override
     @SuppressWarnings("squid:S1168")
-    public byte[] executeSync(byte[] message) {
+    protected byte[] executeSync(byte[] message) {
         try {
             final AtomicReference<byte[]> atomicReference = new AtomicReference<>();
             requests.put(command.getRqUid(), atomicReference::set);
@@ -102,7 +102,7 @@ public class RabbitMQRequestSender extends Sender {
     }
 
     @Override
-    public void executeAsync(byte[] message) {
+    protected void executeAsync(byte[] message) {
         try {
             sendSync(message);
         } catch (IOException e) {

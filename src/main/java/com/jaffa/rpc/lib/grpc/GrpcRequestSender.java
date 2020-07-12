@@ -18,6 +18,16 @@ import java.util.concurrent.TimeUnit;
 public class GrpcRequestSender extends Sender {
 
     @Override
+    protected byte[] executeSync(byte[] message) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void executeAsync(byte[] message) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Object executeSync(Command command) {
         String[] hostAndPort = Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.GRPC).getLeft().split(":");
         ManagedChannel channel = ManagedChannelBuilder.forAddress(hostAndPort[0], Integer.parseInt(hostAndPort[1])).usePlaintext().build();
