@@ -254,6 +254,7 @@
                 <configuration>
                     <argLine>
                         -Djaffa-rpc-config=./jaffa-rpc-config-test-server.properties
+                        -Djdk.tls.acknowledgeCloseNotify=true
                     </argLine>
                 </configuration>
             </plugin>
