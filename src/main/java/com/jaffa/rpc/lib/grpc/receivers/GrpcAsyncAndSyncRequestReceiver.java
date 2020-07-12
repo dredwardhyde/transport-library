@@ -60,7 +60,9 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                             Pair<String, Integer> hostAndPort = Utils.getHostAndPort(command.getCallBackHost(), ":");
                             ManagedChannel channel = ManagedChannelBuilder.forAddress(hostAndPort.getLeft(), hostAndPort.getRight()).usePlaintext().build();
                             CallbackServiceGrpc.CallbackServiceBlockingStub stub = CallbackServiceGrpc.newBlockingStub(channel);
-                            stub.execute(callbackResponse);
+                            CallbackResponse response = stub.execute(callbackResponse);
+                            if(!response.getResponse().equals("OK"))
+                                throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
                             channel.shutdown();
                         } catch (ClassNotFoundException | NoSuchMethodException e) {
                             log.error("Error while receiving async request", e);
