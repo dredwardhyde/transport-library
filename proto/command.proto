@@ -1,0 +1,23 @@
+syntax = "proto3";
+option java_multiple_files = true;
+package com.grpc.test;
+
+service CommandService {
+  rpc execute(CommandRequest) returns (CommandResponse);
+}
+
+message CommandRequest {
+  string serviceClass = 1;
+  string methodName = 2;
+  repeated string methodArgs = 3;
+  repeated bytes args = 4;
+  string callbackClass = 5;
+  string callbackKey = 6;
+  string callBackHost = 7;
+  string sourceModuleId = 8;
+  string rqUid = 9;
+}
+
+message CommandResponse {
+  bytes response = 1;
+}
