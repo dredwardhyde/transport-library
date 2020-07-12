@@ -1,0 +1,18 @@
+syntax = "proto3";
+option java_multiple_files = true;
+package com.jaffa.rpc.grpc;
+
+service CallbackService {
+  rpc execute(CallbackRequest) returns (CallbackResponse);
+}
+
+message CallbackRequest {
+  string key = 1;
+  string listener = 2;
+  bytes result = 3;
+  string resultClass = 4;
+}
+
+message CallbackResponse {
+  string response = 1;
+}
