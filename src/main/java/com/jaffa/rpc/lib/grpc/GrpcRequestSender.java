@@ -1,5 +1,6 @@
 package com.jaffa.rpc.lib.grpc;
 
+import com.google.protobuf.ByteString;
 import com.jaffa.rpc.grpc.services.CommandResponse;
 import com.jaffa.rpc.grpc.services.CommandServiceGrpc;
 import com.jaffa.rpc.lib.entities.Command;
@@ -58,7 +59,9 @@ public class GrpcRequestSender extends Sender {
     public void executeAsync(Command command) {
         ManagedChannel channel = getManagedChannel();
         CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
-        stub.execute(MessageConverters.toGRPCCommandRequest(command));
+        CommandResponse response = stub.execute(MessageConverters.toGRPCCommandRequest(command));
+        if (!response.getResponse().equals(ByteString.EMPTY))
+            throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
         channel.shutdownNow();
     }
 }
