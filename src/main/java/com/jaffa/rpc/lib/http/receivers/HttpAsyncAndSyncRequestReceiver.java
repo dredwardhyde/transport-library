@@ -17,9 +17,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.config.Registry;
 import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -46,17 +45,22 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     private static CloseableHttpClient client;
     private HttpServer server;
 
-    public static void initClient() {
+    public static void initClient() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
         if (Boolean.parseBoolean(System.getProperty(Options.USE_HTTPS, String.valueOf(false)))) {
-            TrustStrategy acceptingTrustStrategy = (cert, authType) -> true;
+            char[] keyPassphrase = Utils.getRequiredOption(Options.HTTP_SSL_CLIENT_KEYSTORE_PASSWORD).toCharArray();
+            KeyStore ks = KeyStore.getInstance("JKS");
+            ks.load(new FileInputStream(Utils.getRequiredOption(Options.HTTP_SSL_CLIENT_KEYSTORE_LOCATION)), keyPassphrase);
+            char[] trustPassphrase = Utils.getRequiredOption(Options.HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD).toCharArray();
+            KeyStore tks = KeyStore.getInstance("JKS");
+            tks.load(new FileInputStream(Utils.getRequiredOption(Options.HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION)), trustPassphrase);
             SSLContext sslContext;
             try {
-                sslContext = SSLContexts.custom().loadTrustMaterial(null, acceptingTrustStrategy).build();
-            } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+                sslContext = SSLContexts.custom().loadKeyMaterial(ks, keyPassphrase).loadTrustMaterial(tks, TrustSelfSignedStrategy.INSTANCE).build();
+            } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | UnrecoverableKeyException e) {
                 log.error("Error occurred while creating HttpClient", e);
                 throw new JaffaRpcSystemException(e);
             }
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
+            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.getDefaultHostnameVerifier());
             Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create().register("https", sslConnectionSocketFactory).build();
             PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
             connectionManager.setMaxTotal(200);
@@ -111,10 +115,10 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             if (Boolean.parseBoolean(System.getProperty(Options.USE_HTTPS, String.valueOf(false)))) {
                 HttpsServer httpsServer = HttpsServer.create(Utils.getHttpBindAddress(), 0);
                 initSSLForHttpsServer(httpsServer,
-                        Utils.getRequiredOption(Options.HTTP_SSL_TRUSTSTORE_LOCATION),
-                        Utils.getRequiredOption(Options.HTTP_SSL_KEYSTORE_LOCATION),
-                        Utils.getRequiredOption(Options.HTTP_SSL_TRUSTSTORE_PASSWORD),
-                        Utils.getRequiredOption(Options.HTTP_SSL_KEYSTORE_PASSWORD));
+                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
+                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
+                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
+                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_KEYSTORE_PASSWORD));
                 server = httpsServer;
             } else {
                 server = HttpServer.create(Utils.getHttpBindAddress(), 0);

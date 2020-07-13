@@ -92,8 +92,10 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     public static NettyServerBuilder addSecurityContext(NettyServerBuilder serverBuilder) {
         try {
             if (Boolean.parseBoolean(System.getProperty(Options.GRPC_USE_SSL, "false"))) {
-                return serverBuilder.sslContext(GrpcSslContexts.configure(SslContextBuilder.forServer(new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_STORE_LOCATION)),
-                        new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_KEY_LOCATION)))).build());
+                return serverBuilder.sslContext(GrpcSslContexts.
+                        configure(SslContextBuilder.
+                                forServer(new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_STORE_LOCATION)),
+                                        new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_KEY_LOCATION)))).build());
             } else {
                 return serverBuilder;
             }
@@ -108,8 +110,9 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             if (Boolean.parseBoolean(System.getProperty(Options.GRPC_USE_SSL, "false"))) {
                 return channelBuilder.sslContext(GrpcSslContexts.
                         configure(SslContextBuilder.forClient().
-                                keyManager(new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_STORE_LOCATION)),
+                                keyManager(new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_KEYSTORE_LOCATION)),
                                         new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_KEY_LOCATION))))
+                        .trustManager(new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_TRUSTSTORE_LOCATION)))
                         .build()).useTransportSecurity();
             } else {
                 return channelBuilder.usePlaintext();

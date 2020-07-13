@@ -32,10 +32,10 @@ public class HttpAsyncResponseReceiver implements Runnable, Closeable {
             if (Boolean.parseBoolean(System.getProperty(Options.USE_HTTPS, String.valueOf(false)))) {
                 HttpsServer httpsServer = HttpsServer.create(Utils.getHttpCallbackBindAddress(), 0);
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,
-                        Utils.getRequiredOption(Options.HTTP_SSL_TRUSTSTORE_LOCATION),
-                        Utils.getRequiredOption(Options.HTTP_SSL_KEYSTORE_LOCATION),
-                        Utils.getRequiredOption(Options.HTTP_SSL_TRUSTSTORE_PASSWORD),
-                        Utils.getRequiredOption(Options.HTTP_SSL_KEYSTORE_PASSWORD));
+                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
+                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
+                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
+                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_KEYSTORE_PASSWORD));
                 server = httpsServer;
             } else {
                 server = HttpServer.create(Utils.getHttpCallbackBindAddress(), 0);

@@ -26,10 +26,14 @@ public final class Options {
     public static final String CALLBACK_PORT_OPTION_SUFFIX          = ".callback.port";
 
     public static final String USE_HTTPS                            = PROTOCOL_OPTION_PREFIX + "use.https";
-    public static final String HTTP_SSL_KEYSTORE_LOCATION           = PROTOCOL_OPTION_PREFIX + "http.ssl.keystore.location";
-    public static final String HTTP_SSL_KEYSTORE_PASSWORD           = PROTOCOL_OPTION_PREFIX + "http.ssl.keystore.password";
-    public static final String HTTP_SSL_TRUSTSTORE_LOCATION         = PROTOCOL_OPTION_PREFIX + "http.ssl.truststore.location";
-    public static final String HTTP_SSL_TRUSTSTORE_PASSWORD         = PROTOCOL_OPTION_PREFIX + "http.ssl.truststore.password";
+    public static final String HTTP_SSL_SERVER_KEYSTORE_LOCATION    = PROTOCOL_OPTION_PREFIX + "http.ssl.server.keystore.location";
+    public static final String HTTP_SSL_SERVER_KEYSTORE_PASSWORD    = PROTOCOL_OPTION_PREFIX + "http.ssl.server.keystore.password";
+    public static final String HTTP_SSL_SERVER_TRUSTSTORE_LOCATION  = PROTOCOL_OPTION_PREFIX + "http.ssl.server.truststore.location";
+    public static final String HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD  = PROTOCOL_OPTION_PREFIX + "http.ssl.server.truststore.password";
+    public static final String HTTP_SSL_CLIENT_KEYSTORE_LOCATION    = PROTOCOL_OPTION_PREFIX + "http.ssl.client.keystore.location";
+    public static final String HTTP_SSL_CLIENT_KEYSTORE_PASSWORD    = PROTOCOL_OPTION_PREFIX + "http.ssl.client.keystore.password";
+    public static final String HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION  = PROTOCOL_OPTION_PREFIX + "http.ssl.client.truststore.location";
+    public static final String HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD  = PROTOCOL_OPTION_PREFIX + "http.ssl.client.truststore.password";
     public static final String KAFKA_BOOTSTRAP_SERVERS              = PROTOCOL_OPTION_PREFIX + "kafka.bootstrap.servers";
     public static final String KAFKA_USE_SSL                        = PROTOCOL_OPTION_PREFIX + "kafka.use.ssl";
     public static final String KAFKA_SSL_TRUSTSTORE_LOCATION        = PROTOCOL_OPTION_PREFIX + "kafka.ssl.truststore.location";
@@ -55,5 +59,6 @@ public final class Options {
     public static final String GRPC_SSL_SERVER_KEY_LOCATION         = PROTOCOL_OPTION_PREFIX + "grpc.ssl.server.key.location";
     public static final String GRPC_SSL_SERVER_STORE_LOCATION       = PROTOCOL_OPTION_PREFIX + "grpc.ssl.server.store.location";
     public static final String GRPC_SSL_CLIENT_KEY_LOCATION         = PROTOCOL_OPTION_PREFIX + "grpc.ssl.client.key.location";
-    public static final String GRPC_SSL_CLIENT_STORE_LOCATION       = PROTOCOL_OPTION_PREFIX + "grpc.ssl.client.store.location";
+    public static final String GRPC_SSL_CLIENT_KEYSTORE_LOCATION    = PROTOCOL_OPTION_PREFIX + "grpc.ssl.client.keystore.location";
+    public static final String GRPC_SSL_CLIENT_TRUSTSTORE_LOCATION  = PROTOCOL_OPTION_PREFIX + "grpc.ssl.client.truststore.location";
 }
