@@ -51,18 +51,21 @@ Dashboard URL is logged at startup like this:
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_sync.png" width="900"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_sync.png" width="900"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_sync.png" width="900"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/grpc_sync.png" width="900"/>  
 
 #### Synchronous RPC  (500kb request/ 500kb response)
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_heavy.png" width="900"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_heavy.png" width="900"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_heavy.png" width="900"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_heavy.png" width="900"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/grpc_heavy.png" width="900"/> 
 
 #### Asynchronous RPC  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_async.PNG" width="900"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_async.PNG" width="900"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_async.PNG" width="900"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_async.png" width="900"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/grpc_async.png" width="900"/>
 
 ## How to use
 
