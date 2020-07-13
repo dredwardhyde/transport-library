@@ -11,7 +11,7 @@
 - **One interface could have multiple server implementations - client choose required one by specifying target's jaffa.rpc.module.id in request**
 - **Request-scoped timeout for both sync/async calls**
 - **[Caffeine](https://github.com/ben-manes/caffeine) is used for caching service discovery information**
-- **4 transport protocols are supported**:
+- **5 transport protocols are supported**:
   - **ZeroMQ (with authentication/encryption using Curve)**
     - Unlimited message size
     - Low latency
@@ -22,6 +22,8 @@
   - **HTTP1.1/HTTPS (with TLSv1.2)**
     - Low latency
     - High throughput
+  - **gRPC (with TLSv1.2)**
+    - Very high throughput
   - **RabbitMQ (Login/Password with TLS 1.2)**
     - Low latency
     - High throughput
