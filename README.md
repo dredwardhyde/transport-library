@@ -475,3 +475,10 @@ openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes -keyout server.key 
 
 openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes -keyout client.key -out client.crt -subj "/C=CN/ST=GD/L=SZ/O=Acme, Inc./CN=192.168.1.151" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:192.168.1.151"
 ```
+
+## Usage with JDK11+
+
+Because of bug [JDK-8208526](https://bugs.openjdk.java.net/browse/JDK-8208526) you need to use this JVM option
+```sh
+-Djdk.tls.acknowledgeCloseNotify=true
+```
