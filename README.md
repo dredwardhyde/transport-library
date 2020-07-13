@@ -306,22 +306,38 @@ Could be configured as JVM options or by specifying **jaffa-rpc-config** JVM opt
     <td>Enables HTTPS when 'http' protocol is used. 'false' by default</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.keystore.location</td>
+    <td>jaffa.rpc.protocol.http.ssl.server.keystore.location</td>
     <td>Path to JKS keystore that will be used to configure HTTPS server for RPC communication</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.keystore.password</td>
+    <td>jaffa.rpc.protocol.http.ssl.server.keystore.password</td>
     <td>Password to keystore provided by previous option</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.truststore.location</td>
+    <td>jaffa.rpc.protocol.http.ssl.server.truststore.location</td>
     <td>Path to JKS truststore that will be used to configure HTTPS server for RPC communication</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.truststore.password</td>
+    <td>jaffa.rpc.protocol.http.ssl.server.truststore.password</td>
     <td>Password to truststore provided by previous option</td>
   </tr>
-    <tr>
+  <tr>
+    <td>jaffa.rpc.protocol.http.ssl.client.keystore.location</td>
+    <td>Path to JKS keystore that will be used to configure HTTPS client for RPC communication</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.protocol.http.ssl.client.keystore.password</td>
+    <td>Password to keystore provided by previous option</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.protocol.http.ssl.client.truststore.location</td>
+    <td>Path to JKS truststore that will be used to configure HTTPS client for RPC communication</td>
+  </tr>
+  <tr>
+    <td>jaffa.rpc.protocol.http.ssl.client.truststore.password</td>
+    <td>Password to truststore provided by previous option</td>
+  </tr>
+  <tr>
     <td>jaffa.rpc.protocol.kafka.bootstrap.servers</td>
     <td>Bootstrap servers of Kafka cluster  (optional, only when RPC protocol is Kafka)</td>
   </tr>
@@ -409,21 +425,53 @@ Could be configured as JVM options or by specifying **jaffa-rpc-config** JVM opt
       <td>jaffa.rpc.protocol.rabbit.ssl.truststore.password</td>
       <td>Password to truststore provided by previous option</td>
     </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.grpc.use.ssl</td>
+      <td>Enables TLSv1.2 for connections to gRPC ('false' is default)</td>
+    </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.grpc.ssl.server.key.location</td>
+      <td>Path to server PKCS private key file in PEM format</td>
+    </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.grpc.ssl.server.store.location</td>
+      <td>Path to server X.509 certificate chain file in PEM format</td>
+    </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.grpc.ssl.client.key.location</td>
+      <td>Path to client PKCS private key file in PEM format</td>
+    </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.grpc.ssl.client.keystore.location</td>
+      <td>Path to client X.509 certificate chain file in PEM format</td>
+    </tr>
+    <tr>
+      <td>jaffa.rpc.protocol.grpc.ssl.client.truststore.location</td>
+      <td>Path to trusted certificates for verifying the remote endpoint's certificate. 
+        The file should contain an X.509 certificate collection in PEM format.</td>
+    </tr>
   </table>  
   
-## Example how to generate keystore for admin console:  
+## How to generate self-signed keystore for admin console:  
 ```sh
 keytool -genkeypair -keyalg RSA -alias self_signed -keypass simulator -keystore test.keystore -storepass simulator
 ```
 
-## Example how to generate self-signed truststore and keystore for development purposes:  
+## How to generate self-signed truststore and keystore for development purposes:  
 Please note that Common Name must be equal to $hostname  
 ```sh
-keytool -genkey -alias bmc -keyalg RSA -keystore keystore.jks -keysize 2048
-openssl req -new -x509 -keyout ca-key -out ca-cert
-keytool -keystore keystore.jks -alias bmc -certreq -file cert-file
+keytool -genkey -alias bmc -keyalg RSA -keystore keystore.jks -keysize 2048 -dname "CN=192.168.1.151,OU=Test,O=Test,C=RU" -ext "SAN:c=DNS:localhost,IP:127.0.0.1,IP:192.168.1.151" -storepass simulator -keypass simulator -deststoretype pkcs12
+openssl req -new -nodes -x509 -keyout ca-key -out ca-cert -subj "/C=CN/ST=GD/L=SZ/O=Acme, Inc./CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:192.168.1.151"
+keytool -keystore keystore.jks -alias bmc -certreq -file cert-file -storepass simulator -keypass simulator
 openssl x509 -req -CA ca-cert -CAkey ca-key -in cert-file -out cert-signed -days 365 -CAcreateserial -passin pass:simulator
-keytool -keystore keystore.jks -alias CARoot -import -file ca-cert
-keytool -keystore keystore.jks -alias bmc -import -file cert-signed
-keytool -keystore truststore.jks -alias bmc -import -file ca-cert
+keytool -keystore keystore.jks -alias CARoot -import -file ca-cert -storepass simulator -noprompt
+keytool -keystore keystore.jks -alias bmc -import -file cert-signed -storepass simulator -noprompt
+keytool -keystore truststore.jks -alias bmc -import -file ca-cert -storepass simulator -noprompt
+```
+
+## How to generate self-signed keys and stores for gRPC protocol (for development purposes):
+```sh
+openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes -keyout server.key -out server.crt -subj "/C=CN/ST=GD/L=SZ/O=Acme, Inc./CN=192.168.1.151" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:192.168.1.151"
+
+openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 -nodes -keyout client.key -out client.crt -subj "/C=CN/ST=GD/L=SZ/O=Acme, Inc./CN=192.168.1.151" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:192.168.1.151"
 ```
