@@ -72,6 +72,7 @@
         <javax.annotation-api.version>1.3.2</javax.annotation-api.version>
         <jaffa-rpc-maven-plugin.version>1.0</jaffa-rpc-maven-plugin.version>
         <grpc.version>1.16.1</grpc.version>
+        <netty.tcnative.version>2.0.31.Final</netty.tcnative.version>
     </properties>
 
     <dependencies>
@@ -194,7 +195,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-tcnative</artifactId>
-            <version>LATEST</version>
+            <version>${netty.tcnative.version}</version>
             <classifier>${os.detected.classifier}</classifier>
         </dependency>
         <dependency>
