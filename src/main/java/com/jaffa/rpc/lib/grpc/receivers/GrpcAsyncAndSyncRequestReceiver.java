@@ -24,6 +24,8 @@ import javax.net.ssl.SSLException;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,8 +34,16 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
     private static final ExecutorService asyncService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private static final ExecutorService requestService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private static final Map<Pair<String, Integer>, ManagedChannel> cache = new ConcurrentHashMap<>();
 
     private Server server;
+
+    public static void shutDownChannels() {
+        cache.values().forEach(x -> {
+            if (!x.isShutdown()) x.shutdownNow();
+        });
+        log.info("All gRPC async reply channels were terminated");
+    }
 
     public static NettyServerBuilder addSecurityContext(NettyServerBuilder serverBuilder) {
         try {
@@ -93,6 +103,14 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
     private static class CommandServiceImpl extends CommandServiceGrpc.CommandServiceImplBase {
 
+        private ManagedChannel getManagedChannel(Pair<String, Integer> hostAndPort) {
+            return cache.computeIfAbsent(hostAndPort, key -> {
+                NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(key.getLeft(), key.getRight());
+                channelBuilder = GrpcAsyncAndSyncRequestReceiver.addSecurityContext(channelBuilder);
+                return channelBuilder.build();
+            });
+        }
+
         @Override
         public void execute(CommandRequest request, StreamObserver<CommandResponse> responseObserver) {
             try {
@@ -103,13 +121,11 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                             Object result = RequestInvoker.invoke(command);
                             CallbackRequest callbackResponse = MessageConverters.toGRPCCallbackRequest(RequestInvoker.constructCallbackContainer(command, result));
                             Pair<String, Integer> hostAndPort = Utils.getHostAndPort(command.getCallBackHost(), ":");
-                            NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(hostAndPort.getLeft(), hostAndPort.getRight());
-                            ManagedChannel channel = addSecurityContext(channelBuilder).build();
+                            ManagedChannel channel = getManagedChannel(hostAndPort);
                             CallbackServiceGrpc.CallbackServiceBlockingStub stub = CallbackServiceGrpc.newBlockingStub(channel);
                             CallbackResponse response = stub.execute(callbackResponse);
                             if (!response.getResponse().equals("OK"))
                                 throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
-                            channel.shutdown();
                         } catch (ClassNotFoundException | NoSuchMethodException e) {
                             log.error("Error while receiving async request", e);
                             throw new JaffaRpcExecutionException(e);

@@ -375,6 +375,7 @@ public class JaffaService {
             }
         });
         GrpcRequestSender.shutDownChannels();
+        GrpcAsyncAndSyncRequestReceiver.shutDownChannels();
         ZContext zkCtx = ZeroMqRequestSender.context;
         if (!zkCtx.isClosed()) zkCtx.close();
         RabbitMQRequestSender.close();
