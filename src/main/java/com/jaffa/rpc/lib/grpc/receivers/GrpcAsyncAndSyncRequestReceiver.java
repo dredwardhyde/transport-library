@@ -30,10 +30,44 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
-    private static final ExecutorService asyncService = Executors.newFixedThreadPool(3);
-    private static final ExecutorService requestService = Executors.newFixedThreadPool(3);
+    private static final ExecutorService asyncService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private static final ExecutorService requestService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     private Server server;
+
+    public static NettyServerBuilder addSecurityContext(NettyServerBuilder serverBuilder) {
+        try {
+            if (Boolean.parseBoolean(System.getProperty(Options.GRPC_USE_SSL, "false"))) {
+                return serverBuilder.sslContext(GrpcSslContexts.
+                        configure(SslContextBuilder.
+                                forServer(new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_STORE_LOCATION)),
+                                        new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_KEY_LOCATION)))).build());
+            } else {
+                return serverBuilder;
+            }
+        } catch (SSLException sslException) {
+            log.error("Exception occurred while creating SSL context for gRPC", sslException);
+            throw new JaffaRpcSystemException(sslException);
+        }
+    }
+
+    public static NettyChannelBuilder addSecurityContext(NettyChannelBuilder channelBuilder) {
+        try {
+            if (Boolean.parseBoolean(System.getProperty(Options.GRPC_USE_SSL, "false"))) {
+                return channelBuilder.sslContext(GrpcSslContexts.
+                        configure(SslContextBuilder.forClient().
+                                keyManager(new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_KEYSTORE_LOCATION)),
+                                        new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_KEY_LOCATION))))
+                        .trustManager(new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_TRUSTSTORE_LOCATION)))
+                        .build()).useTransportSecurity();
+            } else {
+                return channelBuilder.usePlaintext();
+            }
+        } catch (SSLException sslException) {
+            log.error("Exception occurred while creating SSL context for gRPC", sslException);
+            throw new JaffaRpcSystemException(sslException);
+        }
+    }
 
     @Override
     public void run() {
@@ -48,6 +82,13 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             throw new JaffaRpcSystemException(zmqStartupException);
         }
         log.info("{} terminated", this.getClass().getSimpleName());
+    }
+
+    @Override
+    public void close() {
+        server.shutdown();
+        asyncService.shutdown();
+        requestService.shutdown();
     }
 
     private static class CommandServiceImpl extends CommandServiceGrpc.CommandServiceImplBase {
@@ -87,46 +128,5 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 throw new JaffaRpcSystemException(exception);
             }
         }
-    }
-
-    public static NettyServerBuilder addSecurityContext(NettyServerBuilder serverBuilder) {
-        try {
-            if (Boolean.parseBoolean(System.getProperty(Options.GRPC_USE_SSL, "false"))) {
-                return serverBuilder.sslContext(GrpcSslContexts.
-                        configure(SslContextBuilder.
-                                forServer(new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_STORE_LOCATION)),
-                                        new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_KEY_LOCATION)))).build());
-            } else {
-                return serverBuilder;
-            }
-        } catch (SSLException sslException) {
-            log.error("Exception occurred while creating SSL context for gRPC", sslException);
-            throw new JaffaRpcSystemException(sslException);
-        }
-    }
-
-    public static NettyChannelBuilder addSecurityContext(NettyChannelBuilder channelBuilder) {
-        try {
-            if (Boolean.parseBoolean(System.getProperty(Options.GRPC_USE_SSL, "false"))) {
-                return channelBuilder.sslContext(GrpcSslContexts.
-                        configure(SslContextBuilder.forClient().
-                                keyManager(new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_KEYSTORE_LOCATION)),
-                                        new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_KEY_LOCATION))))
-                        .trustManager(new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_TRUSTSTORE_LOCATION)))
-                        .build()).useTransportSecurity();
-            } else {
-                return channelBuilder.usePlaintext();
-            }
-        } catch (SSLException sslException) {
-            log.error("Exception occurred while creating SSL context for gRPC", sslException);
-            throw new JaffaRpcSystemException(sslException);
-        }
-    }
-
-    @Override
-    public void close() {
-        server.shutdown();
-        asyncService.shutdown();
-        requestService.shutdown();
     }
 }

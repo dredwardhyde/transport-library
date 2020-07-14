@@ -22,9 +22,8 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class GrpcAsyncResponseReceiver implements Runnable, Closeable {
 
+    private static final ExecutorService requestService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     private Server server;
-
-    private static final ExecutorService requestService = Executors.newFixedThreadPool(3);
 
     @Override
     public void run() {

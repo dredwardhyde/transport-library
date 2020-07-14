@@ -7,6 +7,7 @@ import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException;
+import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.grpc.receivers.GrpcAsyncAndSyncRequestReceiver;
 import com.jaffa.rpc.lib.request.Sender;
 import com.jaffa.rpc.lib.zookeeper.Utils;
@@ -14,11 +15,24 @@ import io.grpc.ManagedChannel;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.netty.NettyChannelBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class GrpcRequestSender extends Sender {
+
+    private static final Map<Pair<String, Integer>, ManagedChannel> cache = new ConcurrentHashMap<>();
+
+    public static void shutDownChannels() {
+        cache.values().forEach(x -> {
+            if (!x.isShutdown()) x.shutdownNow();
+        });
+        log.info("All gRPC channels were terminated");
+    }
 
     @Override
     protected byte[] executeSync(byte[] message) {
@@ -39,29 +53,39 @@ public class GrpcRequestSender extends Sender {
             CommandResponse commandResponse = stub.withDeadlineAfter(totalTimeout, TimeUnit.MILLISECONDS).execute(MessageConverters.toGRPCCommandRequest(command));
             return MessageConverters.fromGRPCCommandResponse(commandResponse);
         } catch (StatusRuntimeException statusRuntimeException) {
-            if (statusRuntimeException.getStatus() == Status.DEADLINE_EXCEEDED)
-                throw new JaffaRpcExecutionTimeoutException();
-            else
-                throw new JaffaRpcExecutionException(statusRuntimeException);
-        } finally {
-            channel.shutdownNow();
+            processStatusException(statusRuntimeException);
         }
+        return null;
     }
 
     private ManagedChannel getManagedChannel() {
         Pair<String, Integer> hostAndPort = Utils.getHostAndPort(Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.GRPC).getLeft(), ":");
-        NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(hostAndPort.getLeft(), hostAndPort.getRight());
-        channelBuilder = GrpcAsyncAndSyncRequestReceiver.addSecurityContext(channelBuilder);
-        return channelBuilder.build();
+        return cache.computeIfAbsent(hostAndPort, key -> {
+            NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(key.getLeft(), key.getRight());
+            channelBuilder = GrpcAsyncAndSyncRequestReceiver.addSecurityContext(channelBuilder);
+            return channelBuilder.build();
+        });
+    }
+
+    private void processStatusException(StatusRuntimeException statusRuntimeException) {
+        if (statusRuntimeException.getStatus() == Status.DEADLINE_EXCEEDED)
+            throw new JaffaRpcExecutionTimeoutException();
+        else if (statusRuntimeException.getStatus() == Status.UNAVAILABLE) {
+            throw new JaffaRpcNoRouteException(command.getServiceClass(), Protocol.GRPC);
+        } else
+            throw new JaffaRpcExecutionException(statusRuntimeException);
     }
 
     @Override
     public void executeAsync(Command command) {
         ManagedChannel channel = getManagedChannel();
         CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
-        CommandResponse response = stub.execute(MessageConverters.toGRPCCommandRequest(command));
-        if (!response.getResponse().equals(ByteString.EMPTY))
-            throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
-        channel.shutdownNow();
+        try {
+            CommandResponse response = stub.execute(MessageConverters.toGRPCCommandRequest(command));
+            if (!response.getResponse().equals(ByteString.EMPTY))
+                throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
+        } catch (StatusRuntimeException statusRuntimeException) {
+            processStatusException(statusRuntimeException);
+        }
     }
 }

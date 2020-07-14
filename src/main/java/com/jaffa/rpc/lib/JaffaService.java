@@ -8,6 +8,7 @@ import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
+import com.jaffa.rpc.lib.grpc.GrpcRequestSender;
 import com.jaffa.rpc.lib.grpc.receivers.GrpcAsyncAndSyncRequestReceiver;
 import com.jaffa.rpc.lib.grpc.receivers.GrpcAsyncResponseReceiver;
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncAndSyncRequestReceiver;
@@ -373,6 +374,7 @@ public class JaffaService {
                 throw new JaffaRpcSystemException(e);
             }
         });
+        GrpcRequestSender.shutDownChannels();
         ZContext zkCtx = ZeroMqRequestSender.context;
         if (!zkCtx.isClosed()) zkCtx.close();
         RabbitMQRequestSender.close();
