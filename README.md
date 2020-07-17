@@ -463,8 +463,7 @@ Could be configured as JVM options or by specifying **jaffa-rpc-config** JVM opt
 keytool -genkeypair -keyalg RSA -alias self_signed -keypass simulator -keystore test.keystore -storepass simulator
 ```
 
-## How to generate self-signed truststore and keystore for development purposes:  
-Please note that Common Name must be equal to $hostname  
+## How to generate self-signed truststore and keystore (for development purposes):  
 ```sh
 keytool -genkey -alias bmc -keyalg RSA -keystore keystore.jks -keysize 2048 -dname "CN=192.168.1.151,OU=Test,O=Test,C=RU" -ext "SAN:c=DNS:localhost,IP:127.0.0.1,IP:192.168.1.151" -storepass simulator -keypass simulator -deststoretype pkcs12
 openssl req -new -nodes -x509 -keyout ca-key -out ca-cert -subj "/C=CN/ST=GD/L=SZ/O=Acme, Inc./CN=localhost" -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:192.168.1.151"
