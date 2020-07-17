@@ -1,6 +1,7 @@
 [![License](http://img.shields.io/:license-apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.dredwardhyde/jaffa-rpc-library/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.dredwardhyde/jaffa-rpc-library)
 [![javadoc](https://javadoc.io/badge2/com.github.dredwardhyde/jaffa-rpc-library/javadoc.svg)](https://javadoc.io/doc/com.github.dredwardhyde/jaffa-rpc-library)
+[![Build Status](https://travis-ci.org/dredwardhyde/jaffa-rpc-library.png)](https://travis-ci.org/dredwardhyde/jaffa-rpc-library)
 ## Jaffa RPC library
 
 **This library provides RPC communication between Java Spring applications.**  
