@@ -12,7 +12,7 @@ public abstract class KafkaReceiver implements Closeable, Runnable {
 
     private final ArrayList<Thread> threads = new ArrayList<>(JaffaService.getBrokersCount());
 
-    void startThreadsAndWait(Runnable runnable) {
+    protected void startThreadsAndWait(Runnable runnable) {
         for (int i = 0; i < JaffaService.getBrokersCount(); i++) {
             threads.add(new Thread(runnable));
         }

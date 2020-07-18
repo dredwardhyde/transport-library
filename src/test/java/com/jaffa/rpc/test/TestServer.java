@@ -52,7 +52,7 @@ public class TestServer {
     }
 
     @Test
-    public void stage_1() {
+    public void stage1() {
         log.info("Started {}", new Object() {
         }.getClass().getEnclosingMethod().getName());
         Integer id = personService.add("Test name", "test@mail.com", null)
@@ -96,7 +96,7 @@ public class TestServer {
     }
 
     @Test
-    public void stage_2() {
+    public void stage2() {
         log.info("Started {}", new Object() {
         }.getClass().getEnclosingMethod().getName());
         final String javaCmd = getJavaCmdFromParent();

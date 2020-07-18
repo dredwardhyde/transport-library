@@ -7,7 +7,7 @@ import com.jaffa.rpc.lib.common.RequestInvoker;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
-import com.jaffa.rpc.lib.grpc.MessageConverters;
+import com.jaffa.rpc.lib.grpc.MessageConverterHelper;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import io.grpc.ManagedChannel;
 import io.grpc.Server;
@@ -114,12 +114,12 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         @Override
         public void execute(CommandRequest request, StreamObserver<CommandResponse> responseObserver) {
             try {
-                final Command command = MessageConverters.fromGRPCCommandRequest(request);
+                final Command command = MessageConverterHelper.fromGRPCCommandRequest(request);
                 if (StringUtils.isNotBlank(command.getCallbackKey()) && StringUtils.isNotBlank(command.getCallbackClass())) {
                     Runnable runnable = () -> {
                         try {
                             Object result = RequestInvoker.invoke(command);
-                            CallbackRequest callbackResponse = MessageConverters.toGRPCCallbackRequest(RequestInvoker.constructCallbackContainer(command, result));
+                            CallbackRequest callbackResponse = MessageConverterHelper.toGRPCCallbackRequest(RequestInvoker.constructCallbackContainer(command, result));
                             Pair<String, Integer> hostAndPort = Utils.getHostAndPort(command.getCallBackHost(), ":");
                             ManagedChannel channel = getManagedChannel(hostAndPort);
                             CallbackServiceGrpc.CallbackServiceBlockingStub stub = CallbackServiceGrpc.newBlockingStub(channel);
@@ -135,7 +135,7 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     responseObserver.onNext(CommandResponse.newBuilder().setResponse(ByteString.EMPTY).build());
                 } else {
                     Object result = RequestInvoker.invoke(command);
-                    CommandResponse commandResponse = MessageConverters.toGRPCCommandResponse(RequestInvoker.getResult(result));
+                    CommandResponse commandResponse = MessageConverterHelper.toGRPCCommandResponse(RequestInvoker.getResult(result));
                     responseObserver.onNext(commandResponse);
                 }
                 responseObserver.onCompleted();
