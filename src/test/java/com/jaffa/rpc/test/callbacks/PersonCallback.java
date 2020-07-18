@@ -1,16 +1,16 @@
-package com.jaffa.rpc.test;
+package com.jaffa.rpc.test.callbacks;
 
 import com.jaffa.rpc.lib.callbacks.Callback;
+import com.jaffa.rpc.test.entities.Person;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ServiceCallback implements Callback<Void> {
-
+public class PersonCallback implements Callback<Person> {
 
     @Override
-    public void onSuccess(String key, Void result) {
+    public void onSuccess(String key, Person result) {
         log.info("Key: {}", key);
         log.info("Result: {}", result);
     }

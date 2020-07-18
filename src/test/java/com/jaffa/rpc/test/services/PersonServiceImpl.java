@@ -1,9 +1,10 @@
-package com.jaffa.rpc.test;
+package com.jaffa.rpc.test.services;
 
 import com.jaffa.rpc.lib.annotations.ApiServer;
-import com.jaffa.rpc.lib.common.Options;
 import com.jaffa.rpc.lib.entities.RequestContext;
 import com.jaffa.rpc.lib.zookeeper.Utils;
+import com.jaffa.rpc.test.entities.Address;
+import com.jaffa.rpc.test.entities.Person;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public int add(String name, String email, Address address) {
-        log.info("SOURCE MODULE ID: {} MY MODULE ID: {}", RequestContext.getSourceModuleId(), Utils.getRequiredOption(Options.MODULE_ID));
+        log.info("SOURCE MODULE ID: {} MY MODULE ID: {}", RequestContext.getSourceModuleId(), Utils.getRequiredOption("jaffa.rpc.module.id"));
         log.info("TICKET: {}", RequestContext.getTicket());
         Person p = new Person();
         p.setEmail(email);
@@ -35,14 +36,19 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public Person get(final Integer id) {
-        log.info("SOURCE MODULE ID: {} MY MODULE ID: {}", RequestContext.getSourceModuleId(), Utils.getRequiredOption(Options.MODULE_ID));
+        log.info("SOURCE MODULE ID: {} MY MODULE ID: {}", RequestContext.getSourceModuleId(), Utils.getRequiredOption("jaffa.rpc.module.id"));
         log.info("TICKET: {}", RequestContext.getTicket());
-        return this.people.stream().filter(person -> person.getId().equals(id)).findFirst().orElse(null);
+        for (Person p : this.people) {
+            if (p.getId().equals(id)) {
+                return p;
+            }
+        }
+        return null;
     }
 
     @Override
     public void lol() {
-        log.info("SOURCE MODULE ID: {} MY MODULE ID: {}", RequestContext.getSourceModuleId(), Utils.getRequiredOption(Options.MODULE_ID));
+        log.info("SOURCE MODULE ID: {} MY MODULE ID: {}", RequestContext.getSourceModuleId(), Utils.getRequiredOption("jaffa.rpc.module.id"));
         log.info("TICKET: {}", RequestContext.getTicket());
         log.info("Lol");
     }
@@ -64,6 +70,6 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public Person testError() {
-        throw new RuntimeException("very bad in " + Utils.getRequiredOption(Options.MODULE_ID));
+        throw new RuntimeException("very bad in " + Utils.getRequiredOption("jaffa.rpc.module.id"));
     }
 }

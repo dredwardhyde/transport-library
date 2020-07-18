@@ -74,6 +74,8 @@
         <grpc.version>1.30.2</grpc.version>
         <netty.tcnative.version>2.0.31.Final</netty.tcnative.version>
         <zookeeper.curator.test.version>5.1.0</zookeeper.curator.test.version>
+        <kafka.test.version>2.5.3.RELEASE</kafka.test.version>
+        <apache.commons.io.version>2.7</apache.commons.io.version>
     </properties>
 
     <dependencies>
@@ -209,6 +211,18 @@
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-test</artifactId>
             <version>${zookeeper.curator.test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka-test</artifactId>
+            <version>${kafka.test.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${apache.commons.io.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

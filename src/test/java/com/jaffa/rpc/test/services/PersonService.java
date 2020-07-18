@@ -1,6 +1,8 @@
-package com.jaffa.rpc.test;
+package com.jaffa.rpc.test.services;
 
 import com.jaffa.rpc.lib.annotations.Api;
+import com.jaffa.rpc.test.entities.Address;
+import com.jaffa.rpc.test.entities.Person;
 
 @Api
 public interface PersonService {

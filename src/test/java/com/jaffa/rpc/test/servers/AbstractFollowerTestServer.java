@@ -1,6 +1,7 @@
-package com.jaffa.rpc.test;
+package com.jaffa.rpc.test.servers;
 
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
+import com.jaffa.rpc.test.MainConfig;
 import com.jaffa.rpc.test.callbacks.PersonCallback;
 import com.jaffa.rpc.test.callbacks.ServiceCallback;
 import com.jaffa.rpc.test.entities.Person;
@@ -14,12 +15,14 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @SuppressWarnings("squid:S2187")
-public class MainServer {
+public abstract class AbstractFollowerTestServer {
 
-    public static void main(String... args) {
+    static {
+        System.setProperty("jaffa.rpc.test.mode", "true");
+    }
+
+    public void testAll() {
         log.info("================ MAIN SERVER STARTING ================");
-
-        System.setProperty("jaffa-rpc-config", "./jaffa-rpc-config-main-server.properties");
 
         final AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
         ctx.register(MainConfig.class);
