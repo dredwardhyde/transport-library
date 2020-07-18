@@ -326,8 +326,10 @@ class ShutdownHook extends Thread {
     public void run() {
         try {
             if (Objects.nonNull(Utils.getConn())) {
-                for (String service : Utils.getServices()) {
-                    Utils.deleteAllRegistrations(service);
+                if(!Utils.isZkTestMode()){
+                    for (String service : Utils.getServices()) {
+                        Utils.deleteAllRegistrations(service);
+                    }
                 }
                 if (Objects.nonNull(Utils.getConn())) Utils.getConn().close();
             }

@@ -20,6 +20,7 @@ public abstract class AbstractFollowerTestServer {
     static {
         System.setProperty("jaffa.rpc.test.mode", "true");
         System.setProperty("jaffa.rpc.module.id", "main.server");
+        System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2181");
     }
 
     public void testAll() {

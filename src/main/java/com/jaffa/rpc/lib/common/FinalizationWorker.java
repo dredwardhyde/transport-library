@@ -19,7 +19,7 @@ public class FinalizationWorker {
 
     @Getter
     private static final ConcurrentMap<String, Command> eventsToConsume = new ConcurrentHashMap<>();
-    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private static ScheduledExecutorService executor;
     private static ApplicationContext context;
     private static final Runnable finalizerThread = () -> eventsToConsume.values()
             .stream()
@@ -42,6 +42,7 @@ public class FinalizationWorker {
     @SuppressWarnings("squid:S2142")
     public static void startFinalizer(ApplicationContext context) {
         FinalizationWorker.context = context;
+        executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(finalizerThread, 0, 5, TimeUnit.MILLISECONDS);
         log.info("Finalizer thread started");
     }

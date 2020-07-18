@@ -354,10 +354,12 @@ public class JaffaService {
         log.info("Kafka receivers closed");
         KafkaRequestSender.shutDownConsumers();
         log.info("Kafka sync response consumers closed");
-        if (Objects.nonNull(Utils.getConn()) && !Utils.isZkTestMode()) {
+        if (Objects.nonNull(Utils.getConn())) {
             try {
-                for (String service : Utils.getServices()) {
-                    Utils.deleteAllRegistrations(service);
+                if(!Utils.isZkTestMode()){
+                    for (String service : Utils.getServices()) {
+                        Utils.deleteAllRegistrations(service);
+                    }
                 }
                 if (Objects.nonNull(Utils.getConn())) Utils.getConn().close();
                 Utils.setConn(null);

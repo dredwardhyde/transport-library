@@ -6,7 +6,6 @@ import kafka.server.KafkaServer;
 import kafka.utils.TestUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.curator.test.TestingServer;
 import org.apache.kafka.common.utils.Time;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -22,7 +21,6 @@ public class KafkaLeaderTestServer extends AbstractLeaderTestServer {
 
     private static Path tmpLogDir;
     private static KafkaServer kafkaServer;
-    private static TestingServer zkServer;
     private static final String BROKER_IP_PORT = "127.0.0.1:9092";
 
     static {
@@ -37,7 +35,6 @@ public class KafkaLeaderTestServer extends AbstractLeaderTestServer {
 
     @BeforeAll
     static void setUp() throws Exception {
-        zkServer = new TestingServer(2181, true);
         tmpLogDir = Files.createTempDirectory("kafka-log-dir-").toAbsolutePath();
         Properties brokerProps = new Properties();
         brokerProps.setProperty("zookeeper.connect", "127.0.0.1:2181");
@@ -53,13 +50,10 @@ public class KafkaLeaderTestServer extends AbstractLeaderTestServer {
     }
 
     @AfterAll
-    public static void tearDown() throws Exception {
+    public static void tearDown() {
         if (kafkaServer != null) {
             kafkaServer.shutdown();
             kafkaServer.awaitShutdown();
-        }
-        if (zkServer != null) {
-            zkServer.stop();
         }
         try {
             FileUtils.deleteDirectory(new File(tmpLogDir.toString()));

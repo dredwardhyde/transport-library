@@ -6,7 +6,8 @@ public class HttpFollowerTestServer extends AbstractFollowerTestServer {
 
     static {
         System.setProperty("jaffa.rpc.protocol", "http");
-        System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2181");
+        System.setProperty("jaffa.rpc.protocol.http.service.port", "5843");
+        System.setProperty("jaffa.rpc.protocol.http.callback.port", "5943");
     }
 
     public static void main(String... args) {

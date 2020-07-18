@@ -8,7 +8,7 @@ jdk:
   
 install: true
 
-script: mvn clean install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -P generate-client-api -B -V
+script: mvn clean install -Dgpg.skip -Dmaven.javadoc.skip=true -P generate-client-api -B -V
 
 cache:
   directories:

@@ -1,6 +1,7 @@
 package com.jaffa.rpc.test.servers;
 
 import com.jaffa.rpc.test.MainConfig;
+import com.jaffa.rpc.test.ZooKeeperExtension;
 import com.jaffa.rpc.test.callbacks.PersonCallback;
 import com.jaffa.rpc.test.callbacks.ServiceCallback;
 import com.jaffa.rpc.test.entities.Person;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -25,13 +27,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @SuppressWarnings("squid:S2187")
-@ExtendWith(SpringExtension.class)
+@ExtendWith({ZooKeeperExtension.class, SpringExtension.class})
 @ContextConfiguration(classes = {MainConfig.class}, loader = AnnotationConfigContextLoader.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public abstract class AbstractLeaderTestServer {
 
     static {
         System.setProperty("jaffa.rpc.test.mode", "true");
         System.setProperty("jaffa.rpc.module.id", "test.server");
+        System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2181");
     }
 
     @Autowired
@@ -53,8 +57,9 @@ public abstract class AbstractLeaderTestServer {
     }
 
     @Test
-    public void stage_1() {
-        log.info("Started {}", new Object(){}.getClass().getEnclosingMethod().getName());
+    void stage_1() {
+        log.info("Started {}", new Object() {
+        }.getClass().getEnclosingMethod().getName());
         Integer id = personService.add("Test name", "test@mail.com", null)
                 .withTimeout(15, TimeUnit.SECONDS)
                 .onModule("test.server")
@@ -96,8 +101,9 @@ public abstract class AbstractLeaderTestServer {
     }
 
     @Test
-    public void stage_2() {
-        log.info("Started {}", new Object(){}.getClass().getEnclosingMethod().getName());
+    void stage_2() {
+        log.info("Started {}", new Object() {
+        }.getClass().getEnclosingMethod().getName());
         final String javaCmd = getJavaCmdFromParent();
         final String classpath = getClassPathFromParent();
         final ProcessBuilder proc = new ProcessBuilder(javaCmd, "-Djdk.tls.acknowledgeCloseNotify=true", "-cp", classpath, getFollower().getName());
