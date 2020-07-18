@@ -1,6 +1,9 @@
 package com.jaffa.rpc.test;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.curator.test.TestingServer;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +24,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration(classes = {MainConfig.class}, loader = AnnotationConfigContextLoader.class)
 public class TestServer {
 
+    private static TestingServer zkServer;
+
     static {
-        System.setProperty("jaffa-rpc-config", "./jaffa-rpc-config-test-server.properties");
+        System.setProperty("jaffa.rpc.module.id", "test.server");
+        System.setProperty("jaffa.rpc.protocol", "http");
+        System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2181");
     }
 
     @Autowired
@@ -37,6 +44,11 @@ public class TestServer {
 
     private static String getJavaCmdFromParent() {
         return Objects.isNull(System.getProperty("java.home")) ? "java" : String.format("%s%sbin%sjava", System.getProperty("java.home"), File.separator, File.separator);
+    }
+
+    @BeforeAll
+    static void setUp() throws Exception {
+        zkServer = new TestingServer(2181, true);
     }
 
     @Test
@@ -100,5 +112,10 @@ public class TestServer {
         } catch (Exception e) {
             log.error("Exception while launching main.server", e);
         }
+    }
+
+    @AfterAll
+    public static void tearDown() throws Exception {
+        zkServer.stop();
     }
 }

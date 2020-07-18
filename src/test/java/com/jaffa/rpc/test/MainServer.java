@@ -11,10 +11,14 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("squid:S2187")
 public class MainServer {
 
+    static {
+        System.setProperty("jaffa.rpc.module.id", "main.server");
+        System.setProperty("jaffa.rpc.protocol", "http");
+        System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2181");
+    }
+
     public static void main(String... args) {
         log.info("================ MAIN SERVER STARTING ================");
-
-        System.setProperty("jaffa-rpc-config", "./jaffa-rpc-config-main-server.properties");
 
         final AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
         ctx.register(MainConfig.class);

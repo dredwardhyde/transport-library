@@ -73,6 +73,7 @@
         <jaffa-rpc-maven-plugin.version>1.0</jaffa-rpc-maven-plugin.version>
         <grpc.version>1.30.2</grpc.version>
         <netty.tcnative.version>2.0.31.Final</netty.tcnative.version>
+        <zookeeper.curator.test.version>5.1.0</zookeeper.curator.test.version>
     </properties>
 
     <dependencies>
@@ -204,6 +205,12 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-test</artifactId>
+            <version>${zookeeper.curator.test.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <extensions>
@@ -260,7 +267,6 @@
                 </executions>
                 <configuration>
                     <argLine>
-                        -Djaffa-rpc-config=./jaffa-rpc-config-test-server.properties
                         -Djdk.tls.acknowledgeCloseNotify=true
                     </argLine>
                 </configuration>
