@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Options {
+    public static final String ZK_TEST_MODE                         = "jaffa.zk.test.mode";
     public static final String MODULE_ID                            = "jaffa.rpc.module.id";
     public static final String PROTOCOL                             = "jaffa.rpc.protocol";
     public static final String SERIALIZER 					        = "jaffa.rpc.serializer";

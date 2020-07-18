@@ -31,6 +31,7 @@ public abstract class AbstractLeaderTestServer {
 
     static {
         System.setProperty("jaffa.rpc.test.mode", "true");
+        System.setProperty("jaffa.rpc.module.id", "test.server");
     }
 
     @Autowired
@@ -53,7 +54,7 @@ public abstract class AbstractLeaderTestServer {
 
     @Test
     public void stage_1() {
-        log.info("Started {}", Object.class.getEnclosingMethod().getName());
+        log.info("Started {}", new Object(){}.getClass().getEnclosingMethod().getName());
         Integer id = personService.add("Test name", "test@mail.com", null)
                 .withTimeout(15, TimeUnit.SECONDS)
                 .onModule("test.server")
@@ -96,7 +97,7 @@ public abstract class AbstractLeaderTestServer {
 
     @Test
     public void stage_2() {
-        log.info("Started {}", Object.class.getEnclosingMethod().getName());
+        log.info("Started {}", new Object(){}.getClass().getEnclosingMethod().getName());
         final String javaCmd = getJavaCmdFromParent();
         final String classpath = getClassPathFromParent();
         final ProcessBuilder proc = new ProcessBuilder(javaCmd, "-Djdk.tls.acknowledgeCloseNotify=true", "-cp", classpath, getFollower().getName());

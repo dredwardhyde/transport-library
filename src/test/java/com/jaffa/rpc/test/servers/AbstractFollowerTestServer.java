@@ -19,6 +19,7 @@ public abstract class AbstractFollowerTestServer {
 
     static {
         System.setProperty("jaffa.rpc.test.mode", "true");
+        System.setProperty("jaffa.rpc.module.id", "main.server");
     }
 
     public void testAll() {

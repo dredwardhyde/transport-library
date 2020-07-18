@@ -11,7 +11,7 @@ public class ZeroMQLeaderTestServer extends AbstractLeaderTestServer {
 
     static {
         System.setProperty("jaffa.rpc.protocol", "zmq");
-        System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2182");
+        System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2181");
     }
 
     public ZeroMQLeaderTestServer() {
@@ -21,7 +21,7 @@ public class ZeroMQLeaderTestServer extends AbstractLeaderTestServer {
 
     @BeforeAll
     static void setUp() throws Exception {
-        zkServer = new TestingServer(2182, true);
+        zkServer = new TestingServer(2181, true);
     }
 
     @AfterAll
