@@ -1,7 +1,7 @@
 package com.jaffa.rpc.lib.ui;
 
 import com.google.common.io.ByteStreams;
-import com.jaffa.rpc.lib.common.Options;
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncAndSyncRequestReceiver;
 import com.jaffa.rpc.lib.zookeeper.Utils;
@@ -76,14 +76,14 @@ public class AdminServer {
     @PostConstruct
     public void init() {
         try {
-            boolean useHttps = Boolean.parseBoolean(System.getProperty(Options.ADMIN_USE_HTTPS, String.valueOf(false)));
+            boolean useHttps = Boolean.parseBoolean(System.getProperty(OptionConstants.ADMIN_USE_HTTPS, String.valueOf(false)));
             if (useHttps) {
                 HttpsServer httpsServer = HttpsServer.create(new InetSocketAddress(Utils.getLocalHost(), getFreePort()), 0);
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,
-                        Utils.getRequiredOption(Options.ADMIN_SSL_TRUSTSTORE_LOCATION),
-                        Utils.getRequiredOption(Options.ADMIN_SSL_KEYSTORE_LOCATION),
-                        Utils.getRequiredOption(Options.ADMIN_SSL_TRUSTSTORE_PASSWORD),
-                        Utils.getRequiredOption(Options.ADMIN_SSL_KEYSTORE_PASSWORD));
+                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_TRUSTSTORE_LOCATION),
+                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_KEYSTORE_LOCATION),
+                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_TRUSTSTORE_PASSWORD),
+                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_KEYSTORE_PASSWORD));
                 server = httpsServer;
             } else {
                 server = HttpServer.create(new InetSocketAddress(Utils.getLocalHost(), getFreePort()), 0);

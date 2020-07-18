@@ -3,7 +3,7 @@ package com.jaffa.rpc.lib.grpc.receivers;
 import com.jaffa.rpc.grpc.services.CallbackRequest;
 import com.jaffa.rpc.grpc.services.CallbackResponse;
 import com.jaffa.rpc.grpc.services.CallbackServiceGrpc;
-import com.jaffa.rpc.lib.common.RequestInvoker;
+import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -52,7 +52,7 @@ public class GrpcAsyncResponseReceiver implements Runnable, Closeable {
         public void execute(CallbackRequest request, StreamObserver<CallbackResponse> responseObserver) {
             try {
                 CallbackContainer callbackContainer = MessageConverterHelper.fromGRPCCallbackRequest(request);
-                RequestInvoker.processCallbackContainer(callbackContainer);
+                RequestInvocationHelper.processCallbackContainer(callbackContainer);
                 responseObserver.onNext(CallbackResponse.newBuilder().setResponse("OK").build());
                 responseObserver.onCompleted();
             } catch (Exception exception) {

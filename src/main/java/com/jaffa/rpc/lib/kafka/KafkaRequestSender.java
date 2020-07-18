@@ -1,7 +1,7 @@
 package com.jaffa.rpc.lib.kafka;
 
 import com.jaffa.rpc.lib.JaffaService;
-import com.jaffa.rpc.lib.common.Options;
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.request.RequestUtils;
 import com.jaffa.rpc.lib.request.Sender;
@@ -29,20 +29,20 @@ public class KafkaRequestSender extends Sender {
 
     public static void initSyncKafkaConsumers(int brokersCount, CountDownLatch started) {
         Properties consumerProps = new Properties();
-        consumerProps.put("bootstrap.servers", Utils.getRequiredOption(Options.KAFKA_BOOTSTRAP_SERVERS));
+        consumerProps.put("bootstrap.servers", Utils.getRequiredOption(OptionConstants.KAFKA_BOOTSTRAP_SERVERS));
         consumerProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         consumerProps.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
         consumerProps.put("enable.auto.commit", String.valueOf(false));
         consumerProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
-        if (Boolean.parseBoolean(System.getProperty(Options.KAFKA_USE_SSL, String.valueOf(false)))) {
+        if (Boolean.parseBoolean(System.getProperty(OptionConstants.KAFKA_USE_SSL, String.valueOf(false)))) {
             Map<String, String> sslProps = new HashMap<>();
             sslProps.put("security.protocol", "SSL");
-            sslProps.put("ssl.truststore.location", Utils.getRequiredOption(Options.KAFKA_SSL_TRUSTSTORE_LOCATION));
-            sslProps.put("ssl.truststore.password", Utils.getRequiredOption(Options.KAFKA_SSL_TRUSTSTORE_PASSWORD));
-            sslProps.put("ssl.keystore.location", Utils.getRequiredOption(Options.KAFKA_SSL_KEYSTORE_LOCATION));
-            sslProps.put("ssl.keystore.password", Utils.getRequiredOption(Options.KAFKA_SSL_KEYSTORE_PASSWORD));
-            sslProps.put("ssl.key.password", Utils.getRequiredOption(Options.KAFKA_SSL_KEY_PASSWORD));
+            sslProps.put("ssl.truststore.location", Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION));
+            sslProps.put("ssl.truststore.password", Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD));
+            sslProps.put("ssl.keystore.location", Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_LOCATION));
+            sslProps.put("ssl.keystore.password", Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_PASSWORD));
+            sslProps.put("ssl.key.password", Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEY_PASSWORD));
             consumerProps.putAll(sslProps);
         }
 

@@ -1,7 +1,7 @@
 package com.jaffa.rpc.lib.rabbitmq.receivers;
 
 import com.jaffa.rpc.lib.JaffaService;
-import com.jaffa.rpc.lib.common.RequestInvoker;
+import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -41,7 +41,7 @@ public class RabbitMQAsyncResponseReceiver implements Runnable, Closeable {
                     if (Objects.isNull(type) || !"async".equals(String.valueOf(type))) return;
                     try {
                         CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(body, CallbackContainer.class);
-                        if (RequestInvoker.processCallbackContainer(callbackContainer))
+                        if (RequestInvocationHelper.processCallbackContainer(callbackContainer))
                             clientChannel.basicAck(envelope.getDeliveryTag(), false);
                     } catch (IOException ioException) {
                         log.error("General RabbitMQ exception", ioException);

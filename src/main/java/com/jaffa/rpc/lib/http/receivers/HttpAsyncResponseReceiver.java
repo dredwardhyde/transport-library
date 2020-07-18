@@ -1,8 +1,8 @@
 package com.jaffa.rpc.lib.http.receivers;
 
 import com.google.common.io.ByteStreams;
-import com.jaffa.rpc.lib.common.Options;
-import com.jaffa.rpc.lib.common.RequestInvoker;
+import com.jaffa.rpc.lib.common.OptionConstants;
+import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -29,13 +29,13 @@ public class HttpAsyncResponseReceiver implements Runnable, Closeable {
     @Override
     public void run() {
         try {
-            if (Boolean.parseBoolean(System.getProperty(Options.USE_HTTPS, String.valueOf(false)))) {
+            if (Boolean.parseBoolean(System.getProperty(OptionConstants.USE_HTTPS, String.valueOf(false)))) {
                 HttpsServer httpsServer = HttpsServer.create(Utils.getHttpCallbackBindAddress(), 0);
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,
-                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
-                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
-                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
-                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_KEYSTORE_PASSWORD));
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_PASSWORD));
                 server = httpsServer;
             } else {
                 server = HttpServer.create(Utils.getHttpCallbackBindAddress(), 0);
@@ -62,7 +62,7 @@ public class HttpAsyncResponseReceiver implements Runnable, Closeable {
         public void handle(HttpExchange request) throws IOException {
             try {
                 CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(ByteStreams.toByteArray(request.getRequestBody()), CallbackContainer.class);
-                RequestInvoker.processCallbackContainer(callbackContainer);
+                RequestInvocationHelper.processCallbackContainer(callbackContainer);
                 String response = "OK";
                 request.sendResponseHeaders(200, response.getBytes().length);
                 OutputStream os = request.getResponseBody();

@@ -1,8 +1,8 @@
 package com.jaffa.rpc.lib.http.receivers;
 
 import com.google.common.io.ByteStreams;
-import com.jaffa.rpc.lib.common.Options;
-import com.jaffa.rpc.lib.common.RequestInvoker;
+import com.jaffa.rpc.lib.common.OptionConstants;
+import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -46,13 +46,13 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     private HttpServer server;
 
     public static void initClient() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
-        if (Boolean.parseBoolean(System.getProperty(Options.USE_HTTPS, String.valueOf(false)))) {
-            char[] keyPassphrase = Utils.getRequiredOption(Options.HTTP_SSL_CLIENT_KEYSTORE_PASSWORD).toCharArray();
+        if (Boolean.parseBoolean(System.getProperty(OptionConstants.USE_HTTPS, String.valueOf(false)))) {
+            char[] keyPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_PASSWORD).toCharArray();
             KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(new FileInputStream(Utils.getRequiredOption(Options.HTTP_SSL_CLIENT_KEYSTORE_LOCATION)), keyPassphrase);
-            char[] trustPassphrase = Utils.getRequiredOption(Options.HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD).toCharArray();
+            ks.load(new FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_LOCATION)), keyPassphrase);
+            char[] trustPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD).toCharArray();
             KeyStore tks = KeyStore.getInstance("JKS");
-            tks.load(new FileInputStream(Utils.getRequiredOption(Options.HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION)), trustPassphrase);
+            tks.load(new FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION)), trustPassphrase);
             SSLContext sslContext;
             try {
                 sslContext = SSLContexts.custom().loadKeyMaterial(ks, keyPassphrase).loadTrustMaterial(tks, TrustSelfSignedStrategy.INSTANCE).build();
@@ -112,13 +112,13 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     @Override
     public void run() {
         try {
-            if (Boolean.parseBoolean(System.getProperty(Options.USE_HTTPS, String.valueOf(false)))) {
+            if (Boolean.parseBoolean(System.getProperty(OptionConstants.USE_HTTPS, String.valueOf(false)))) {
                 HttpsServer httpsServer = HttpsServer.create(Utils.getHttpBindAddress(), 0);
                 initSSLForHttpsServer(httpsServer,
-                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
-                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
-                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
-                        Utils.getRequiredOption(Options.HTTP_SSL_SERVER_KEYSTORE_PASSWORD));
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_PASSWORD));
                 server = httpsServer;
             } else {
                 server = HttpServer.create(Utils.getHttpBindAddress(), 0);
@@ -159,8 +159,8 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 request.close();
                 Runnable runnable = () -> {
                     try {
-                        Object result = RequestInvoker.invoke(command);
-                        byte[] serializedResponse = Serializer.getCurrent().serialize(RequestInvoker.constructCallbackContainer(command, result));
+                        Object result = RequestInvocationHelper.invoke(command);
+                        byte[] serializedResponse = Serializer.getCurrent().serialize(RequestInvocationHelper.constructCallbackContainer(command, result));
                         HttpPost httpPost = new HttpPost(command.getCallBackHost() + "/response");
                         HttpEntity postParams = new ByteArrayEntity(serializedResponse);
                         httpPost.setEntity(postParams);
@@ -177,8 +177,8 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 };
                 service.execute(runnable);
             } else {
-                Object result = RequestInvoker.invoke(command);
-                byte[] response = Serializer.getCurrent().serializeWithClass(RequestInvoker.getResult(result));
+                Object result = RequestInvocationHelper.invoke(command);
+                byte[] response = Serializer.getCurrent().serializeWithClass(RequestInvocationHelper.getResult(result));
                 request.sendResponseHeaders(200, response.length);
                 OutputStream os = request.getResponseBody();
                 os.write(response);

@@ -1,7 +1,7 @@
 package com.jaffa.rpc.lib.rabbitmq;
 
 import com.jaffa.rpc.lib.JaffaService;
-import com.jaffa.rpc.lib.common.Options;
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @Slf4j
 public class RabbitMQRequestSender extends Sender {
 
-    private static final String NAME_PREFIX = Utils.getRequiredOption(Options.MODULE_ID);
+    private static final String NAME_PREFIX = Utils.getRequiredOption(OptionConstants.MODULE_ID);
     public static final String EXCHANGE_NAME = NAME_PREFIX;
     public static final String CLIENT_SYNC_NAME = NAME_PREFIX + "-client-sync";
     public static final String CLIENT_ASYNC_NAME = NAME_PREFIX + "-client-async";

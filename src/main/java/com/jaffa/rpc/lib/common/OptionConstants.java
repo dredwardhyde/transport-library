@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public final class Options {
+public final class OptionConstants {
     public static final String MODULE_ID                            = "jaffa.rpc.module.id";
     public static final String PROTOCOL                             = "jaffa.rpc.protocol";
     public static final String SERIALIZER 					        = "jaffa.rpc.serializer";

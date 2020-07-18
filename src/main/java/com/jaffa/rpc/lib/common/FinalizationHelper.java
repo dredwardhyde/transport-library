@@ -15,7 +15,7 @@ import java.util.concurrent.*;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class FinalizationWorker {
+public class FinalizationHelper {
 
     @Getter
     private static final ConcurrentMap<String, Command> eventsToConsume = new ConcurrentHashMap<>();
@@ -41,7 +41,7 @@ public class FinalizationWorker {
 
     @SuppressWarnings("squid:S2142")
     public static void startFinalizer(ApplicationContext context) {
-        FinalizationWorker.context = context;
+        FinalizationHelper.context = context;
         executor.scheduleAtFixedRate(finalizerThread, 0, 5, TimeUnit.MILLISECONDS);
         log.info("Finalizer thread started");
     }

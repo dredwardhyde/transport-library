@@ -1,7 +1,7 @@
 package com.jaffa.rpc.lib.spring;
 
 import com.jaffa.rpc.lib.annotations.ApiClient;
-import com.jaffa.rpc.lib.common.Options;
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -74,7 +74,7 @@ public class ApiClientAdvisor extends AbstractPointcutAdvisor {
             log.error("Error during metadata setting", e);
             throw new JaffaRpcSystemException(e);
         }
-        command.setSourceModuleId(Utils.getRequiredOption(Options.MODULE_ID));
+        command.setSourceModuleId(Utils.getRequiredOption(OptionConstants.MODULE_ID));
         command.setRqUid(UUID.randomUUID().toString());
     }
 

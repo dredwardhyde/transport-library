@@ -2,8 +2,8 @@ package com.jaffa.rpc.lib.grpc.receivers;
 
 import com.google.protobuf.ByteString;
 import com.jaffa.rpc.grpc.services.*;
-import com.jaffa.rpc.lib.common.Options;
-import com.jaffa.rpc.lib.common.RequestInvoker;
+import com.jaffa.rpc.lib.common.OptionConstants;
+import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -47,11 +47,11 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
     public static NettyServerBuilder addSecurityContext(NettyServerBuilder serverBuilder) {
         try {
-            if (Boolean.parseBoolean(System.getProperty(Options.GRPC_USE_SSL, "false"))) {
+            if (Boolean.parseBoolean(System.getProperty(OptionConstants.GRPC_USE_SSL, "false"))) {
                 return serverBuilder.sslContext(GrpcSslContexts.
                         configure(SslContextBuilder.
-                                forServer(new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_STORE_LOCATION)),
-                                        new File(Utils.getRequiredOption(Options.GRPC_SSL_SERVER_KEY_LOCATION)))).build());
+                                forServer(new File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_SERVER_STORE_LOCATION)),
+                                        new File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_SERVER_KEY_LOCATION)))).build());
             } else {
                 return serverBuilder;
             }
@@ -63,12 +63,12 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
     public static NettyChannelBuilder addSecurityContext(NettyChannelBuilder channelBuilder) {
         try {
-            if (Boolean.parseBoolean(System.getProperty(Options.GRPC_USE_SSL, "false"))) {
+            if (Boolean.parseBoolean(System.getProperty(OptionConstants.GRPC_USE_SSL, "false"))) {
                 return channelBuilder.sslContext(GrpcSslContexts.
                         configure(SslContextBuilder.forClient().
-                                keyManager(new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_KEYSTORE_LOCATION)),
-                                        new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_KEY_LOCATION))))
-                        .trustManager(new File(Utils.getRequiredOption(Options.GRPC_SSL_CLIENT_TRUSTSTORE_LOCATION)))
+                                keyManager(new File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_KEYSTORE_LOCATION)),
+                                        new File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_KEY_LOCATION))))
+                        .trustManager(new File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_TRUSTSTORE_LOCATION)))
                         .build()).useTransportSecurity();
             } else {
                 return channelBuilder.usePlaintext();
@@ -118,8 +118,8 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 if (StringUtils.isNotBlank(command.getCallbackKey()) && StringUtils.isNotBlank(command.getCallbackClass())) {
                     Runnable runnable = () -> {
                         try {
-                            Object result = RequestInvoker.invoke(command);
-                            CallbackRequest callbackResponse = MessageConverterHelper.toGRPCCallbackRequest(RequestInvoker.constructCallbackContainer(command, result));
+                            Object result = RequestInvocationHelper.invoke(command);
+                            CallbackRequest callbackResponse = MessageConverterHelper.toGRPCCallbackRequest(RequestInvocationHelper.constructCallbackContainer(command, result));
                             Pair<String, Integer> hostAndPort = Utils.getHostAndPort(command.getCallBackHost(), ":");
                             ManagedChannel channel = getManagedChannel(hostAndPort);
                             CallbackServiceGrpc.CallbackServiceBlockingStub stub = CallbackServiceGrpc.newBlockingStub(channel);
@@ -134,8 +134,8 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     asyncService.execute(runnable);
                     responseObserver.onNext(CommandResponse.newBuilder().setResponse(ByteString.EMPTY).build());
                 } else {
-                    Object result = RequestInvoker.invoke(command);
-                    CommandResponse commandResponse = MessageConverterHelper.toGRPCCommandResponse(RequestInvoker.getResult(result));
+                    Object result = RequestInvocationHelper.invoke(command);
+                    CommandResponse commandResponse = MessageConverterHelper.toGRPCCommandResponse(RequestInvocationHelper.getResult(result));
                     responseObserver.onNext(commandResponse);
                 }
                 responseObserver.onCompleted();
