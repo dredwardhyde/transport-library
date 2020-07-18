@@ -1,7 +1,9 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/04f6718617474f7e937885607646fa10)](https://app.codacy.com/manual/dredwardhyde/jaffa-rpc-library?utm_source=github.com&utm_medium=referral&utm_content=dredwardhyde/jaffa-rpc-library&utm_campaign=Badge_Grade_Dashboard)
 [![License](http://img.shields.io/:license-apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.dredwardhyde/jaffa-rpc-library/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.dredwardhyde/jaffa-rpc-library)
 [![javadoc](https://javadoc.io/badge2/com.github.dredwardhyde/jaffa-rpc-library/javadoc.svg)](https://javadoc.io/doc/com.github.dredwardhyde/jaffa-rpc-library)
 [![Build Status](https://travis-ci.org/dredwardhyde/jaffa-rpc-library.png)](https://travis-ci.org/dredwardhyde/jaffa-rpc-library)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdredwardhyde%2Fjaffa-rpc-library.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdredwardhyde%2Fjaffa-rpc-library?ref=badge_shield)
 ## Jaffa RPC library
 
 **This library provides RPC communication between Java Spring applications.**  
@@ -487,3 +489,7 @@ Because of bug [JDK-8208526](https://bugs.openjdk.java.net/browse/JDK-8208526) y
 ```sh
 -Djdk.tls.acknowledgeCloseNotify=true
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdredwardhyde%2Fjaffa-rpc-library.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdredwardhyde%2Fjaffa-rpc-library?ref=badge_large)
