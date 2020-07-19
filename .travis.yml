@@ -19,3 +19,7 @@ env:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+addons:
+  hosts:
+    - 192.168.1.51
