@@ -55,14 +55,12 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
                 CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(bytes, CallbackContainer.class);
                 RequestInvoker.processCallbackContainer(callbackContainer);
             } catch (ZMQException | ZError.IOException recvTerminationException) {
+                recvTerminationException.printStackTrace();
                 if (recvTerminationException instanceof ZMQException &&((ZMQException)recvTerminationException).getErrorCode() == ZMQ.Error.ETERM.getCode()) {
                     log.info("ZMQAsyncResponseReceiver socket was terminated");
                     break;
                 }
-                if (!recvTerminationException.getMessage().contains("Errno 4") && !recvTerminationException.getMessage().contains("156384765")) {
-                    log.error("General ZMQ exception", recvTerminationException);
-                    throw new JaffaRpcSystemException(recvTerminationException);
-                }
+                ZMQAsyncAndSyncRequestReceiver.checkZMQExceptionAndThrow(recvTerminationException);
             } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException | NoSuchMethodException callbackExecutionException) {
                 log.error("ZMQ callback execution exception", callbackExecutionException);
                 throw new JaffaRpcExecutionException(callbackExecutionException);

@@ -81,17 +81,22 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     socket.send(serializedResponse);
                 }
             } catch (ZMQException | ZError.IOException recvTerminationException) {
+                recvTerminationException.printStackTrace();
                 if (recvTerminationException instanceof ZMQException && ((ZMQException) recvTerminationException).getErrorCode() == ZMQ.Error.ETERM.getCode()) {
                     log.info("ZMQAsyncAndSyncRequestReceiver socket was terminated");
                     break;
                 }
-                if (!recvTerminationException.getMessage().contains("Errno 4") && !recvTerminationException.getMessage().contains("156384765")) {
-                    log.error("General ZMQ exception", recvTerminationException);
-                    throw new JaffaRpcSystemException(recvTerminationException);
-                }
+                checkZMQExceptionAndThrow(recvTerminationException);
             }
         }
         log.info("{} terminated", this.getClass().getSimpleName());
+    }
+
+    public static void checkZMQExceptionAndThrow(Exception recvTerminationException) {
+        if (!recvTerminationException.getMessage().contains("Errno 4") && !recvTerminationException.getMessage().contains("156384765")) {
+            log.error("General ZMQ exception", recvTerminationException);
+            throw new JaffaRpcSystemException(recvTerminationException);
+        }
     }
 
     @Override
