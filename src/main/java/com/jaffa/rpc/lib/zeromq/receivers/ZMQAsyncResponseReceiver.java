@@ -74,16 +74,15 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
 
     @Override
     public void close() throws UnknownHostException {
+        sendKillMessageToSocket(Utils.getZeroMQCallbackBindAddress());
         if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             try {
                 auth.close();
             } catch (IOException ioException) {
                 log.error("Error while closing ZeroMQ context", ioException);
             }
-        } else {
-            sendKillMessageToSocket(Utils.getZeroMQCallbackBindAddress());
-            log.info("ZMQAsyncResponseReceiver closed");
         }
+        log.info("ZMQAsyncResponseReceiver closed");
     }
 
     public static void sendKillMessageToSocket(String address) {
