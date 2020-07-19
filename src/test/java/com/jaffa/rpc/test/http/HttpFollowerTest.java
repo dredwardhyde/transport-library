@@ -12,11 +12,11 @@ public class HttpFollowerTest extends AbstractFollowerTestServer {
         System.setProperty("jaffa.rpc.protocol.http.ssl.server.truststore.location", "src/test/resources/truststore.jks");
         System.setProperty("jaffa.rpc.protocol.http.ssl.server.truststore.password", "simulator");
         System.setProperty("jaffa.rpc.protocol.http.ssl.server.keystore.location", "src/test/resources/identity.jks");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.server.keystore.password", "secret");
+        System.setProperty("jaffa.rpc.protocol.http.ssl.server.keystore.password", "simulator");
         System.setProperty("jaffa.rpc.protocol.http.ssl.client.truststore.location", "src/test/resources/truststore.jks");
         System.setProperty("jaffa.rpc.protocol.http.ssl.client.truststore.password", "simulator");
         System.setProperty("jaffa.rpc.protocol.http.ssl.client.keystore.location", "src/test/resources/identity.jks");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.client.keystore.password", "secret");
+        System.setProperty("jaffa.rpc.protocol.http.ssl.client.keystore.password", "simulator");
     }
 
     public static void main(String... args) {
