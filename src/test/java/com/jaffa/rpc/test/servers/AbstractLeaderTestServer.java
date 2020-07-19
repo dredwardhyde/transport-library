@@ -64,16 +64,13 @@ public abstract class AbstractLeaderTestServer {
                 .withTimeout(15, TimeUnit.SECONDS)
                 .onModule("test.server")
                 .executeSync();
-        log.info("Resulting id is {}", id);
         Person person = personService.get(id)
                 .onModule("test.server")
                 .executeSync();
         assertEquals(person.getId(), id);
-        log.info(person.toString());
         personService.lol().executeSync();
         personService.lol2("kek").executeSync();
         String name = personService.getName().executeSync();
-        log.info("Name: {}", name);
         assertNull(name);
         clientService.lol3("test3")
                 .onModule("test.server")
@@ -94,7 +91,6 @@ public abstract class AbstractLeaderTestServer {
                     .onModule("test.server")
                     .executeSync();
         } catch (Throwable e) {
-            log.error("Exception during sync call:", e);
             assertTrue(e.getMessage().contains("very bad in") || (Objects.nonNull(e.getCause()) && e.getCause().getMessage().contains("very bad in")));
         }
         personService.testError().onModule("test.server").executeAsync(UUID.randomUUID().toString(), PersonCallback.class);

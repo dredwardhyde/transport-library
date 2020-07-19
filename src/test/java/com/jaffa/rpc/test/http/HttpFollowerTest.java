@@ -2,7 +2,7 @@ package com.jaffa.rpc.test.http;
 
 import com.jaffa.rpc.test.servers.AbstractFollowerTestServer;
 
-public class HttpFollowerTestServer extends AbstractFollowerTestServer {
+public class HttpFollowerTest extends AbstractFollowerTestServer {
 
     static {
         System.setProperty("jaffa.rpc.protocol", "http");
@@ -11,7 +11,7 @@ public class HttpFollowerTestServer extends AbstractFollowerTestServer {
     }
 
     public static void main(String... args) {
-        HttpFollowerTestServer httpFollowerTestServer = new HttpFollowerTestServer();
-        httpFollowerTestServer.testAll();
+        HttpFollowerTest httpFollowerTest = new HttpFollowerTest();
+        httpFollowerTest.testAll();
     }
 }

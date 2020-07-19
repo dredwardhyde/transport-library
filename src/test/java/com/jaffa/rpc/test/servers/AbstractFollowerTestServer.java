@@ -10,8 +10,12 @@ import com.jaffa.rpc.test.services.PersonServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SuppressWarnings("squid:S2187")
@@ -40,14 +44,12 @@ public abstract class AbstractFollowerTestServer {
                     .withTimeout(15, TimeUnit.SECONDS)
                     .onModule("main.server")
                     .executeSync();
-            log.info("Resulting id is {}", id);
             Person person = personService.get(id)
                     .onModule("main.server")
                     .executeSync();
-            log.info(person.toString());
+            assertEquals(person.getId(), id);
             personService.lol().executeSync();
             personService.lol2("kek").executeSync();
-            log.info("Name: {}", personService.getName().executeSync());
             clientService.lol3("test3")
                     .onModule("main.server")
                     .executeSync();
@@ -66,7 +68,7 @@ public abstract class AbstractFollowerTestServer {
                         .onModule("main.server")
                         .executeSync();
             } catch (Exception e) {
-                log.error("Exception during sync call:", e);
+                assertTrue(e.getMessage().contains("very bad in") || (Objects.nonNull(e.getCause()) && e.getCause().getMessage().contains("very bad in")));
             }
             personService.testError()
                     .onModule("main.server")

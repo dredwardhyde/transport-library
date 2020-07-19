@@ -2,7 +2,7 @@ package com.jaffa.rpc.test.kafka;
 
 import com.jaffa.rpc.test.servers.AbstractFollowerTestServer;
 
-public class KafkaFollowerTestServer extends AbstractFollowerTestServer {
+public class KafkaFollowerTest extends AbstractFollowerTestServer {
 
     static {
         System.setProperty("jaffa.rpc.protocol", "kafka");
@@ -10,7 +10,7 @@ public class KafkaFollowerTestServer extends AbstractFollowerTestServer {
     }
 
     public static void main(String... args) {
-        KafkaFollowerTestServer kafkaFollowerTestServer = new KafkaFollowerTestServer();
-        kafkaFollowerTestServer.testAll();
+        KafkaFollowerTest kafkaFollowerTest = new KafkaFollowerTest();
+        kafkaFollowerTest.testAll();
     }
 }

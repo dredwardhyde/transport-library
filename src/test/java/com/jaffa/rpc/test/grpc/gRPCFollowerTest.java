@@ -2,7 +2,7 @@ package com.jaffa.rpc.test.grpc;
 
 import com.jaffa.rpc.test.servers.AbstractFollowerTestServer;
 
-public class gRPCFollowerTestServer extends AbstractFollowerTestServer {
+public class gRPCFollowerTest extends AbstractFollowerTestServer {
 
     static {
         System.setProperty("jaffa.rpc.protocol", "grpc");
@@ -11,7 +11,7 @@ public class gRPCFollowerTestServer extends AbstractFollowerTestServer {
     }
 
     public static void main(String... args) {
-        gRPCFollowerTestServer gRPCFollowerTestServer = new gRPCFollowerTestServer();
-        gRPCFollowerTestServer.testAll();
+        gRPCFollowerTest gRPCFollowerTest = new gRPCFollowerTest();
+        gRPCFollowerTest.testAll();
     }
 }

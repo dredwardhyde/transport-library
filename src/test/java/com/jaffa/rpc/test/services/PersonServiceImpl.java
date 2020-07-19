@@ -23,8 +23,6 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public int add(String name, String email, Address address) {
-        log.info("SOURCE MODULE ID: {} MY MODULE ID: {}", RequestContext.getSourceModuleId(), Utils.getRequiredOption("jaffa.rpc.module.id"));
-        log.info("TICKET: {}", RequestContext.getTicket());
         Person p = new Person();
         p.setEmail(email);
         p.setName(name);
@@ -36,8 +34,6 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public Person get(final Integer id) {
-        log.info("SOURCE MODULE ID: {} MY MODULE ID: {}", RequestContext.getSourceModuleId(), Utils.getRequiredOption("jaffa.rpc.module.id"));
-        log.info("TICKET: {}", RequestContext.getTicket());
         for (Person p : this.people) {
             if (p.getId().equals(id)) {
                 return p;
@@ -48,9 +44,6 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public void lol() {
-        log.info("SOURCE MODULE ID: {} MY MODULE ID: {}", RequestContext.getSourceModuleId(), Utils.getRequiredOption("jaffa.rpc.module.id"));
-        log.info("TICKET: {}", RequestContext.getTicket());
-        log.info("Lol");
     }
 
     @Override

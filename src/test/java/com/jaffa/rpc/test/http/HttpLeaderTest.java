@@ -4,14 +4,14 @@ import com.jaffa.rpc.test.servers.AbstractLeaderTestServer;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class HttpLeaderTestServer extends AbstractLeaderTestServer {
+public class HttpLeaderTest extends AbstractLeaderTestServer {
 
     static {
         System.setProperty("jaffa.rpc.protocol", "http");
     }
 
-    public HttpLeaderTestServer() {
+    public HttpLeaderTest() {
         super();
-        setFollower(HttpFollowerTestServer.class);
+        setFollower(HttpFollowerTest.class);
     }
 }

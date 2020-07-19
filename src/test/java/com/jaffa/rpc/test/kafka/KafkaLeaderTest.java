@@ -17,7 +17,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 @Slf4j
-public class KafkaLeaderTestServer extends AbstractLeaderTestServer {
+public class KafkaLeaderTest extends AbstractLeaderTestServer {
 
     private static Path tmpLogDir;
     private static KafkaServer kafkaServer;
@@ -28,9 +28,9 @@ public class KafkaLeaderTestServer extends AbstractLeaderTestServer {
         System.setProperty("jaffa.rpc.protocol.kafka.bootstrap.servers", BROKER_IP_PORT);
     }
 
-    public KafkaLeaderTestServer() {
+    public KafkaLeaderTest() {
         super();
-        setFollower(KafkaFollowerTestServer.class);
+        setFollower(KafkaFollowerTest.class);
     }
 
     @BeforeAll
