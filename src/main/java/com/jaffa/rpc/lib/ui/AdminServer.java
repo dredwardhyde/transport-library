@@ -43,7 +43,7 @@ public class AdminServer {
 
     public static void addMetric(Command command) {
         double executionDuration = (System.nanoTime() - command.getLocalRequestTime()) / 1000000.0;
-        log.info(">>>>>> Executed request {} in {} ms", command.getRqUid(), executionDuration);
+        log.trace(">>>>>> Executed request {} in {} ms", command.getRqUid(), executionDuration);
         responses.add(new ResponseMetric(command.getRequestTime(), executionDuration));
     }
 

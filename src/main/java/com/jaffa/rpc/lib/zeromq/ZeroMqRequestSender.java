@@ -41,7 +41,7 @@ public class ZeroMqRequestSender extends Sender {
             socket.setReceiveTimeOut((int) (this.timeout == -1 ? 1000 * 60 * 60 : this.timeout));
             response = socket.recv(0);
         }
-        log.info(">>>>>> Executed sync request {} in {} ms", command.getRqUid(), System.currentTimeMillis() - start);
+        log.trace(">>>>>> Executed sync request {} in {} ms", command.getRqUid(), System.currentTimeMillis() - start);
         return response;
     }
 
