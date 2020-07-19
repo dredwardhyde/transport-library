@@ -118,7 +118,7 @@ public class Utils {
     }
 
     public static boolean isZkTestMode() {
-        return (Boolean.parseBoolean(System.getProperty(Options.ZK_TEST_MODE, String.valueOf(false))));
+        return (Boolean.parseBoolean(System.getProperty(OptionConstants.ZK_TEST_MODE, String.valueOf(false))));
     }
 
     private static ArrayList<MutablePair<String, String>> getHostsForService(String service, String moduleId, Protocol protocol) throws ParseException {
