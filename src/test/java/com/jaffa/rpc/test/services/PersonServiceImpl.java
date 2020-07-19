@@ -22,7 +22,7 @@ public class PersonServiceImpl implements PersonService {
     private final AtomicInteger idProvider = new AtomicInteger(1);
 
     @Override
-    public int add(String name, String email, Address address) {
+    public synchronized int add(String name, String email, Address address) {
         Person p = new Person();
         p.setEmail(email);
         p.setName(name);
@@ -33,7 +33,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public Person get(final Integer id) {
+    public synchronized Person get(final Integer id) {
         for (Person p : this.people) {
             if (p.getId().equals(id)) {
                 return p;
