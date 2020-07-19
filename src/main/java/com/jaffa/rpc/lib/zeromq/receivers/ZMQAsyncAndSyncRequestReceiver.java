@@ -25,6 +25,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Slf4j
+@SuppressWarnings("squid:S1193")
 public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
     private static final ExecutorService service = Executors.newFixedThreadPool(3);
@@ -80,6 +81,10 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     socket.send(serializedResponse);
                 }
             } catch (ZMQException | ZError.IOException recvTerminationException) {
+                if (recvTerminationException instanceof ZMQException &&((ZMQException)recvTerminationException).getErrorCode() == ZMQ.Error.ETERM.getCode()) {
+                    log.info("ZMQAsyncAndSyncRequestReceiver socket was terminated");
+                    break;
+                }
                 if (!recvTerminationException.getMessage().contains("Errno 4") && !recvTerminationException.getMessage().contains("156384765")) {
                     log.error("General ZMQ exception", recvTerminationException);
                     throw new JaffaRpcSystemException(recvTerminationException);

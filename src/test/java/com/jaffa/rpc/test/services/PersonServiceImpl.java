@@ -48,7 +48,6 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public void lol2(String message) {
-        log.info(message);
     }
 
     @Override
