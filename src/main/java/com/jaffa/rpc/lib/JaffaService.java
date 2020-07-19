@@ -268,6 +268,10 @@ public class JaffaService {
                     }
                     break;
                 case ZMQ:
+                    if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
+                        CurveUtils.readClientKeys();
+                        CurveUtils.readServerKeys();
+                    }
                     if (serverEndpoints.getEndpoints().length != 0) {
                         ZMQAsyncAndSyncRequestReceiver zmqSyncRequestReceiver = new ZMQAsyncAndSyncRequestReceiver();
                         this.zmqReceivers.add(zmqSyncRequestReceiver);
@@ -277,10 +281,6 @@ public class JaffaService {
                         ZMQAsyncResponseReceiver zmqAsyncResponseReceiver = new ZMQAsyncResponseReceiver();
                         this.zmqReceivers.add(zmqAsyncResponseReceiver);
                         this.receiverThreads.add(new Thread(zmqAsyncResponseReceiver));
-                    }
-                    if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
-                        CurveUtils.readClientKeys();
-                        CurveUtils.readServerKeys();
                     }
                     break;
                 case HTTP:
