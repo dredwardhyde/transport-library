@@ -57,6 +57,13 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] bytes = socket.recv();
+                if (bytes != null && bytes.length == 1 && bytes[0] == 7) {
+                    context.destroySocket(socket);
+                    log.info("ZMQAsyncAndSyncRequestReceiver socket destroyed");
+                    context.destroy();
+                    log.info("ZMQAsyncAndSyncRequestReceiver context destroyed");
+                    break;
+                }
                 final Command command = Serializer.getCurrent().deserialize(bytes, Command.class);
                 if (Objects.nonNull(command.getCallbackKey()) && Objects.nonNull(command.getCallbackClass())) {
                     socket.send("OK");
@@ -82,10 +89,6 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 }
             } catch (ZMQException | ZError.IOException recvTerminationException) {
                 log.info("General ZMQ exception", recvTerminationException);
-                if (recvTerminationException instanceof ZMQException && ((ZMQException) recvTerminationException).getErrorCode() == ZMQ.Error.ETERM.getCode()) {
-                    log.info("ZMQAsyncAndSyncRequestReceiver socket was terminated");
-                    break;
-                }
                 checkZMQExceptionAndThrow(recvTerminationException);
             }
         }
@@ -100,7 +103,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     }
 
     @Override
-    public void close() {
+    public void close() throws UnknownHostException {
         if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             try {
                 auth.close();
@@ -108,8 +111,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 log.error("Error while closing ZeroMQ context", ioException);
             }
         } else {
-            context.destroySocket(socket);
-            context.close();
+            ZMQAsyncResponseReceiver.sendKillMessageToSocket(Utils.getZeroMQBindAddress());
             log.info("ZMQAsyncAndSyncRequestReceiver closed");
         }
         service.shutdownNow();
