@@ -9,7 +9,11 @@ import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.zeromq.CurveUtils;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
-import org.zeromq.*;
+import org.zeromq.SocketType;
+import org.zeromq.ZAuth;
+import org.zeromq.ZContext;
+import org.zeromq.ZMQ;
+import org.zeromq.ZMQException;
 import zmq.ZError;
 
 import java.io.Closeable;
@@ -20,14 +24,13 @@ import java.net.UnknownHostException;
 @Slf4j
 public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
 
-    private ZContext context;
-    private ZMQ.Socket socket;
+    private final ZContext context;
+    private final ZMQ.Socket socket;
     private ZAuth auth;
 
-    @Override
-    public void run() {
+    public ZMQAsyncResponseReceiver() {
         try {
-            context = new ZContext(1);
+            context = new ZContext(10);
             context.setLinger(0);
             if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
                 auth = new ZAuth(context);
@@ -41,6 +44,10 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
             log.error("Error during ZeroMQ response receiver startup:", zmqStartupException);
             throw new JaffaRpcSystemException(zmqStartupException);
         }
+    }
+
+    @Override
+    public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] bytes = socket.recv();
@@ -70,6 +77,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
         } else {
             socket.close();
             context.close();
+            log.info("ZMQAsyncResponseReceiver closed");
         }
     }
 }

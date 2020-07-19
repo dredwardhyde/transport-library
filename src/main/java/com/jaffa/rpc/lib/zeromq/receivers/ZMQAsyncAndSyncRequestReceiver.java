@@ -10,7 +10,11 @@ import com.jaffa.rpc.lib.zeromq.CurveUtils;
 import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
-import org.zeromq.*;
+import org.zeromq.SocketType;
+import org.zeromq.ZAuth;
+import org.zeromq.ZContext;
+import org.zeromq.ZMQ;
+import org.zeromq.ZMQException;
 import zmq.ZError;
 
 import java.io.Closeable;
@@ -25,14 +29,13 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
     private static final ExecutorService service = Executors.newFixedThreadPool(3);
 
-    private ZContext context;
+    private final ZContext context;
     private ZAuth auth;
-    private ZMQ.Socket socket;
+    private final ZMQ.Socket socket;
 
-    @Override
-    public void run() {
+    public ZMQAsyncAndSyncRequestReceiver() {
         try {
-            context = new ZContext(1);
+            context = new ZContext(10);
             context.setLinger(0);
             if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
                 auth = new ZAuth(context);
@@ -46,6 +49,10 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             log.error("Error during ZeroMQ request receiver startup:", zmqStartupException);
             throw new JaffaRpcSystemException(zmqStartupException);
         }
+    }
+
+    @Override
+    public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] bytes = socket.recv();
@@ -93,6 +100,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         } else {
             socket.close();
             context.close();
+            log.info("ZMQAsyncAndSyncRequestReceiver closed");
         }
         service.shutdownNow();
     }
