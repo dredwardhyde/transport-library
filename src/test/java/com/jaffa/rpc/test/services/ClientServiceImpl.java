@@ -11,6 +11,7 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     public void lol3(String message) {
+        // No-op
     }
 
     @Override

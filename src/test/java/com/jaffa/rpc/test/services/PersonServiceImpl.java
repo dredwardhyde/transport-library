@@ -43,10 +43,12 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public void lol() {
+        // No-op
     }
 
     @Override
     public void lol2(String message) {
+        // No-op
     }
 
     @Override

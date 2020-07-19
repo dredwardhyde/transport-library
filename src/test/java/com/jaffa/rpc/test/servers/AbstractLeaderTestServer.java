@@ -57,7 +57,7 @@ public abstract class AbstractLeaderTestServer {
     }
 
     @Test
-    void stage_1() {
+    void stage1() {
         log.info("Started {}", new Object() {
         }.getClass().getEnclosingMethod().getName());
         Integer id = personService.add("Test name", "test@mail.com", null)
@@ -97,7 +97,7 @@ public abstract class AbstractLeaderTestServer {
     }
 
     @Test
-    void stage_2() {
+    void stage2() {
         log.info("Started {}", new Object() {
         }.getClass().getEnclosingMethod().getName());
         final String javaCmd = getJavaCmdFromParent();
