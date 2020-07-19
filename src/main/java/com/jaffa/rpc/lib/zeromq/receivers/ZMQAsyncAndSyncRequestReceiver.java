@@ -27,12 +27,12 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
 
     private ZContext context;
     private ZAuth auth;
-    private ZMQ.Socket socket;
 
     @Override
     public void run() {
+        ZMQ.Socket socket;
         try {
-            context = new ZContext(10);
+            context = new ZContext(1);
             context.setLinger(0);
             if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
                 auth = new ZAuth(context);
@@ -91,7 +91,6 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 log.error("Error while closing ZeroMQ context", ioException);
             }
         } else {
-            socket.close();
             context.close();
         }
         service.shutdownNow();
