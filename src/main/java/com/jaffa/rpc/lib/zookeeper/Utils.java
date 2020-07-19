@@ -2,7 +2,7 @@ package com.jaffa.rpc.lib.zookeeper;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
-import com.jaffa.rpc.lib.common.Options;
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -114,7 +114,7 @@ public class Utils {
     }
 
     private static String getHttpPrefix() {
-        return (Boolean.parseBoolean(System.getProperty(Options.USE_HTTPS, String.valueOf(false))) ? "https" : "http") + "://";
+        return (Boolean.parseBoolean(System.getProperty(OptionConstants.USE_HTTPS, String.valueOf(false))) ? "https" : "http") + "://";
     }
 
     public static boolean isZkTestMode() {
@@ -184,7 +184,7 @@ public class Utils {
     }
 
     public static Protocol getRpcProtocol() {
-        return Protocol.getByName(Utils.getRequiredOption(Options.PROTOCOL));
+        return Protocol.getByName(Utils.getRequiredOption(OptionConstants.PROTOCOL));
     }
 
     public static Class<? extends Sender> getCurrentSenderClass() {
@@ -203,7 +203,7 @@ public class Utils {
     public static int getServicePort() {
         int defaultPort = 4242;
         try {
-            return Integer.parseInt(System.getProperty(Options.PROTOCOL_OPTION_PREFIX + getRpcProtocol().getShortName() + Options.SERVICE_PORT_OPTION_SUFFIX, String.valueOf(defaultPort)));
+            return Integer.parseInt(System.getProperty(OptionConstants.PROTOCOL_OPTION_PREFIX + getRpcProtocol().getShortName() + OptionConstants.SERVICE_PORT_OPTION_SUFFIX, String.valueOf(defaultPort)));
         } catch (NumberFormatException e) {
             return defaultPort;
         }
@@ -212,7 +212,7 @@ public class Utils {
     public static int getCallbackPort() {
         int defaultPort = 4342;
         try {
-            return Integer.parseInt(System.getProperty(Options.PROTOCOL_OPTION_PREFIX + getRpcProtocol().getShortName() + Options.CALLBACK_PORT_OPTION_SUFFIX, String.valueOf(defaultPort)));
+            return Integer.parseInt(System.getProperty(OptionConstants.PROTOCOL_OPTION_PREFIX + getRpcProtocol().getShortName() + OptionConstants.CALLBACK_PORT_OPTION_SUFFIX, String.valueOf(defaultPort)));
         } catch (NumberFormatException e) {
             return defaultPort;
         }
@@ -258,7 +258,7 @@ public class Utils {
     }
 
     private static String getServiceBindAddress(Protocol protocol) throws UnknownHostException {
-        return getLocalHostLANAddress().getHostAddress() + ":" + getServicePort() + "#" + Utils.getRequiredOption(Options.MODULE_ID) + "#" + protocol.getShortName();
+        return getLocalHostLANAddress().getHostAddress() + ":" + getServicePort() + "#" + Utils.getRequiredOption(OptionConstants.MODULE_ID) + "#" + protocol.getShortName();
     }
 
     public static String getZeroMQBindAddress() throws UnknownHostException {

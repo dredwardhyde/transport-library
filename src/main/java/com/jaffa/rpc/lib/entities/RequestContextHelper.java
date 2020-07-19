@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RequestContext {
+public class RequestContextHelper {
 
     private static final ThreadLocal<String> sourceModuleId = new ThreadLocal<>();
     private static final ThreadLocal<SecurityTicket> securityTicketThreadLocal = new ThreadLocal<>();
@@ -15,7 +15,7 @@ public class RequestContext {
     }
 
     public static void setSourceModuleId(String sourceModuleId) {
-        RequestContext.sourceModuleId.set(sourceModuleId);
+        RequestContextHelper.sourceModuleId.set(sourceModuleId);
     }
 
     public static SecurityTicket getTicket() {
@@ -23,7 +23,7 @@ public class RequestContext {
     }
 
     public static void setSecurityTicket(SecurityTicket securityTicket) {
-        RequestContext.securityTicketThreadLocal.set(securityTicket);
+        RequestContextHelper.securityTicketThreadLocal.set(securityTicket);
     }
 
     public static void setMetaData(Command command) {

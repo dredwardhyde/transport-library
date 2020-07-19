@@ -3,9 +3,9 @@ package com.jaffa.rpc.lib;
 import com.jaffa.rpc.lib.annotations.Api;
 import com.jaffa.rpc.lib.annotations.ApiClient;
 import com.jaffa.rpc.lib.annotations.ApiServer;
-import com.jaffa.rpc.lib.common.FinalizationWorker;
-import com.jaffa.rpc.lib.common.Options;
-import com.jaffa.rpc.lib.common.RequestInvoker;
+import com.jaffa.rpc.lib.common.FinalizationHelper;
+import com.jaffa.rpc.lib.common.OptionConstants;
+import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.grpc.GrpcRequestSender;
@@ -104,24 +104,24 @@ public class JaffaService {
 
     private static void loadInternalProperties() {
         if (Utils.getRpcProtocol().equals(Protocol.KAFKA)) {
-            consumerProps.put("bootstrap.servers", Utils.getRequiredOption(Options.KAFKA_BOOTSTRAP_SERVERS));
+            consumerProps.put("bootstrap.servers", Utils.getRequiredOption(OptionConstants.KAFKA_BOOTSTRAP_SERVERS));
             consumerProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
             consumerProps.put("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer");
             consumerProps.put("enable.auto.commit", String.valueOf(false));
             consumerProps.put("group.id", UUID.randomUUID().toString());
 
-            producerProps.put("bootstrap.servers", Utils.getRequiredOption(Options.KAFKA_BOOTSTRAP_SERVERS));
+            producerProps.put("bootstrap.servers", Utils.getRequiredOption(OptionConstants.KAFKA_BOOTSTRAP_SERVERS));
             producerProps.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
             producerProps.put("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer");
 
-            if (Boolean.parseBoolean(System.getProperty(Options.KAFKA_USE_SSL, String.valueOf(false)))) {
+            if (Boolean.parseBoolean(System.getProperty(OptionConstants.KAFKA_USE_SSL, String.valueOf(false)))) {
                 Map<String, String> sslProps = new HashMap<>();
                 sslProps.put("security.protocol", "SSL");
-                sslProps.put("ssl.truststore.location", Utils.getRequiredOption(Options.KAFKA_SSL_TRUSTSTORE_LOCATION));
-                sslProps.put("ssl.truststore.password", Utils.getRequiredOption(Options.KAFKA_SSL_TRUSTSTORE_PASSWORD));
-                sslProps.put("ssl.keystore.location", Utils.getRequiredOption(Options.KAFKA_SSL_KEYSTORE_LOCATION));
-                sslProps.put("ssl.keystore.password", Utils.getRequiredOption(Options.KAFKA_SSL_KEYSTORE_PASSWORD));
-                sslProps.put("ssl.key.password", Utils.getRequiredOption(Options.KAFKA_SSL_KEY_PASSWORD));
+                sslProps.put("ssl.truststore.location", Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION));
+                sslProps.put("ssl.truststore.password", Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD));
+                sslProps.put("ssl.keystore.location", Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_LOCATION));
+                sslProps.put("ssl.keystore.password", Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_PASSWORD));
+                sslProps.put("ssl.key.password", Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEY_PASSWORD));
                 consumerProps.putAll(sslProps);
                 producerProps.putAll(sslProps);
             }
@@ -135,18 +135,18 @@ public class JaffaService {
             apiImpls.put(server, server.getInterfaces()[0]);
         }
         for (Map.Entry<Class<?>, Class<?>> apiImpl : apiImpls.entrySet()) {
-            RequestInvoker.getWrappedServices().put(apiImpl.getValue(), context.getBean(apiImpl.getKey()));
+            RequestInvocationHelper.getWrappedServices().put(apiImpl.getValue(), context.getBean(apiImpl.getKey()));
             Utils.registerService(apiImpl.getValue().getName(), Utils.getRpcProtocol());
         }
-        RequestInvoker.setContext(context);
+        RequestInvocationHelper.setContext(context);
     }
 
     @SuppressWarnings("squid:S2583")
     private void prepareServiceRegistration() throws ClassNotFoundException {
-        Utils.connect(Utils.getRequiredOption(Options.ZOOKEEPER_CONNECTION));
+        Utils.connect(Utils.getRequiredOption(OptionConstants.ZOOKEEPER_CONNECTION));
         Protocol protocol = Utils.getRpcProtocol();
         if (protocol.equals(Protocol.KAFKA)) {
-            ZooKeeperClient zooKeeperClient = new ZooKeeperClient(Utils.getRequiredOption(Options.ZOOKEEPER_CONNECTION),
+            ZooKeeperClient zooKeeperClient = new ZooKeeperClient(Utils.getRequiredOption(OptionConstants.ZOOKEEPER_CONNECTION),
                     200000,
                     15000,
                     10,
@@ -164,19 +164,19 @@ public class JaffaService {
             JaffaService.setClientSyncTopics(createKafkaTopics("client-sync"));
         }
         if (protocol.equals(Protocol.RABBIT)) {
-            String rabbitHost = Utils.getRequiredOption(Options.RABBIT_HOST);
-            int rabbitPort = Integer.parseInt(Utils.getRequiredOption(Options.RABBIT_PORT));
+            String rabbitHost = Utils.getRequiredOption(OptionConstants.RABBIT_HOST);
+            int rabbitPort = Integer.parseInt(Utils.getRequiredOption(OptionConstants.RABBIT_PORT));
             RabbitConnectionFactoryBean factory = new RabbitConnectionFactoryBean();
             factory.setHost(rabbitHost);
             factory.setPort(rabbitPort);
-            factory.setUsername(System.getProperty(Options.RABBIT_LOGIN, "guest"));
-            factory.setPassword(System.getProperty(Options.RABBIT_PASSWORD, "guest"));
-            if (Boolean.parseBoolean(System.getProperty(Options.RABBIT_USE_SSL, "false"))) {
+            factory.setUsername(System.getProperty(OptionConstants.RABBIT_LOGIN, "guest"));
+            factory.setPassword(System.getProperty(OptionConstants.RABBIT_PASSWORD, "guest"));
+            if (Boolean.parseBoolean(System.getProperty(OptionConstants.RABBIT_USE_SSL, "false"))) {
                 factory.setUseSSL(true);
-                factory.setKeyStore(Utils.getRequiredOption(Options.RABBIT_SSL_KEYSTORE_LOCATION));
-                factory.setKeyStorePassphrase(Utils.getRequiredOption(Options.RABBIT_SSL_KEYSTORE_PASSWORD));
-                factory.setTrustStore(Utils.getRequiredOption(Options.RABBIT_SSL_TRUSTSTORE_LOCATION));
-                factory.setTrustStorePassphrase(Utils.getRequiredOption(Options.RABBIT_SSL_TRUSTSTORE_PASSWORD));
+                factory.setKeyStore(Utils.getRequiredOption(OptionConstants.RABBIT_SSL_KEYSTORE_LOCATION));
+                factory.setKeyStorePassphrase(Utils.getRequiredOption(OptionConstants.RABBIT_SSL_KEYSTORE_PASSWORD));
+                factory.setTrustStore(Utils.getRequiredOption(OptionConstants.RABBIT_SSL_TRUSTSTORE_LOCATION));
+                factory.setTrustStorePassphrase(Utils.getRequiredOption(OptionConstants.RABBIT_SSL_TRUSTSTORE_PASSWORD));
             }
             JaffaService.setConnectionFactory(new CachingConnectionFactory(factory.getRabbitConnectionFactory()));
             JaffaService.setAdminRabbitMQ(new RabbitAdmin(JaffaService.connectionFactory));
@@ -220,7 +220,7 @@ public class JaffaService {
                 apiImpls.add(Class.forName(Utils.getServiceInterfaceNameFromClient(client.getName())));
             }
         }
-        apiImpls.forEach(x -> topicsCreated.add(x.getName() + "-" + Utils.getRequiredOption(Options.MODULE_ID) + "-" + type));
+        apiImpls.forEach(x -> topicsCreated.add(x.getName() + "-" + Utils.getRequiredOption(OptionConstants.MODULE_ID) + "-" + type));
         return topicsCreated;
     }
 
@@ -278,7 +278,7 @@ public class JaffaService {
                         this.zmqReceivers.add(zmqAsyncResponseReceiver);
                         this.receiverThreads.add(new Thread(zmqAsyncResponseReceiver));
                     }
-                    if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
+                    if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
                         CurveUtils.readClientKeys();
                         CurveUtils.readServerKeys();
                     }
@@ -327,7 +327,7 @@ public class JaffaService {
             this.receiverThreads.forEach(Thread::start);
             if (expectedThreadCount != 0) started.await();
             registerServices();
-            FinalizationWorker.startFinalizer(context);
+            FinalizationHelper.startFinalizer(context);
             log.info("\n    .---.                                             \n" +
                     "    |   |                                               \n" +
                     "    '---'                                               \n" +
@@ -388,7 +388,7 @@ public class JaffaService {
             } while (thread.getState() != Thread.State.TERMINATED);
         }
         log.info("All receiver threads stopped");
-        FinalizationWorker.stopFinalizer();
+        FinalizationHelper.stopFinalizer();
         log.info("Finalizer was stopped");
         log.info("Jaffa RPC shutdown completed");
     }

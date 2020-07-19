@@ -1,6 +1,6 @@
 package com.jaffa.rpc.lib.serialization;
 
-import com.jaffa.rpc.lib.common.Options;
+import com.jaffa.rpc.lib.common.OptionConstants;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +17,7 @@ public class Serializer {
     private static ObjectSerializer current;
 
     public static void init() {
-        isKryo = System.getProperty(Options.SERIALIZER, "kryo").equals("kryo");
+        isKryo = System.getProperty(OptionConstants.SERIALIZER, "kryo").equals("kryo");
         if (isKryo) {
             current = new KryoPoolSerializer();
         } else {

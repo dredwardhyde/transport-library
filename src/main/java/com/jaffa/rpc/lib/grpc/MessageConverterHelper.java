@@ -19,7 +19,7 @@ import java.util.Objects;
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings("unused")
-public class MessageConverters {
+public class MessageConverterHelper {
     public static Command fromGRPCCommandRequest(CommandRequest request) throws ClassNotFoundException {
         Command command = new Command();
         command.setCallBackHost(request.getCallBackHost());

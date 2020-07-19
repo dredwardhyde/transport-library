@@ -1,7 +1,7 @@
 package com.jaffa.rpc.lib.zeromq.receivers;
 
-import com.jaffa.rpc.lib.common.Options;
-import com.jaffa.rpc.lib.common.RequestInvoker;
+import com.jaffa.rpc.lib.common.OptionConstants;
+import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -33,10 +33,10 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
         try {
             context = new ZContext(10);
             context.setLinger(0);
-            if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
+            if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
                 auth = new ZAuth(context);
                 auth.setVerbose(true);
-                auth.configureCurve(Utils.getRequiredOption(Options.ZMQ_CLIENT_DIR));
+                auth.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR));
             }
             socket = context.createSocket(SocketType.REP);
             CurveUtils.makeSocketSecure(socket);
@@ -53,7 +53,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
             try {
                 byte[] bytes = socket.recv();
                 CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(bytes, CallbackContainer.class);
-                RequestInvoker.processCallbackContainer(callbackContainer);
+                RequestInvocationHelper.processCallbackContainer(callbackContainer);
             } catch (ZMQException | ZError.IOException recvTerminationException) {
                 log.debug("General ZMQ exception", recvTerminationException);
                 if (recvTerminationException instanceof ZMQException &&((ZMQException)recvTerminationException).getErrorCode() == ZMQ.Error.ETERM.getCode()) {
@@ -71,7 +71,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
 
     @Override
     public void close() {
-        if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
+        if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             try {
                 auth.close();
             } catch (IOException ioException) {

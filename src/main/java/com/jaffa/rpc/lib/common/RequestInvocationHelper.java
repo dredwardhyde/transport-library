@@ -3,7 +3,7 @@ package com.jaffa.rpc.lib.common;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.ExceptionHolder;
-import com.jaffa.rpc.lib.entities.RequestContext;
+import com.jaffa.rpc.lib.entities.RequestContextHelper;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
@@ -28,7 +28,7 @@ import java.util.Objects;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class RequestInvoker {
+public class RequestInvocationHelper {
 
     @Getter
     private static final Map<Class<?>, Object> wrappedServices = new HashMap<>();
@@ -55,7 +55,7 @@ public class RequestInvoker {
 
     public static Object invoke(Command command) {
         try {
-            RequestContext.setMetaData(command);
+            RequestContextHelper.setMetaData(command);
             Object targetService = getTargetService(command);
             Method targetMethod = getTargetMethod(command);
             Object result;
@@ -72,7 +72,7 @@ public class RequestInvoker {
         } catch (Exception e) {
             return e.getCause();
         } finally {
-            RequestContext.removeMetaData();
+            RequestContextHelper.removeMetaData();
         }
     }
 
@@ -103,7 +103,7 @@ public class RequestInvoker {
 
     public static boolean processCallbackContainer(CallbackContainer callbackContainer) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String key = callbackContainer.getKey();
-        Command command = FinalizationWorker.getEventsToConsume().remove(callbackContainer.getKey());
+        Command command = FinalizationHelper.getEventsToConsume().remove(callbackContainer.getKey());
         if (Objects.nonNull(command)) {
             Class<?> callbackClass = Class.forName(callbackContainer.getListener());
             Object callBackBean = context.getBean(callbackClass);

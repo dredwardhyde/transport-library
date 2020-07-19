@@ -1,8 +1,8 @@
 package com.jaffa.rpc.lib.kafka.receivers;
 
 import com.jaffa.rpc.lib.JaffaService;
-import com.jaffa.rpc.lib.common.Options;
-import com.jaffa.rpc.lib.common.RequestInvoker;
+import com.jaffa.rpc.lib.common.OptionConstants;
+import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
@@ -51,9 +51,9 @@ public class KafkaSyncRequestReceiver extends KafkaReceiver implements Runnable 
                 for (ConsumerRecord<String, byte[]> record : records) {
                     try {
                         Command command = Serializer.getCurrent().deserialize(record.value(), Command.class);
-                        Object result = RequestInvoker.invoke(command);
-                        byte[] serializedResponse = Serializer.getCurrent().serializeWithClass(RequestInvoker.getResult(result));
-                        ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()) + "-" + Utils.getRequiredOption(Options.MODULE_ID) + "-client-sync", command.getRqUid(), serializedResponse);
+                        Object result = RequestInvocationHelper.invoke(command);
+                        byte[] serializedResponse = Serializer.getCurrent().serializeWithClass(RequestInvocationHelper.getResult(result));
+                        ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()) + "-" + Utils.getRequiredOption(OptionConstants.MODULE_ID) + "-client-sync", command.getRqUid(), serializedResponse);
                         producer.send(resultPackage).get();
                         Map<TopicPartition, OffsetAndMetadata> commitData = new HashMap<>();
                         commitData.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));

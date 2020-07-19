@@ -18,12 +18,12 @@ import org.springframework.context.annotation.Import;
 public class MainConfig {
 
     @Bean
-    ServerEndpoints serverEndpoints() {
+    public ServerEndpoints serverEndpoints() {
         return new ServerEndpoints(PersonServiceImpl.class, ClientServiceImpl.class);
     }
 
     @Bean
-    ClientEndpoints clientEndpoints() {
+    public ClientEndpoints clientEndpoints() {
         return new ClientEndpoints(ClientServiceClient.class, PersonServiceClient.class);
     }
 }

@@ -50,8 +50,8 @@ public class GrpcRequestSender extends Sender {
         CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
         int totalTimeout = (int) (this.timeout == -1 ? 1000 * 60 * 60 : this.timeout);
         try {
-            CommandResponse commandResponse = stub.withDeadlineAfter(totalTimeout, TimeUnit.MILLISECONDS).execute(MessageConverters.toGRPCCommandRequest(command));
-            return MessageConverters.fromGRPCCommandResponse(commandResponse);
+            CommandResponse commandResponse = stub.withDeadlineAfter(totalTimeout, TimeUnit.MILLISECONDS).execute(MessageConverterHelper.toGRPCCommandRequest(command));
+            return MessageConverterHelper.fromGRPCCommandResponse(commandResponse);
         } catch (StatusRuntimeException statusRuntimeException) {
             processStatusException(statusRuntimeException);
         }
@@ -81,7 +81,7 @@ public class GrpcRequestSender extends Sender {
         ManagedChannel channel = getManagedChannel();
         CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
         try {
-            CommandResponse response = stub.execute(MessageConverters.toGRPCCommandRequest(command));
+            CommandResponse response = stub.execute(MessageConverterHelper.toGRPCCommandRequest(command));
             if (!response.getResponse().equals(ByteString.EMPTY))
                 throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
         } catch (StatusRuntimeException statusRuntimeException) {

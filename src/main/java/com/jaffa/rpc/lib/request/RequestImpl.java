@@ -1,7 +1,7 @@
 package com.jaffa.rpc.lib.request;
 
 import com.jaffa.rpc.lib.callbacks.Callback;
-import com.jaffa.rpc.lib.common.FinalizationWorker;
+import com.jaffa.rpc.lib.common.FinalizationHelper;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.ExceptionHolder;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
@@ -71,7 +71,7 @@ public class RequestImpl<T> implements Request<T> {
         command.setLocalRequestTime(System.nanoTime());
         command.setAsyncExpireTime(System.currentTimeMillis() + (timeout != -1 ? timeout : 1000 * 60 * 60));
         log.debug("Async command {} added to finalization queue", command);
-        FinalizationWorker.getEventsToConsume().put(command.getCallbackKey(), command);
+        FinalizationHelper.getEventsToConsume().put(command.getCallbackKey(), command);
         sender.executeAsync(command);
     }
 }

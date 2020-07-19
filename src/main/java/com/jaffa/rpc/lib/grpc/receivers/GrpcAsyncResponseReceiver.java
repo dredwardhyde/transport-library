@@ -3,11 +3,11 @@ package com.jaffa.rpc.lib.grpc.receivers;
 import com.jaffa.rpc.grpc.services.CallbackRequest;
 import com.jaffa.rpc.grpc.services.CallbackResponse;
 import com.jaffa.rpc.grpc.services.CallbackServiceGrpc;
-import com.jaffa.rpc.lib.common.RequestInvoker;
+import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
-import com.jaffa.rpc.lib.grpc.MessageConverters;
+import com.jaffa.rpc.lib.grpc.MessageConverterHelper;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import io.grpc.Server;
 import io.grpc.netty.NettyServerBuilder;
@@ -51,8 +51,8 @@ public class GrpcAsyncResponseReceiver implements Runnable, Closeable {
         @Override
         public void execute(CallbackRequest request, StreamObserver<CallbackResponse> responseObserver) {
             try {
-                CallbackContainer callbackContainer = MessageConverters.fromGRPCCallbackRequest(request);
-                RequestInvoker.processCallbackContainer(callbackContainer);
+                CallbackContainer callbackContainer = MessageConverterHelper.fromGRPCCallbackRequest(request);
+                RequestInvocationHelper.processCallbackContainer(callbackContainer);
                 responseObserver.onNext(CallbackResponse.newBuilder().setResponse("OK").build());
                 responseObserver.onCompleted();
             } catch (Exception exception) {

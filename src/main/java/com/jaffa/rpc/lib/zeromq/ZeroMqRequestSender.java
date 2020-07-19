@@ -1,6 +1,6 @@
 package com.jaffa.rpc.lib.zeromq;
 
-import com.jaffa.rpc.lib.common.Options;
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.request.Sender;
@@ -19,7 +19,7 @@ public class ZeroMqRequestSender extends Sender {
     public static final ZContext context = new ZContext(10);
 
     public static void addCurveKeysToSocket(ZMQ.Socket socket, String moduleId) {
-        if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
+        if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             socket.setCurvePublicKey(CurveUtils.getServerPublicKey().getBytes());
             socket.setCurveSecretKey(CurveUtils.getServerSecretKey().getBytes());
             String clientPublicKey = CurveUtils.getClientPublicKey(moduleId);

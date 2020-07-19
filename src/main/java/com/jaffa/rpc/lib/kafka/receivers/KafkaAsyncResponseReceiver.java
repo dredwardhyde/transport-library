@@ -1,7 +1,7 @@
 package com.jaffa.rpc.lib.kafka.receivers;
 
 import com.jaffa.rpc.lib.JaffaService;
-import com.jaffa.rpc.lib.common.RequestInvoker;
+import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.serialization.Serializer;
@@ -46,7 +46,7 @@ public class KafkaAsyncResponseReceiver extends KafkaReceiver implements Runnabl
                 for (ConsumerRecord<String, byte[]> record : records) {
                     try {
                         CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(record.value(), CallbackContainer.class);
-                        RequestInvoker.processCallbackContainer(callbackContainer);
+                        RequestInvocationHelper.processCallbackContainer(callbackContainer);
                         Map<TopicPartition, OffsetAndMetadata> commitData = new HashMap<>();
                         commitData.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                         consumer.commitSync(commitData);

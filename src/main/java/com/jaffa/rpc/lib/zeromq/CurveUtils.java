@@ -1,6 +1,6 @@
 package com.jaffa.rpc.lib.zeromq;
 
-import com.jaffa.rpc.lib.common.Options;
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -35,7 +35,7 @@ public class CurveUtils {
     }
 
     public static void makeSocketSecure(ZMQ.Socket socket) {
-        if (Boolean.parseBoolean(System.getProperty(Options.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
+        if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             socket.setZAPDomain("global".getBytes());
             socket.setCurveServer(true);
             socket.setCurvePublicKey(CurveUtils.getServerPublicKey().getBytes());
@@ -62,15 +62,15 @@ public class CurveUtils {
     public static void readClientKeys() {
         for (Map.Entry<Object, Object> property : System.getProperties().entrySet()) {
             String name = String.valueOf(property.getKey());
-            if (!name.startsWith(Options.ZMQ_CLIENT_KEY)) continue;
+            if (!name.startsWith(OptionConstants.ZMQ_CLIENT_KEY)) continue;
             String path = String.valueOf(property.getValue());
-            String moduleId = name.replace(Options.ZMQ_CLIENT_KEY, "");
+            String moduleId = name.replace(OptionConstants.ZMQ_CLIENT_KEY, "");
             moduleIdWithClientKeys.put(moduleId, getPublicKeyFromPath(path));
         }
     }
 
     public static void readServerKeys() {
-        String localServerKeys = Utils.getRequiredOption(Options.ZMQ_SERVER_KEYS);
+        String localServerKeys = Utils.getRequiredOption(OptionConstants.ZMQ_SERVER_KEYS);
         serverPublicKey = getPublicKeyFromPath(localServerKeys);
         serverSecretKey = getSecretKeyFromPath(localServerKeys);
     }
