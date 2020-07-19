@@ -36,6 +36,7 @@ public class ZeroMqRequestSender extends Sender {
         try (ZMQ.Socket socket = context.createSocket(SocketType.REQ)) {
             Pair<String, String> hostAndModuleId = Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.ZMQ);
             addCurveKeysToSocket(socket, hostAndModuleId.getRight());
+            socket.setLinger(0);
             socket.connect("tcp://" + hostAndModuleId.getLeft());
             socket.send(message, 0);
             socket.setReceiveTimeOut((int) (this.timeout == -1 ? 1000 * 60 * 60 : this.timeout));
@@ -51,6 +52,7 @@ public class ZeroMqRequestSender extends Sender {
         try (ZMQ.Socket socket = context.createSocket(SocketType.REQ)) {
             Pair<String, String> hostAndModuleId = Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.ZMQ);
             addCurveKeysToSocket(socket, hostAndModuleId.getRight());
+            socket.setLinger(0);
             socket.connect("tcp://" + hostAndModuleId.getLeft());
             socket.send(message, 0);
             socket.recv(0);
