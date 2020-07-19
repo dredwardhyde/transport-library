@@ -21,11 +21,11 @@ import java.net.UnknownHostException;
 public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
 
     private ZContext context;
+    private ZMQ.Socket socket;
     private ZAuth auth;
 
     @Override
     public void run() {
-        ZMQ.Socket socket;
         try {
             context = new ZContext(1);
             context.setLinger(0);
@@ -68,6 +68,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
                 log.error("Error while closing ZeroMQ context", ioException);
             }
         } else {
+            socket.close();
             context.close();
         }
     }
