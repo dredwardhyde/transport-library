@@ -75,7 +75,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
                 log.error("Error while closing ZeroMQ context", ioException);
             }
         } else {
-            socket.close();
+            context.destroySocket(socket);
             context.close();
             log.info("ZMQAsyncResponseReceiver closed");
         }

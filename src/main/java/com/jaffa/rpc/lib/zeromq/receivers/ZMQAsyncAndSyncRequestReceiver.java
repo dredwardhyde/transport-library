@@ -67,7 +67,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                             ZeroMqRequestSender.addCurveKeysToSocket(socketAsync, command.getSourceModuleId());
                             socketAsync.connect("tcp://" + command.getCallBackHost());
                             socketAsync.send(serializedResponse);
-                            socketAsync.close();
+                            context.destroySocket(socketAsync);
                         } catch (ClassNotFoundException | NoSuchMethodException e) {
                             log.error("Error while receiving async request", e);
                             throw new JaffaRpcExecutionException(e);
@@ -98,7 +98,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 log.error("Error while closing ZeroMQ context", ioException);
             }
         } else {
-            socket.close();
+            context.destroySocket(socket);
             context.close();
             log.info("ZMQAsyncAndSyncRequestReceiver closed");
         }
