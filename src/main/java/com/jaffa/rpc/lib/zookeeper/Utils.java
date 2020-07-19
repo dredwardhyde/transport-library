@@ -117,6 +117,10 @@ public class Utils {
         return (Boolean.parseBoolean(System.getProperty(OptionConstants.USE_HTTPS, String.valueOf(false))) ? "https" : "http") + "://";
     }
 
+    public static boolean isZkTestMode() {
+        return (Boolean.parseBoolean(System.getProperty(OptionConstants.ZK_TEST_MODE, String.valueOf(false))));
+    }
+
     private static ArrayList<MutablePair<String, String>> getHostsForService(String service, String moduleId, Protocol protocol) throws ParseException {
         byte[] zkData = cache.get(service);
         if (Objects.isNull(zkData))
@@ -322,8 +326,10 @@ class ShutdownHook extends Thread {
     public void run() {
         try {
             if (Objects.nonNull(Utils.getConn())) {
-                for (String service : Utils.getServices()) {
-                    Utils.deleteAllRegistrations(service);
+                if(!Utils.isZkTestMode()){
+                    for (String service : Utils.getServices()) {
+                        Utils.deleteAllRegistrations(service);
+                    }
                 }
                 if (Objects.nonNull(Utils.getConn())) Utils.getConn().close();
             }

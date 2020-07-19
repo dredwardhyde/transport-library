@@ -1,5 +1,8 @@
 package com.jaffa.rpc.test;
 
+import com.jaffa.rpc.test.callbacks.ServiceCallback;
+import com.jaffa.rpc.test.services.ClientServiceClient;
+import com.jaffa.rpc.test.services.PersonServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;

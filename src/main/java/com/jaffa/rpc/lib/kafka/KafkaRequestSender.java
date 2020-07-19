@@ -58,6 +58,13 @@ public class KafkaRequestSender extends Sender {
         consumers.forEach(KafkaConsumer::close);
     }
 
+    private void seekTopicsForQuery(KafkaConsumer<String, byte[]> cons, Map<TopicPartition, Long> query){
+        for (Map.Entry<TopicPartition, OffsetAndTimestamp> entry : cons.offsetsForTimes(query).entrySet()) {
+            if (Objects.isNull(entry.getValue())) continue;
+            cons.seek(entry.getKey(), entry.getValue().offset());
+        }
+    }
+
     private byte[] waitForSyncAnswer(String requestTopic, long requestTime) {
         KafkaConsumer<String, byte[]> consumer;
         do {
@@ -67,25 +74,28 @@ public class KafkaRequestSender extends Sender {
         long threeMinAgo = Instant.ofEpochMilli(requestTime).minus(3, MINUTES).toEpochMilli();
         final KafkaConsumer<String, byte[]> finalConsumer = consumer;
         long startRebalance = System.nanoTime();
-        consumer.subscribe(Collections.singletonList(clientTopicName), new ConsumerRebalanceListener() {
-            @Override
-            public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
-                // No-op
-            }
-
-            @Override
-            public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
-                Map<TopicPartition, Long> query = new HashMap<>();
-                partitions.forEach(x -> query.put(x, threeMinAgo));
-                for (Map.Entry<TopicPartition, OffsetAndTimestamp> entry : finalConsumer.offsetsForTimes(query).entrySet()) {
-                    if (Objects.isNull(entry.getValue())) continue;
-                    finalConsumer.seek(entry.getKey(), entry.getValue().offset());
+        Map<TopicPartition, Long> query = new HashMap<>();
+        if(JaffaService.getBrokersCount() == 1){
+            consumer.assign(Collections.singletonList(new TopicPartition(clientTopicName,0)));
+            query.put(new TopicPartition(clientTopicName,0), threeMinAgo);
+            seekTopicsForQuery(consumer, query);
+        }else {
+            consumer.subscribe(Collections.singletonList(clientTopicName), new ConsumerRebalanceListener() {
+                @Override
+                public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+                    // No-op
                 }
-                log.info(">>>>>> Partitions assigned took {} ns", System.nanoTime() - startRebalance);
-            }
-        });
+
+                @Override
+                public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+                    partitions.forEach(x -> query.put(x, threeMinAgo));
+                    seekTopicsForQuery(finalConsumer, query);
+                    log.debug(">>>>>> Partitions assigned took {} ns", System.nanoTime() - startRebalance);
+                }
+            });
+        }
         consumer.poll(Duration.ofMillis(0));
-        log.info(">>>>>> Consumer rebalance took {} ns", System.nanoTime() - startRebalance);
+        log.debug(">>>>>> Consumer rebalance took {} ns", System.nanoTime() - startRebalance);
         long start = System.currentTimeMillis();
         while (!((timeout != -1 && System.currentTimeMillis() - start > timeout) || (System.currentTimeMillis() - start > (1000 * 60 * 60)))) {
             ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(10));
@@ -120,7 +130,7 @@ public class KafkaRequestSender extends Sender {
             throw new JaffaRpcExecutionException(e);
         }
         byte[] result = waitForSyncAnswer(requestTopic, System.currentTimeMillis());
-        log.info(">>>>>> Executed sync request {} in {} ms", command.getRqUid(), System.currentTimeMillis() - start);
+        log.debug(">>>>>> Executed sync request {} in {} ms", command.getRqUid(), System.currentTimeMillis() - start);
         return result;
     }
 

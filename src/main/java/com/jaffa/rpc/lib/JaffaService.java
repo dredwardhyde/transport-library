@@ -356,8 +356,10 @@ public class JaffaService {
         log.info("Kafka sync response consumers closed");
         if (Objects.nonNull(Utils.getConn())) {
             try {
-                for (String service : Utils.getServices()) {
-                    Utils.deleteAllRegistrations(service);
+                if(!Utils.isZkTestMode()){
+                    for (String service : Utils.getServices()) {
+                        Utils.deleteAllRegistrations(service);
+                    }
                 }
                 if (Objects.nonNull(Utils.getConn())) Utils.getConn().close();
                 Utils.setConn(null);
@@ -374,10 +376,14 @@ public class JaffaService {
                 throw new JaffaRpcSystemException(e);
             }
         });
+        log.info("ZMQ receivers were terminated");
         GrpcRequestSender.shutDownChannels();
+        log.info("gRPC sender channels were shut down");
         GrpcAsyncAndSyncRequestReceiver.shutDownChannels();
+        log.info("gRPC receiver channels were shut down");
         ZContext zkCtx = ZeroMqRequestSender.context;
         if (!zkCtx.isClosed()) zkCtx.close();
+        log.info("ZMQ sender context was shut down");
         RabbitMQRequestSender.close();
         log.info("All ZMQ sockets were closed");
         for (Thread thread : this.receiverThreads) {

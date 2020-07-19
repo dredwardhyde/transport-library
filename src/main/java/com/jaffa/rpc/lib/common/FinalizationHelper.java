@@ -19,7 +19,7 @@ public class FinalizationHelper {
 
     @Getter
     private static final ConcurrentMap<String, Command> eventsToConsume = new ConcurrentHashMap<>();
-    private static final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private static ScheduledExecutorService executor;
     private static ApplicationContext context;
     private static final Runnable finalizerThread = () -> eventsToConsume.values()
             .stream()
@@ -28,11 +28,11 @@ public class FinalizationHelper {
                 try {
                     if (Objects.nonNull(eventsToConsume.remove(command.getCallbackKey()))) {
                         long start = System.nanoTime();
-                        log.info("Finalization request {}", command.getRqUid());
+                        log.debug("Finalization request {}", command.getRqUid());
                         Class<?> callbackClass = Class.forName(command.getCallbackClass());
                         Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                         method.invoke(context.getBean(callbackClass), command.getCallbackKey(), new JaffaRpcExecutionTimeoutException());
-                        log.info("Finalization request {} took {}ns", command.getRqUid(), (System.nanoTime() - start));
+                        log.debug("Finalization request {} took {}ns", command.getRqUid(), (System.nanoTime() - start));
                     }
                 } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     log.error("Error during finalization command: {}", command);
@@ -42,6 +42,7 @@ public class FinalizationHelper {
     @SuppressWarnings("squid:S2142")
     public static void startFinalizer(ApplicationContext context) {
         FinalizationHelper.context = context;
+        executor = Executors.newSingleThreadScheduledExecutor();
         executor.scheduleAtFixedRate(finalizerThread, 0, 5, TimeUnit.MILLISECONDS);
         log.info("Finalizer thread started");
     }

@@ -1,12 +1,19 @@
-package com.jaffa.rpc.test;
+package com.jaffa.rpc.test.servers;
 
+import com.jaffa.rpc.test.MainConfig;
+import com.jaffa.rpc.test.ZooKeeperExtension;
+import com.jaffa.rpc.test.callbacks.PersonCallback;
+import com.jaffa.rpc.test.callbacks.ServiceCallback;
+import com.jaffa.rpc.test.entities.Person;
+import com.jaffa.rpc.test.services.ClientServiceClient;
+import com.jaffa.rpc.test.services.PersonServiceClient;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.curator.test.TestingServer;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
@@ -20,15 +27,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
 @SuppressWarnings("squid:S2187")
-@ExtendWith(SpringExtension.class)
+@ExtendWith({ZooKeeperExtension.class, SpringExtension.class})
 @ContextConfiguration(classes = {MainConfig.class}, loader = AnnotationConfigContextLoader.class)
-public class TestServer {
-
-    private static TestingServer zkServer;
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+public abstract class AbstractLeaderTestServer {
 
     static {
+        System.setProperty("jaffa.rpc.test.mode", "true");
         System.setProperty("jaffa.rpc.module.id", "test.server");
-        System.setProperty("jaffa.rpc.protocol", "http");
         System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2181");
     }
 
@@ -36,7 +42,11 @@ public class TestServer {
     private PersonServiceClient personService;
 
     @Autowired
-    ClientServiceClient clientService;
+    private ClientServiceClient clientService;
+
+    @Getter
+    @Setter
+    private Class<?> follower;
 
     private static String getClassPathFromParent() {
         return System.getProperty("java.class.path", "./*");
@@ -46,29 +56,21 @@ public class TestServer {
         return Objects.isNull(System.getProperty("java.home")) ? "java" : String.format("%s%sbin%sjava", System.getProperty("java.home"), File.separator, File.separator);
     }
 
-    @BeforeAll
-    static void setUp() throws Exception {
-        zkServer = new TestingServer(2181, true);
-    }
-
     @Test
-    public void stage1() {
+    void stage1() {
         log.info("Started {}", new Object() {
         }.getClass().getEnclosingMethod().getName());
         Integer id = personService.add("Test name", "test@mail.com", null)
                 .withTimeout(15, TimeUnit.SECONDS)
                 .onModule("test.server")
                 .executeSync();
-        log.info("Resulting id is {}", id);
         Person person = personService.get(id)
                 .onModule("test.server")
                 .executeSync();
         assertEquals(person.getId(), id);
-        log.info(person.toString());
         personService.lol().executeSync();
         personService.lol2("kek").executeSync();
         String name = personService.getName().executeSync();
-        log.info("Name: {}", name);
         assertNull(name);
         clientService.lol3("test3")
                 .onModule("test.server")
@@ -89,19 +91,18 @@ public class TestServer {
                     .onModule("test.server")
                     .executeSync();
         } catch (Throwable e) {
-            log.error("Exception during sync call:", e);
             assertTrue(e.getMessage().contains("very bad in") || (Objects.nonNull(e.getCause()) && e.getCause().getMessage().contains("very bad in")));
         }
         personService.testError().onModule("test.server").executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
     }
 
     @Test
-    public void stage2() {
+    void stage2() {
         log.info("Started {}", new Object() {
         }.getClass().getEnclosingMethod().getName());
         final String javaCmd = getJavaCmdFromParent();
         final String classpath = getClassPathFromParent();
-        final ProcessBuilder proc = new ProcessBuilder(javaCmd, "-Djdk.tls.acknowledgeCloseNotify=true", "-cp", classpath, MainServer.class.getName());
+        final ProcessBuilder proc = new ProcessBuilder(javaCmd, "-Djdk.tls.acknowledgeCloseNotify=true", "-cp", classpath, getFollower().getName());
         proc.redirectErrorStream(true);
         proc.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         try {
@@ -112,10 +113,5 @@ public class TestServer {
         } catch (Exception e) {
             log.error("Exception while launching main.server", e);
         }
-    }
-
-    @AfterAll
-    public static void tearDown() throws Exception {
-        zkServer.stop();
     }
 }

@@ -1,4 +1,4 @@
-package com.jaffa.rpc.test;
+package com.jaffa.rpc.test.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

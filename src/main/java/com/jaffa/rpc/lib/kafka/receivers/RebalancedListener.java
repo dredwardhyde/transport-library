@@ -38,6 +38,6 @@ public class RebalancedListener implements ConsumerRebalanceListener {
             consumer.seek(entry.getKey(), entry.getValue().offset());
         }
         countDownLatch.countDown();
-        log.info(">>>>>> Partitions assigned took {} ns, latch {}", System.nanoTime() - startRebalanced, countDownLatch.getCount());
+        log.debug(">>>>>> Partitions assigned took {} ns, latch {}", System.nanoTime() - startRebalanced, countDownLatch.getCount());
     }
 }

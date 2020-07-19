@@ -1,4 +1,4 @@
-package com.jaffa.rpc.test;
+package com.jaffa.rpc.test.services;
 
 import com.jaffa.rpc.lib.annotations.Api;
 

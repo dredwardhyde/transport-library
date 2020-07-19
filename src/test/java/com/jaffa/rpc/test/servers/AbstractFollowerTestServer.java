@@ -1,23 +1,33 @@
-package com.jaffa.rpc.test;
+package com.jaffa.rpc.test.servers;
 
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
+import com.jaffa.rpc.test.MainConfig;
+import com.jaffa.rpc.test.callbacks.PersonCallback;
+import com.jaffa.rpc.test.callbacks.ServiceCallback;
+import com.jaffa.rpc.test.entities.Person;
+import com.jaffa.rpc.test.services.ClientServiceClient;
+import com.jaffa.rpc.test.services.PersonServiceClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 @Slf4j
 @SuppressWarnings("squid:S2187")
-public class MainServer {
+public abstract class AbstractFollowerTestServer {
 
     static {
+        System.setProperty("jaffa.rpc.test.mode", "true");
         System.setProperty("jaffa.rpc.module.id", "main.server");
-        System.setProperty("jaffa.rpc.protocol", "http");
         System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2181");
     }
 
-    public static void main(String... args) {
+    public void testAll() {
         log.info("================ MAIN SERVER STARTING ================");
 
         final AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
@@ -34,14 +44,12 @@ public class MainServer {
                     .withTimeout(15, TimeUnit.SECONDS)
                     .onModule("main.server")
                     .executeSync();
-            log.info("Resulting id is {}", id);
             Person person = personService.get(id)
                     .onModule("main.server")
                     .executeSync();
-            log.info(person.toString());
+            assertEquals(person.getId(), id);
             personService.lol().executeSync();
             personService.lol2("kek").executeSync();
-            log.info("Name: {}", personService.getName().executeSync());
             clientService.lol3("test3")
                     .onModule("main.server")
                     .executeSync();
@@ -60,7 +68,7 @@ public class MainServer {
                         .onModule("main.server")
                         .executeSync();
             } catch (Exception e) {
-                log.error("Exception during sync call:", e);
+                assertTrue(e.getMessage().contains("very bad in") || (Objects.nonNull(e.getCause()) && e.getCause().getMessage().contains("very bad in")));
             }
             personService.testError()
                     .onModule("main.server")
