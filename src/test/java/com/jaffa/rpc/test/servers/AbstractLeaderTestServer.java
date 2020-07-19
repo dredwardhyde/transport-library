@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Slf4j
-@SuppressWarnings("squid:S2187")
+@SuppressWarnings({"squid:S2187", "squid:S5786"})
 @ExtendWith({ZooKeeperExtension.class, SpringExtension.class})
 @ContextConfiguration(classes = {MainConfig.class}, loader = AnnotationConfigContextLoader.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
@@ -57,7 +57,7 @@ public abstract class AbstractLeaderTestServer {
     }
 
     @Test
-    void stage1() {
+    public void stage1() {
         log.info("Started {}", new Object() {
         }.getClass().getEnclosingMethod().getName());
         Integer id = personService.add("Test name", "test@mail.com", null)
@@ -97,7 +97,7 @@ public abstract class AbstractLeaderTestServer {
     }
 
     @Test
-    void stage2() {
+    public void stage2() {
         log.info("Started {}", new Object() {
         }.getClass().getEnclosingMethod().getName());
         final String javaCmd = getJavaCmdFromParent();
