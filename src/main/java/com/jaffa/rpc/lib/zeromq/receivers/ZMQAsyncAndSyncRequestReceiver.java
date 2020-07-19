@@ -88,7 +88,6 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     socket.send(serializedResponse);
                 }
             } catch (ZMQException | ZError.IOException recvTerminationException) {
-                log.info("General ZMQ exception", recvTerminationException);
                 checkZMQExceptionAndThrow(recvTerminationException);
             }
         }

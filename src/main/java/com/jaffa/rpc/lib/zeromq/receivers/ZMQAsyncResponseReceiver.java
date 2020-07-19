@@ -63,7 +63,6 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
                 CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(bytes, CallbackContainer.class);
                 RequestInvocationHelper.processCallbackContainer(callbackContainer);
             } catch (ZMQException | ZError.IOException recvTerminationException) {
-                log.info("General ZMQ exception", recvTerminationException);
                 ZMQAsyncAndSyncRequestReceiver.checkZMQExceptionAndThrow(recvTerminationException);
             } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException | NoSuchMethodException callbackExecutionException) {
                 log.error("ZMQ callback execution exception", callbackExecutionException);
