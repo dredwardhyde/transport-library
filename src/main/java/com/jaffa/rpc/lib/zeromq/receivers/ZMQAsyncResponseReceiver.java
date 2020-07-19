@@ -55,7 +55,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
                 CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(bytes, CallbackContainer.class);
                 RequestInvocationHelper.processCallbackContainer(callbackContainer);
             } catch (ZMQException | ZError.IOException recvTerminationException) {
-                log.debug("General ZMQ exception", recvTerminationException);
+                log.info("General ZMQ exception", recvTerminationException);
                 if (recvTerminationException instanceof ZMQException &&((ZMQException)recvTerminationException).getErrorCode() == ZMQ.Error.ETERM.getCode()) {
                     log.info("ZMQAsyncResponseReceiver socket was terminated");
                     break;
