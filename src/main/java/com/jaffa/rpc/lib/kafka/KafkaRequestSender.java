@@ -90,12 +90,12 @@ public class KafkaRequestSender extends Sender {
                 public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
                     partitions.forEach(x -> query.put(x, threeMinAgo));
                     seekTopicsForQuery(finalConsumer, query);
-                    log.trace(">>>>>> Partitions assigned took {} ns", System.nanoTime() - startRebalance);
+                    log.debug(">>>>>> Partitions assigned took {} ns", System.nanoTime() - startRebalance);
                 }
             });
         }
         consumer.poll(Duration.ofMillis(0));
-        log.trace(">>>>>> Consumer rebalance took {} ns", System.nanoTime() - startRebalance);
+        log.debug(">>>>>> Consumer rebalance took {} ns", System.nanoTime() - startRebalance);
         long start = System.currentTimeMillis();
         while (!((timeout != -1 && System.currentTimeMillis() - start > timeout) || (System.currentTimeMillis() - start > (1000 * 60 * 60)))) {
             ConsumerRecords<String, byte[]> records = consumer.poll(Duration.ofMillis(10));
@@ -130,7 +130,7 @@ public class KafkaRequestSender extends Sender {
             throw new JaffaRpcExecutionException(e);
         }
         byte[] result = waitForSyncAnswer(requestTopic, System.currentTimeMillis());
-        log.trace(">>>>>> Executed sync request {} in {} ms", command.getRqUid(), System.currentTimeMillis() - start);
+        log.debug(">>>>>> Executed sync request {} in {} ms", command.getRqUid(), System.currentTimeMillis() - start);
         return result;
     }
 

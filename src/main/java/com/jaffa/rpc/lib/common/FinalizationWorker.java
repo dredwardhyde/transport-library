@@ -32,7 +32,7 @@ public class FinalizationWorker {
                         Class<?> callbackClass = Class.forName(command.getCallbackClass());
                         Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                         method.invoke(context.getBean(callbackClass), command.getCallbackKey(), new JaffaRpcExecutionTimeoutException());
-                        log.trace("Finalization request {} took {}ns", command.getRqUid(), (System.nanoTime() - start));
+                        log.debug("Finalization request {} took {}ns", command.getRqUid(), (System.nanoTime() - start));
                     }
                 } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     log.error("Error during finalization command: {}", command);
