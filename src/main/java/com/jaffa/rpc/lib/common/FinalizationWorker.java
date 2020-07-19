@@ -28,7 +28,7 @@ public class FinalizationWorker {
                 try {
                     if (Objects.nonNull(eventsToConsume.remove(command.getCallbackKey()))) {
                         long start = System.nanoTime();
-                        log.info("Finalization request {}", command.getRqUid());
+                        log.debug("Finalization request {}", command.getRqUid());
                         Class<?> callbackClass = Class.forName(command.getCallbackClass());
                         Method method = callbackClass.getMethod("onError", String.class, Throwable.class);
                         method.invoke(context.getBean(callbackClass), command.getCallbackKey(), new JaffaRpcExecutionTimeoutException());

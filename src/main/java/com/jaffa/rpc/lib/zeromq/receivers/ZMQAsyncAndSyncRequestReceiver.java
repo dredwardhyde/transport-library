@@ -85,17 +85,13 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     log.info("ZMQAsyncAndSyncRequestReceiver socket was terminated");
                     break;
                 }
-                checkZMQExceptionAndThrow(recvTerminationException);
+                if (!recvTerminationException.getMessage().contains("Errno 4") && !recvTerminationException.getMessage().contains("156384765")) {
+                    log.error("General ZMQ exception", recvTerminationException);
+                    throw new JaffaRpcSystemException(recvTerminationException);
+                }
             }
         }
         log.info("{} terminated", this.getClass().getSimpleName());
-    }
-
-    public static void checkZMQExceptionAndThrow(Exception recvTerminationException) {
-        if (!recvTerminationException.getMessage().contains("Errno 4") && !recvTerminationException.getMessage().contains("156384765")) {
-            log.error("General ZMQ exception", recvTerminationException);
-            throw new JaffaRpcSystemException(recvTerminationException);
-        }
     }
 
     @Override
