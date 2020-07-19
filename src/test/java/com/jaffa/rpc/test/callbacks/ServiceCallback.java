@@ -11,12 +11,9 @@ public class ServiceCallback implements Callback<Void> {
 
     @Override
     public void onSuccess(String key, Void result) {
-        log.info("Key: {}", key);
-        log.info("Result: {}", result);
     }
 
     @Override
     public void onError(String key, Throwable exception) {
-        log.error("Exception during async call:", exception);
     }
 }

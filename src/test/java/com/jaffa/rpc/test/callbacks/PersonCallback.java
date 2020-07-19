@@ -11,12 +11,9 @@ public class PersonCallback implements Callback<Person> {
 
     @Override
     public void onSuccess(String key, Person result) {
-        log.info("Key: {}", key);
-        log.info("Result: {}", result);
     }
 
     @Override
     public void onError(String key, Throwable exception) {
-        log.error("Exception during async call:", exception);
     }
 }

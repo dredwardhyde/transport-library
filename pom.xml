@@ -281,7 +281,7 @@
                 </executions>
                 <configuration>
                     <argLine>
-                        -Djdk.tls.acknowledgeCloseNotify=true
+                        @{jaCoCoArgLine} -Xmx1024m -Djdk.tls.acknowledgeCloseNotify=true
                     </argLine>
                     <reuseForks>false</reuseForks>
                 </configuration>
@@ -296,15 +296,29 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <propertyName>jaCoCoArgLine</propertyName>
+                        </configuration>
                     </execution>
                     <execution>
-                        <id>report</id>
-                        <phase>test</phase>
+                        <id>default-report</id>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>default-check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
                 </executions>
+                <configuration>
+                    <excludes>
+                        <exclude>com/jaffa/rpc/grpc/services/**/*</exclude>
+                    </excludes>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
