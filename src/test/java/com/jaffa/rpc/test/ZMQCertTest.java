@@ -40,7 +40,6 @@ public class ZMQCertTest {
         ZAuth auth = null;
         if (secure) {
             auth = new ZAuth(ctx);
-            auth.setVerbose(true);
             auth.allow("127.0.0.1");
             auth.configureCurve(CERTIFICATE_FOLDER_PUBLIC);
         }

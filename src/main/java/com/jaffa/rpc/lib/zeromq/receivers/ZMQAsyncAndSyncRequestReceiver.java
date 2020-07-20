@@ -40,7 +40,6 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             context.setLinger(0);
             if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
                 auth = new ZAuth(context);
-                auth.setVerbose(true);
                 auth.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR));
             }
             socket = context.createSocket(SocketType.REP);
