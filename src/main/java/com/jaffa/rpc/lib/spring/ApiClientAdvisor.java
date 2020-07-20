@@ -1,5 +1,6 @@
 package com.jaffa.rpc.lib.spring;
 
+import com.jaffa.rpc.lib.JaffaService;
 import com.jaffa.rpc.lib.annotations.ApiClient;
 import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.Command;
@@ -45,10 +46,11 @@ public class ApiClientAdvisor extends AbstractPointcutAdvisor {
         this.interceptor = (MethodInvocation invocation) -> {
             Command command = new Command();
             setMetadata(command);
-            command.setServiceClass(invocation.getMethod().getDeclaringClass().getInterfaces()[0].getName());
-            ApiClient apiClient = invocation.getMethod().getDeclaringClass().getInterfaces()[0].getAnnotation(ApiClient.class);
-            if (!apiClient.ticketProvider().equals(TicketProvider.class)) {
-                TicketProvider ticketProvider = context.getBean(apiClient.ticketProvider());
+            Class<?> client = invocation.getMethod().getDeclaringClass().getInterfaces()[0];
+            command.setServiceClass(client.getName());
+            Class<? extends TicketProvider> ticketProvideClass = JaffaService.getClientsAndTicketProviders().get(client);
+            if (Objects.nonNull(ticketProvideClass)) {
+                TicketProvider ticketProvider = context.getBean(ticketProvideClass);
                 command.setTicket(ticketProvider.getTicket());
             }
             command.setMethodName(invocation.getMethod().getName());

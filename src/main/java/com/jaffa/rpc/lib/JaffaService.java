@@ -21,8 +21,9 @@ import com.jaffa.rpc.lib.kafka.receivers.KafkaSyncRequestReceiver;
 import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender;
 import com.jaffa.rpc.lib.rabbitmq.receivers.RabbitMQAsyncAndSyncRequestReceiver;
 import com.jaffa.rpc.lib.rabbitmq.receivers.RabbitMQAsyncResponseReceiver;
+import com.jaffa.rpc.lib.security.TicketProvider;
 import com.jaffa.rpc.lib.serialization.Serializer;
-import com.jaffa.rpc.lib.spring.ClientEndpoints;
+import com.jaffa.rpc.lib.spring.ClientEndpoint;
 import com.jaffa.rpc.lib.spring.ServerEndpoints;
 import com.jaffa.rpc.lib.zeromq.CurveUtils;
 import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender;
@@ -38,6 +39,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.kafka.common.utils.Time;
 import org.apache.zookeeper.KeeperException;
 import org.json.simple.parser.ParseException;
@@ -58,6 +60,7 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 @Slf4j
 @SuppressWarnings({"squid:S2142", "squid:S2095", "unused", "squid:S3776"})
@@ -98,9 +101,12 @@ public class JaffaService {
     @Autowired
     private ServerEndpoints serverEndpoints;
     @Autowired
-    private ClientEndpoints clientEndpoints;
+    private List<ClientEndpoint> clientEndpoints;
     @Autowired
     private ApplicationContext context;
+
+    @Getter
+    private static Map<Class<?>, Class<? extends TicketProvider>> clientsAndTicketProviders = new HashedMap<>();
 
     private static void loadInternalProperties() {
         if (Utils.getRpcProtocol().equals(Protocol.KAFKA)) {
@@ -214,10 +220,12 @@ public class JaffaService {
                 apiImpls.add(serverInterface);
             }
         } else {
-            for (Class<?> client : clientEndpoints.getEndpoints()) {
-                if (!client.isAnnotationPresent(ApiClient.class))
-                    throw new IllegalArgumentException("Class " + client.getName() + " does has ApiClient annotation!");
-                apiImpls.add(Class.forName(Utils.getServiceInterfaceNameFromClient(client.getName())));
+            if (Objects.nonNull(clientEndpoints)) {
+                for (Class<?> client : clientEndpoints.stream().map(ClientEndpoint::getEndpoint).collect(Collectors.toList())) {
+                    if (!client.isAnnotationPresent(ApiClient.class))
+                        throw new IllegalArgumentException("Class " + client.getName() + " does has ApiClient annotation!");
+                    apiImpls.add(Class.forName(Utils.getServiceInterfaceNameFromClient(client.getName())));
+                }
             }
         }
         apiImpls.forEach(x -> topicsCreated.add(x.getName() + "-" + Utils.getRequiredOption(OptionConstants.MODULE_ID) + "-" + type));
@@ -247,6 +255,12 @@ public class JaffaService {
             int expectedThreadCount = 0;
             Serializer.init();
             Protocol protocol = Utils.getRpcProtocol();
+            if (Objects.nonNull(clientEndpoints) && !clientEndpoints.isEmpty()) {
+                clientEndpoints.forEach(x -> {
+                    if (Objects.nonNull(x.getTicketProvider()))
+                        clientsAndTicketProviders.put(x.getEndpoint(), x.getTicketProvider());
+                });
+            }
             switch (protocol) {
                 case KAFKA:
                     if (!clientSyncTopics.isEmpty() && !clientAsyncTopics.isEmpty()) expectedThreadCount += 2;
@@ -277,7 +291,7 @@ public class JaffaService {
                         this.zmqReceivers.add(zmqSyncRequestReceiver);
                         this.receiverThreads.add(new Thread(zmqSyncRequestReceiver));
                     }
-                    if (clientEndpoints.getEndpoints().length != 0) {
+                    if (Objects.nonNull(clientEndpoints) && !clientEndpoints.isEmpty()) {
                         ZMQAsyncResponseReceiver zmqAsyncResponseReceiver = new ZMQAsyncResponseReceiver();
                         this.zmqReceivers.add(zmqAsyncResponseReceiver);
                         this.receiverThreads.add(new Thread(zmqAsyncResponseReceiver));
@@ -290,7 +304,7 @@ public class JaffaService {
                         this.zmqReceivers.add(httpAsyncAndSyncRequestReceiver);
                         this.receiverThreads.add(new Thread(httpAsyncAndSyncRequestReceiver));
                     }
-                    if (clientEndpoints.getEndpoints().length != 0) {
+                    if (Objects.nonNull(clientEndpoints) && !clientEndpoints.isEmpty()) {
                         HttpAsyncResponseReceiver httpAsyncResponseReceiver = new HttpAsyncResponseReceiver();
                         this.zmqReceivers.add(httpAsyncResponseReceiver);
                         this.receiverThreads.add(new Thread(httpAsyncResponseReceiver));
@@ -302,7 +316,7 @@ public class JaffaService {
                         this.zmqReceivers.add(grpcAsyncAndSyncRequestReceiver);
                         this.receiverThreads.add(new Thread(grpcAsyncAndSyncRequestReceiver));
                     }
-                    if (clientEndpoints.getEndpoints().length != 0) {
+                    if (Objects.nonNull(clientEndpoints) && !clientEndpoints.isEmpty()) {
                         GrpcAsyncResponseReceiver grpcAsyncResponseReceiver = new GrpcAsyncResponseReceiver();
                         this.zmqReceivers.add(grpcAsyncResponseReceiver);
                         this.receiverThreads.add(new Thread(grpcAsyncResponseReceiver));
@@ -314,7 +328,7 @@ public class JaffaService {
                         this.zmqReceivers.add(rabbitMQAsyncAndSyncRequestReceiver);
                         this.receiverThreads.add(new Thread(rabbitMQAsyncAndSyncRequestReceiver));
                     }
-                    if (clientEndpoints.getEndpoints().length != 0) {
+                    if (Objects.nonNull(clientEndpoints) && !clientEndpoints.isEmpty()) {
                         RabbitMQAsyncResponseReceiver rabbitMQAsyncResponseReceiver = new RabbitMQAsyncResponseReceiver();
                         this.zmqReceivers.add(rabbitMQAsyncResponseReceiver);
                         this.receiverThreads.add(new Thread(rabbitMQAsyncResponseReceiver));
@@ -356,7 +370,7 @@ public class JaffaService {
         log.info("Kafka sync response consumers closed");
         if (Objects.nonNull(Utils.getConn())) {
             try {
-                if(!Utils.isZkTestMode()){
+                if (!Utils.isZkTestMode()) {
                     for (String service : Utils.getServices()) {
                         Utils.deleteAllRegistrations(service);
                     }

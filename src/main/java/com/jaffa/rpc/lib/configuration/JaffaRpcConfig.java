@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 public class JaffaRpcConfig {
 
     @Bean(destroyMethod = "close")
-    @DependsOn({"serverEndpoints", "clientEndpoints"})
+    @DependsOn({"serverEndpoints"})
     public JaffaService jaffaService() {
         return new JaffaService();
     }
