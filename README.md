@@ -104,8 +104,8 @@ public class PersonServiceImpl implements PersonService{
     // Methods
     // ...
     public void lol(){ // Normal invocation
-        RequestContext.getSourceModuleId(); // Client's 'jaffa.rpc.module.id' is available on server side
-        RequestContext.getTicket(); // Security ticket is available too (if it was provided by client)
+        RequestContextHelper.getSourceModuleId(); // Client's 'jaffa.rpc.module.id' is available on server side
+        RequestContextHelper.getTicket(); // Security ticket is available too (if it was provided by client)
     }
     public Person testError() { // Invocation with exception
         throw new RuntimeException("Exception in " + System.getProperty("jaffa.rpc.module.id"));
@@ -117,7 +117,7 @@ Then [jaffa-rpc-maven-plugin](https://github.com/dredwardhyde/jaffa-rpc-maven-pl
 This plugin ignores all the static, default methods and all fields:
 
 ```java
-@ApiClient(ticketProvider = TicketProviderImpl.class)
+@ApiClient
 public interface PersonServiceClient {
     Request<Integer> add(String name, String email, Address address);
     Request<Person> get(Integer id);
@@ -219,10 +219,16 @@ public class MainConfig {
         return new ServerEndpoints(PersonServiceImpl.class, ClientServiceImpl.class); 
     }
 
-    // Specify required client endpoints (must be empty if none exists)
+    // Client endpoint with ticket provider
     @Bean
-    ClientEndpoints clientEndpoints(){ 
-        return new ClientEndpoints(ClientServiceClient.class, PersonServiceClient.class); 
+    public ClientEndpoint clientEndpoint() {
+        return new ClientEndpoint(ClientServiceClient.class, TicketProviderImpl.class);
+    }
+    
+    // Client endpoint without ticket provider
+    @Bean
+    public ClientEndpoint personEndpoint() {
+        return new ClientEndpoint(PersonServiceClient.class);
     }
 }
 ```
