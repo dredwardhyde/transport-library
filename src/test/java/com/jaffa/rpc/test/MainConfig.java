@@ -1,5 +1,6 @@
 package com.jaffa.rpc.test;
 
+import com.github.fridujo.rabbitmq.mock.MockConnectionFactory;
 import com.jaffa.rpc.lib.configuration.JaffaRpcConfig;
 import com.jaffa.rpc.lib.spring.ClientEndpoint;
 import com.jaffa.rpc.lib.spring.ServerEndpoints;
@@ -11,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
+import com.rabbitmq.client.ConnectionFactory;
 
 @Configuration
 @ComponentScan
@@ -30,5 +33,11 @@ public class MainConfig {
     @Bean
     public ClientEndpoint personEndpoint() {
         return new ClientEndpoint(PersonServiceClient.class);
+    }
+
+    @Bean
+    @Profile("rabbit-test")
+    public ConnectionFactory connectionFactory() {
+        return new MockConnectionFactory();
     }
 }

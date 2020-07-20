@@ -76,6 +76,7 @@
         <zookeeper.curator.test.version>5.1.0</zookeeper.curator.test.version>
         <kafka.test.version>2.5.3.RELEASE</kafka.test.version>
         <apache.commons.io.version>2.7</apache.commons.io.version>
+        <rabbitmq.mock.version>1.1.0</rabbitmq.mock.version>
     </properties>
 
     <dependencies>
@@ -223,6 +224,12 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>${apache.commons.io.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.fridujo</groupId>
+            <artifactId>rabbitmq-mock</artifactId>
+            <version>${rabbitmq.mock.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
