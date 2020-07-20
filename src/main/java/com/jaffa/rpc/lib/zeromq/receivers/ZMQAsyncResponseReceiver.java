@@ -53,10 +53,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
             try {
                 byte[] bytes = socket.recv();
                 if (bytes != null && bytes.length == 1 && bytes[0] == 7) {
-                    context.destroySocket(socket);
-                    log.info("ZMQAsyncResponseReceiver socket destroyed");
-                    context.destroy();
-                    log.info("ZMQAsyncResponseReceiver context destroyed");
+                    ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(context, socket, ZMQAsyncResponseReceiver.class);
                     break;
                 }
                 CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(bytes, CallbackContainer.class);
