@@ -184,7 +184,11 @@ public class JaffaService {
                 factory.setTrustStore(Utils.getRequiredOption(OptionConstants.RABBIT_SSL_TRUSTSTORE_LOCATION));
                 factory.setTrustStorePassphrase(Utils.getRequiredOption(OptionConstants.RABBIT_SSL_TRUSTSTORE_PASSWORD));
             }
-            JaffaService.setConnectionFactory(new CachingConnectionFactory(factory.getRabbitConnectionFactory()));
+            if (Utils.isZkTestMode()) {
+                JaffaService.setConnectionFactory(new CachingConnectionFactory(context.getBean(com.rabbitmq.client.ConnectionFactory.class)));
+            } else {
+                JaffaService.setConnectionFactory(new CachingConnectionFactory(factory.getRabbitConnectionFactory()));
+            }
             JaffaService.setAdminRabbitMQ(new RabbitAdmin(JaffaService.connectionFactory));
             JaffaService.adminRabbitMQ.declareExchange(new DirectExchange(RabbitMQRequestSender.EXCHANGE_NAME, true, false));
             if (Objects.isNull(JaffaService.adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.SERVER))) {
