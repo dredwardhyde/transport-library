@@ -1,7 +1,7 @@
 package com.jaffa.rpc.test;
 
 import com.jaffa.rpc.lib.configuration.JaffaRpcConfig;
-import com.jaffa.rpc.lib.spring.ClientEndpoints;
+import com.jaffa.rpc.lib.spring.ClientEndpoint;
 import com.jaffa.rpc.lib.spring.ServerEndpoints;
 import com.jaffa.rpc.test.services.ClientServiceClient;
 import com.jaffa.rpc.test.services.ClientServiceImpl;
@@ -23,7 +23,12 @@ public class MainConfig {
     }
 
     @Bean
-    public ClientEndpoints clientEndpoints() {
-        return new ClientEndpoints(ClientServiceClient.class, PersonServiceClient.class);
+    public ClientEndpoint clientEndpoint() {
+        return new ClientEndpoint(ClientServiceClient.class, TicketProviderImpl.class);
+    }
+
+    @Bean
+    public ClientEndpoint personEndpoint() {
+        return new ClientEndpoint(PersonServiceClient.class);
     }
 }

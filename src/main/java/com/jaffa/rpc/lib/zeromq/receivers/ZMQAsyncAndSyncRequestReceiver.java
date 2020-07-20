@@ -40,7 +40,6 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             context.setLinger(0);
             if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
                 auth = new ZAuth(context);
-                auth.setVerbose(true);
                 auth.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR));
             }
             socket = context.createSocket(SocketType.REP);
@@ -58,10 +57,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             try {
                 byte[] bytes = socket.recv();
                 if (bytes != null && bytes.length == 1 && bytes[0] == 7) {
-                    context.destroySocket(socket);
-                    log.info("ZMQAsyncAndSyncRequestReceiver socket destroyed");
-                    context.destroy();
-                    log.info("ZMQAsyncAndSyncRequestReceiver context destroyed");
+                    destroySocketAndContext(context, socket, ZMQAsyncAndSyncRequestReceiver.class);
                     break;
                 }
                 final Command command = Serializer.getCurrent().deserialize(bytes, Command.class);
@@ -99,6 +95,13 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             log.error("General ZMQ exception", recvTerminationException);
             throw new JaffaRpcSystemException(recvTerminationException);
         }
+    }
+
+    public static void destroySocketAndContext(ZContext context, ZMQ.Socket socket, Class<?> source) {
+        context.destroySocket(socket);
+        log.info("{} socket destroyed", source.getSimpleName());
+        context.destroy();
+        log.info("{} context destroyed", source.getSimpleName());
     }
 
     @Override

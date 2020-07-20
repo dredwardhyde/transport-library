@@ -108,10 +108,6 @@ public class MessageConverterHelper {
         return callbackRequest.build();
     }
 
-    public static CallbackResponse toGRPCCallbackResponse(String response) {
-        return CallbackResponse.newBuilder().setResponse(response).build();
-    }
-
     public static CommandResponse toGRPCCommandResponse(Object response) {
         ByteString responseMarshalled = ByteString.copyFrom(Serializer.getCurrent().serializeWithClass(response));
         return CommandResponse.newBuilder().setResponse(responseMarshalled).build();
