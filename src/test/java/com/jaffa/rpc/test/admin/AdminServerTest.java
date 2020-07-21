@@ -53,7 +53,7 @@ public class AdminServerTest {
         HttpServer httpServer = (HttpServer) a;
         InetSocketAddress serverAddress = httpServer.getAddress();
         log.info("Admin UI started at host:{} and port:{}", serverAddress.getHostName(), serverAddress.getPort());
-        prefix = "http://" + serverAddress.getHostName() + ":" + serverAddress.getPort();
+        prefix = "https://" + serverAddress.getHostName() + ":" + serverAddress.getPort();
     }
 
     @Test
