@@ -12,7 +12,9 @@ import com.jaffa.rpc.lib.kafka.KafkaRequestSender;
 import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender;
 import com.jaffa.rpc.lib.request.Sender;
 import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -36,11 +38,12 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Utils {
 
     @Getter
     private static final List<String> services = new ArrayList<>();
-    private static final Map<Protocol, Class<? extends Sender>> senders = new HashMap<>();
+    private static final Map<Protocol, Class<? extends Sender>> senders = new EnumMap<>(Protocol.class);
     @Getter
     @Setter
     private static volatile ZooKeeperConnection conn;
@@ -291,22 +294,14 @@ public class Utils {
 
     private static InetAddress getLocalHostLANAddress() throws UnknownHostException {
         try {
-            InetAddress candidateAddress = null;
             for (Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements(); ) {
                 NetworkInterface iface = ifaces.nextElement();
                 for (Enumeration<InetAddress> inetAddrs = iface.getInetAddresses(); inetAddrs.hasMoreElements(); ) {
                     InetAddress inetAddr = inetAddrs.nextElement();
-                    if (!inetAddr.isLoopbackAddress()) {
-                        if (inetAddr.isSiteLocalAddress()) {
-                            return inetAddr;
-                        } else if (Objects.isNull(candidateAddress)) {
-                            candidateAddress = inetAddr;
-                        }
+                    if (!inetAddr.isLoopbackAddress() && inetAddr.isSiteLocalAddress()) {
+                        return inetAddr;
                     }
                 }
-            }
-            if (Objects.nonNull(candidateAddress)) {
-                return candidateAddress;
             }
             InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
             if (Objects.isNull(jdkSuppliedAddress)) {

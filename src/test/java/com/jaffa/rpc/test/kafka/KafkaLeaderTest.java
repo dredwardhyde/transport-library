@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Properties;
 
 @Slf4j
@@ -51,7 +52,7 @@ public class KafkaLeaderTest extends AbstractLeaderTestServer {
 
     @AfterAll
     public static void tearDown() {
-        if (kafkaServer != null) {
+        if (Objects.nonNull(kafkaServer)) {
             kafkaServer.shutdown();
             kafkaServer.awaitShutdown();
         }

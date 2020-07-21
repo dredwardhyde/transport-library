@@ -56,7 +56,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] bytes = socket.recv();
-                if (bytes != null && bytes.length == 1 && bytes[0] == 7) {
+                if (Objects.nonNull(bytes) && bytes.length == 1 && bytes[0] == 7) {
                     destroySocketAndContext(context, socket, ZMQAsyncAndSyncRequestReceiver.class);
                     break;
                 }

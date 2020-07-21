@@ -21,6 +21,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
+import java.util.Objects;
 
 @Slf4j
 @SuppressWarnings("squid:S1193")
@@ -53,7 +54,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
             try {
                 byte[] bytes = socket.recv();
                 socket.send(new byte[]{4});
-                if (bytes != null && bytes.length == 1 && bytes[0] == 7) {
+                if (Objects.nonNull(bytes) && bytes.length == 1 && bytes[0] == 7) {
                     ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(context, socket, ZMQAsyncResponseReceiver.class);
                     break;
                 }
