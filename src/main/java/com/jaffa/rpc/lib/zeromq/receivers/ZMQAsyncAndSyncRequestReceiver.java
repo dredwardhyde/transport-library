@@ -91,8 +91,8 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     }
 
     public static void checkZMQExceptionAndThrow(Exception recvTerminationException) {
+        log.error("General ZMQ exception", recvTerminationException);
         if (!recvTerminationException.getMessage().contains("Errno 4") && !recvTerminationException.getMessage().contains("156384765")) {
-            log.error("General ZMQ exception", recvTerminationException);
             throw new JaffaRpcSystemException(recvTerminationException);
         }
     }
