@@ -68,9 +68,9 @@ public class GrpcRequestSender extends Sender {
     }
 
     private void processStatusException(StatusRuntimeException statusRuntimeException) {
-        if (statusRuntimeException.getStatus() == Status.DEADLINE_EXCEEDED)
+        if (statusRuntimeException.getStatus().getCode() == Status.DEADLINE_EXCEEDED.getCode())
             throw new JaffaRpcExecutionTimeoutException();
-        else if (statusRuntimeException.getStatus() == Status.UNAVAILABLE) {
+        else if (statusRuntimeException.getStatus().getCode() == Status.UNAVAILABLE.getCode()) {
             throw new JaffaRpcNoRouteException(command.getServiceClass(), Protocol.GRPC);
         } else
             throw new JaffaRpcExecutionException(statusRuntimeException);
