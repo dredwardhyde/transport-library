@@ -1,5 +1,6 @@
 package com.jaffa.rpc.test.servers;
 
+import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException;
 import com.jaffa.rpc.test.MainConfig;
 import com.jaffa.rpc.test.ZooKeeperExtension;
 import com.jaffa.rpc.test.callbacks.PersonCallback;
@@ -58,8 +59,7 @@ public abstract class AbstractLeaderTestServer {
 
     @Test
     public void stage1() {
-        log.info("Started {}", new Object() {
-        }.getClass().getEnclosingMethod().getName());
+        log.info("Started {}", new Object() {}.getClass().getEnclosingMethod().getName());
         Integer id = personService.add("Test name", "test@mail.com", null)
                 .withTimeout(15, TimeUnit.SECONDS)
                 .onModule("test.server")
@@ -82,6 +82,14 @@ public abstract class AbstractLeaderTestServer {
                 .onModule("test.server")
                 .withTimeout(10, TimeUnit.SECONDS)
                 .executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
+        try{
+            clientService.lol4("test4")
+                    .onModule("test.server")
+                    .withTimeout(5, TimeUnit.SECONDS)
+                    .executeSync();
+        }catch (JaffaRpcExecutionTimeoutException jaffaRpcExecutionTimeoutException){
+            log.info("Execution timeout exception occurred");
+        }
         personService.get(id)
                 .onModule("test.server")
                 .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
@@ -98,8 +106,7 @@ public abstract class AbstractLeaderTestServer {
 
     @Test
     public void stage2() {
-        log.info("Started {}", new Object() {
-        }.getClass().getEnclosingMethod().getName());
+        log.info("Started {}", new Object() {}.getClass().getEnclosingMethod().getName());
         final String javaCmd = getJavaCmdFromParent();
         final String classpath = getClassPathFromParent();
         final ProcessBuilder proc = new ProcessBuilder(javaCmd, "-Djdk.tls.acknowledgeCloseNotify=true", "-cp", classpath, getFollower().getName());
