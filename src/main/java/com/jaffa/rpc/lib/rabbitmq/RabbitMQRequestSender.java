@@ -95,6 +95,7 @@ public class RabbitMQRequestSender extends Sender {
         String targetModuleId;
         if (StringUtils.isNotBlank(moduleId)) {
             targetModuleId = moduleId;
+            Utils.getHostForService(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()), moduleId, Protocol.RABBIT);
         } else {
             targetModuleId = Utils.getModuleForService(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()), Protocol.RABBIT);
         }
