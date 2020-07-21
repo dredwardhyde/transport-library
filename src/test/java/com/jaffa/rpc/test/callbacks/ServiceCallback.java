@@ -11,9 +11,11 @@ public class ServiceCallback implements Callback<Void> {
 
     @Override
     public void onSuccess(String key, Void result) {
+        log.info("Received in onSuccess {}", key);
     }
 
     @Override
     public void onError(String key, Throwable exception) {
+        log.info("Received in onError {}", key);
     }
 }
