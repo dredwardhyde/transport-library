@@ -11,9 +11,11 @@ public class PersonCallback implements Callback<Person> {
 
     @Override
     public void onSuccess(String key, Person result) {
+        log.info("Received in onSuccess {}", key);
     }
 
     @Override
     public void onError(String key, Throwable exception) {
+        log.info("Received in onError {}", key);
     }
 }
