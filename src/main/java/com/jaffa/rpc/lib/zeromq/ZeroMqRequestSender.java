@@ -57,6 +57,6 @@ public class ZeroMqRequestSender extends Sender {
             socket.send(message, 0);
             socket.recv(0);
         }
-        log.info(">>>>>> Executed async request {} in {} ms", command.getRqUid(), System.currentTimeMillis() - start);
+        log.debug(">>>>>> Executed async request {} in {} ms", command.getRqUid(), System.currentTimeMillis() - start);
     }
 }
