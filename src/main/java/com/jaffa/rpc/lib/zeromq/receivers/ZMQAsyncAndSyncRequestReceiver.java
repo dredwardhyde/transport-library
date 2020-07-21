@@ -72,7 +72,6 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                             ZeroMqRequestSender.addCurveKeysToSocket(socketAsync, command.getSourceModuleId());
                             socketAsync.connect("tcp://" + command.getCallBackHost());
                             socketAsync.send(serializedResponse, 0);
-                            socketAsync.setReceiveTimeOut(100);
                             byte[] response = socketAsync.recv(0);
                             assert response[0] == 4;
                             context.destroySocket(socketAsync);
