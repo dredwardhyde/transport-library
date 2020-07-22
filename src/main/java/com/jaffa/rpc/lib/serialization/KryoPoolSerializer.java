@@ -7,7 +7,6 @@ import com.esotericsoftware.kryo.pool.KryoPool;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 
 
 @Slf4j
@@ -21,34 +20,26 @@ public final class KryoPoolSerializer implements ObjectSerializer {
 
     @Override
     public byte[] serialize(Object obj) {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            Output output = new Output(baos);
-            Kryo kryo = pool.borrow();
-            kryo.writeObject(output, obj);
-            output.flush();
-            output.close();
-            pool.release(kryo);
-            return baos.toByteArray();
-        } catch (IOException e) {
-            log.error("Error during Kryo object serialization", e);
-        }
-        return null;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Output output = new Output(baos);
+        Kryo kryo = pool.borrow();
+        kryo.writeObject(output, obj);
+        output.flush();
+        output.close();
+        pool.release(kryo);
+        return baos.toByteArray();
     }
 
     @Override
     public byte[] serializeWithClass(Object obj) {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            Output output = new Output(baos);
-            Kryo kryo = pool.borrow();
-            kryo.writeClassAndObject(output, obj);
-            output.flush();
-            output.close();
-            pool.release(kryo);
-            return baos.toByteArray();
-        } catch (IOException e) {
-            log.error("Error during Kryo object with class serialization", e);
-        }
-        return null;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Output output = new Output(baos);
+        Kryo kryo = pool.borrow();
+        kryo.writeClassAndObject(output, obj);
+        output.flush();
+        output.close();
+        pool.release(kryo);
+        return baos.toByteArray();
     }
 
     @Override
