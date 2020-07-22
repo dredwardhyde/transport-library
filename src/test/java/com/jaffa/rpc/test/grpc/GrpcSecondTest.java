@@ -48,7 +48,6 @@ public class GrpcSecondTest {
         }
         GrpcRequestSender grpcRequestSender = new GrpcRequestSender();
         Command command = new Command();
-
         grpcRequestSender.setCommand(command);
         try {
             grpcRequestSender.executeSync(new byte[]{});

@@ -71,7 +71,7 @@ public class JaffaService {
     @Getter
     private static final Properties consumerProps = new Properties();
     @Getter
-    @Setter(AccessLevel.PRIVATE)
+    @Setter
     private static KafkaZkClient zkClient;
     @Getter
     @Setter(AccessLevel.PRIVATE)
@@ -88,7 +88,8 @@ public class JaffaService {
     @Getter
     @Setter(AccessLevel.PRIVATE)
     private static Set<String> clientSyncTopics;
-    @Setter(AccessLevel.PRIVATE)
+    @Setter
+    @Getter
     private static AdminZkClient adminZkClient;
     @Setter(AccessLevel.PRIVATE)
     private static RabbitAdmin adminRabbitMQ;
