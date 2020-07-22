@@ -20,10 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.net.ssl.SSLException;
 import java.io.Closeable;
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -55,7 +53,7 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             } else {
                 return serverBuilder;
             }
-        } catch (SSLException sslException) {
+        } catch (Exception sslException) {
             log.error("Exception occurred while creating SSL context for gRPC", sslException);
             throw new JaffaRpcSystemException(sslException);
         }
@@ -73,7 +71,7 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             } else {
                 return channelBuilder.usePlaintext();
             }
-        } catch (SSLException sslException) {
+        } catch (Exception sslException) {
             log.error("Exception occurred while creating SSL context for gRPC", sslException);
             throw new JaffaRpcSystemException(sslException);
         }
@@ -87,9 +85,9 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             server = serverBuilder.executor(requestService).addService(new CommandServiceImpl()).build();
             server.start();
             server.awaitTermination();
-        } catch (InterruptedException | IOException zmqStartupException) {
-            log.error("Error during gRPC request receiver startup:", zmqStartupException);
-            throw new JaffaRpcSystemException(zmqStartupException);
+        } catch (Exception grpcStartupException) {
+            log.error("Error during gRPC request receiver startup:", grpcStartupException);
+            throw new JaffaRpcSystemException(grpcStartupException);
         }
         log.info("{} terminated", this.getClass().getSimpleName());
     }

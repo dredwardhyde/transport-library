@@ -15,7 +15,6 @@ import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,7 +32,7 @@ public class GrpcAsyncResponseReceiver implements Runnable, Closeable {
             server = serverBuilder.executor(requestService).addService(new CallbackServiceImpl()).build();
             server.start();
             server.awaitTermination();
-        } catch (InterruptedException | IOException zmqStartupException) {
+        } catch (Exception zmqStartupException) {
             log.error("Error during gRPC async response receiver startup:", zmqStartupException);
             throw new JaffaRpcSystemException(zmqStartupException);
         }
