@@ -54,6 +54,8 @@ public class GrpcRequestSender extends Sender {
             return MessageConverterHelper.fromGRPCCommandResponse(commandResponse);
         } catch (StatusRuntimeException statusRuntimeException) {
             processStatusException(statusRuntimeException);
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
+            throw jaffaRpcNoRouteException;
         } catch (Exception exception) {
             throw new JaffaRpcExecutionException(exception);
         }
@@ -88,6 +90,8 @@ public class GrpcRequestSender extends Sender {
                 throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
         } catch (StatusRuntimeException statusRuntimeException) {
             processStatusException(statusRuntimeException);
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
+            throw jaffaRpcNoRouteException;
         } catch (Exception exception) {
             throw new JaffaRpcExecutionException(exception);
         }
