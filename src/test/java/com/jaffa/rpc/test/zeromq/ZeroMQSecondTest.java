@@ -1,6 +1,7 @@
 package com.jaffa.rpc.test.zeromq;
 
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
+import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.zeromq.CurveUtils;
 import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender;
 import com.jaffa.rpc.lib.zeromq.receivers.ZMQAsyncAndSyncRequestReceiver;
@@ -46,5 +47,18 @@ public class ZeroMQSecondTest {
 
         String secretKey = (String) getSecretKeyFromPath.invoke(CurveUtils.class, new Object[]{"xxx"});
         Assertions.assertNull(secretKey);
+        System.setProperty("jaffa.rpc.protocol.zmq.curve.enabled", "false");
+        try {
+            new ZMQAsyncAndSyncRequestReceiver();
+            Assertions.fail();
+        } catch (JaffaRpcSystemException jaffaRpcSystemException) {
+            //No-op
+        }
+        try {
+            ZMQAsyncAndSyncRequestReceiver.checkZMQExceptionAndThrow(new RuntimeException("xxx"));
+            Assertions.fail();
+        } catch (JaffaRpcSystemException jaffaRpcSystemException) {
+            //No-op
+        }
     }
 }

@@ -44,7 +44,7 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             socket = context.createSocket(SocketType.REP);
             CurveUtils.makeSocketSecure(socket);
             socket.bind("tcp://" + Utils.getZeroMQBindAddress());
-        } catch (UnknownHostException zmqStartupException) {
+        } catch (Exception zmqStartupException) {
             log.error("Error during ZeroMQ request receiver startup:", zmqStartupException);
             throw new JaffaRpcSystemException(zmqStartupException);
         }
