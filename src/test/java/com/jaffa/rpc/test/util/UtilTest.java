@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import scala.Option;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -106,5 +107,20 @@ public class UtilTest {
         } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
             //No-op
         }
+        Object hook = null;
+        Method runMethod = null;
+        try {
+            Class<?> clazz = Class.forName("com.jaffa.rpc.lib.zookeeper.ShutdownHook");
+            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            hook = constructor.newInstance();
+            runMethod = clazz.getDeclaredMethod("run");
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            Assertions.fail();
+        }
+        Assertions.assertNotNull(hook);
+        Assertions.assertNotNull(runMethod);
+        method.invoke(hook);
     }
 }
