@@ -9,6 +9,7 @@ public class HttpLeaderTest extends AbstractLeaderTestServer {
     static {
         System.setProperty("jaffa.rpc.protocol", "http");
         System.setProperty("jaffa.rpc.protocol.use.https", "true");
+        System.setProperty("jaffa.rpc.test.mode", "false");
         System.setProperty("jaffa.rpc.protocol.http.ssl.server.truststore.location", "src/test/resources/truststore.jks");
         System.setProperty("jaffa.rpc.protocol.http.ssl.server.truststore.password", "simulator");
         System.setProperty("jaffa.rpc.protocol.http.ssl.server.keystore.location", "src/test/resources/keystore.jks");
