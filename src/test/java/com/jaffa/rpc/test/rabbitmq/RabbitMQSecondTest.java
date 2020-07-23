@@ -11,11 +11,12 @@ import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import com.jaffa.rpc.test.ZooKeeperExtension;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.RabbitConnectionFactoryBean;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 @SuppressWarnings({"squid:S5786"})
@@ -38,7 +39,7 @@ public class RabbitMQSecondTest {
         JaffaService.setConnectionFactory(new CachingConnectionFactory(factory.getRabbitConnectionFactory()));
         try {
             RabbitMQRequestSender.init();
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcSystemException jaffaRpcSystemException) {
             //No-op
         }
@@ -49,13 +50,13 @@ public class RabbitMQSecondTest {
         rabbitMQRequestSender.setTimeout(500);
         try {
             rabbitMQRequestSender.executeAsync(new byte[]{});
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
             //No-op
         }
         try {
             rabbitMQRequestSender.executeSync(new byte[]{});
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
             //No-op
         }
@@ -63,13 +64,13 @@ public class RabbitMQSecondTest {
         rabbitMQRequestSender.setModuleId("lol.server");
         try {
             rabbitMQRequestSender.executeSync(new byte[]{});
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             //No-op
         }
         try {
             rabbitMQRequestSender.executeAsync(new byte[]{});
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             //No-op
         }

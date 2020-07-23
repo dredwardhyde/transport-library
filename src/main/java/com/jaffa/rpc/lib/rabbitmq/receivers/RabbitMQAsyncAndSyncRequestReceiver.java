@@ -55,7 +55,7 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                         final byte[] body) {
                     requestService.execute(() -> {
                                 try {
-                                    final com.jaffa.rpc.lib.entities.Command command = Serializer.getCurrent().deserialize(body, Command.class);
+                                    final Command command = Serializer.getCurrent().deserialize(body, Command.class);
                                     if (Objects.nonNull(command.getCallbackKey()) && Objects.nonNull(command.getCallbackClass())) {
                                         Runnable runnable = () -> {
                                             try {

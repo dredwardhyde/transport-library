@@ -25,8 +25,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 @Slf4j
-@SuppressWarnings({"squid:S5786"})
+@SuppressWarnings({"squid:S5786", "squid:S5778"})
 @ExtendWith({ZooKeeperExtension.class})
 public class GrpcSecondTest {
 
@@ -47,7 +49,7 @@ public class GrpcSecondTest {
         GrpcAsyncResponseReceiver grpcAsyncResponseReceiver = new GrpcAsyncResponseReceiver();
         try {
             grpcAsyncResponseReceiver.run();
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcSystemException jaffaRpcSystemException) {
             //No-op
         }
@@ -56,25 +58,25 @@ public class GrpcSecondTest {
         grpcRequestSender.setCommand(command);
         try {
             grpcRequestSender.executeSync(new byte[]{});
-            Assertions.fail();
+            fail();
         } catch (UnsupportedOperationException unsupportedOperationException) {
             //No-op
         }
         try {
             grpcRequestSender.executeAsync(new byte[]{});
-            Assertions.fail();
+            fail();
         } catch (UnsupportedOperationException unsupportedOperationException) {
             //No-op
         }
         try {
             grpcRequestSender.executeSync(new Command());
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
             //No-op
         }
         try {
             grpcRequestSender.executeAsync(new Command());
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
             //No-op
         }
@@ -82,20 +84,20 @@ public class GrpcSecondTest {
         command.setServiceClass("xxx");
         try {
             grpcRequestSender.executeSync(command);
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcExecutionException jaffaRpcNoRouteException) {
             //No-op
         }
         System.setProperty("jaffa.rpc.protocol.grpc.use.ssl", "false");
         try {
             grpcRequestSender.executeSync(command);
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             //No-op
         }
         try {
             grpcRequestSender.executeAsync(command);
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             //No-op
         }
@@ -106,7 +108,7 @@ public class GrpcSecondTest {
             StatusRuntimeException statusRuntimeException = new StatusRuntimeException(Status.UNAVAILABLE);
             method.invoke(grpcRequestSender, statusRuntimeException);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException exception) {
-            Assertions.fail();
+            fail();
         } catch (InvocationTargetException invocationTargetException) {
             Assertions.assertEquals(JaffaRpcNoRouteException.class, invocationTargetException.getCause().getClass());
         }
@@ -115,7 +117,7 @@ public class GrpcSecondTest {
             StatusRuntimeException statusRuntimeException = new StatusRuntimeException(Status.DEADLINE_EXCEEDED);
             method.invoke(grpcRequestSender, statusRuntimeException);
         } catch (SecurityException | IllegalAccessException exception) {
-            Assertions.fail();
+            fail();
         } catch (InvocationTargetException invocationTargetException) {
             Assertions.assertEquals(JaffaRpcExecutionTimeoutException.class, invocationTargetException.getCause().getClass());
         }
@@ -123,7 +125,7 @@ public class GrpcSecondTest {
             StatusRuntimeException statusRuntimeException = new StatusRuntimeException(Status.DATA_LOSS);
             method.invoke(grpcRequestSender, statusRuntimeException);
         } catch (SecurityException | IllegalAccessException exception) {
-            Assertions.fail();
+            fail();
         } catch (InvocationTargetException invocationTargetException) {
             Assertions.assertEquals(JaffaRpcExecutionException.class, invocationTargetException.getCause().getClass());
         }
@@ -131,7 +133,7 @@ public class GrpcSecondTest {
         try {
             GrpcAsyncAndSyncRequestReceiver grpcAsyncAndSyncRequestReceiver = new GrpcAsyncAndSyncRequestReceiver();
             grpcAsyncAndSyncRequestReceiver.run();
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcSystemException jaffaRpcSystemException) {
             //No-op
         }

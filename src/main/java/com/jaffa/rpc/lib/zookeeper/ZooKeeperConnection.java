@@ -21,7 +21,7 @@ public class ZooKeeperConnection {
     private final CountDownLatch connectedSignal = new CountDownLatch(1);
     private ZooKeeper zoo;
 
-    ZooKeeper connect(String host) throws IOException, InterruptedException {
+    public ZooKeeper connect(String host) throws IOException, InterruptedException {
         if (Objects.isNull(zkConfig)) {
             ZKClientConfig zkClientConfig = new ZKClientConfig();
             zkClientConfig.setProperty("zookeeper.clientCnxnSocket", System.getProperty(OptionConstants.ZOOKEEPER_CLIENT_CONTEXT, "org.apache.zookeeper.ClientCnxnSocketNetty"));
