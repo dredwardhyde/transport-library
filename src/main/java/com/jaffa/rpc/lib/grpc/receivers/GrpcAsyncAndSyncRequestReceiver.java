@@ -1,7 +1,12 @@
 package com.jaffa.rpc.lib.grpc.receivers;
 
 import com.google.protobuf.ByteString;
-import com.jaffa.rpc.grpc.services.*;
+import com.jaffa.rpc.grpc.services.CallbackRequest;
+import com.jaffa.rpc.grpc.services.CallbackResponse;
+import com.jaffa.rpc.grpc.services.CallbackServiceGrpc;
+import com.jaffa.rpc.grpc.services.CommandRequest;
+import com.jaffa.rpc.grpc.services.CommandResponse;
+import com.jaffa.rpc.grpc.services.CommandServiceGrpc;
 import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.Command;
@@ -99,7 +104,7 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         requestService.shutdown();
     }
 
-    private static class CommandServiceImpl extends CommandServiceGrpc.CommandServiceImplBase {
+    public static class CommandServiceImpl extends CommandServiceGrpc.CommandServiceImplBase {
 
         private ManagedChannel getManagedChannel(Pair<String, Integer> hostAndPort) {
             return cache.computeIfAbsent(hostAndPort, key -> {
@@ -124,7 +129,7 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                             CallbackResponse response = stub.execute(callbackResponse);
                             if (!response.getResponse().equals("OK"))
                                 throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
-                        } catch (ClassNotFoundException | NoSuchMethodException e) {
+                        } catch (Exception e) {
                             log.error("Error while receiving async request", e);
                             throw new JaffaRpcExecutionException(e);
                         }
@@ -137,9 +142,12 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     responseObserver.onNext(commandResponse);
                 }
                 responseObserver.onCompleted();
-            } catch (ClassNotFoundException exception) {
-                log.error("Error while receiving request ", exception);
-                throw new JaffaRpcSystemException(exception);
+            } catch (ClassNotFoundException classNotFoundException){
+                log.error("Error while receiving request ", classNotFoundException);
+                throw new JaffaRpcExecutionException(classNotFoundException);
+            } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
+                log.error("Error while receiving request ", jaffaRpcExecutionException);
+                throw jaffaRpcExecutionException;
             }
         }
     }

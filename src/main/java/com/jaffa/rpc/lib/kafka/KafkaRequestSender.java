@@ -7,17 +7,29 @@ import com.jaffa.rpc.lib.request.RequestUtils;
 import com.jaffa.rpc.lib.request.Sender;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.*;
+import org.apache.kafka.clients.consumer.CommitFailedException;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.clients.consumer.OffsetAndTimestamp;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
 
@@ -58,7 +70,7 @@ public class KafkaRequestSender extends Sender {
         consumers.forEach(KafkaConsumer::close);
     }
 
-    private void seekTopicsForQuery(KafkaConsumer<String, byte[]> cons, Map<TopicPartition, Long> query){
+    private void seekTopicsForQuery(KafkaConsumer<String, byte[]> cons, Map<TopicPartition, Long> query) {
         for (Map.Entry<TopicPartition, OffsetAndTimestamp> entry : cons.offsetsForTimes(query).entrySet()) {
             if (Objects.isNull(entry.getValue())) continue;
             cons.seek(entry.getKey(), entry.getValue().offset());
@@ -75,11 +87,11 @@ public class KafkaRequestSender extends Sender {
         final KafkaConsumer<String, byte[]> finalConsumer = consumer;
         long startRebalance = System.nanoTime();
         Map<TopicPartition, Long> query = new HashMap<>();
-        if(JaffaService.getBrokersCount() == 1){
-            consumer.assign(Collections.singletonList(new TopicPartition(clientTopicName,0)));
-            query.put(new TopicPartition(clientTopicName,0), threeMinAgo);
+        if (JaffaService.getBrokersCount() == 1) {
+            consumer.assign(Collections.singletonList(new TopicPartition(clientTopicName, 0)));
+            query.put(new TopicPartition(clientTopicName, 0), threeMinAgo);
             seekTopicsForQuery(consumer, query);
-        }else {
+        } else {
             consumer.subscribe(Collections.singletonList(clientTopicName), new ConsumerRebalanceListener() {
                 @Override
                 public void onPartitionsRevoked(Collection<TopicPartition> partitions) {

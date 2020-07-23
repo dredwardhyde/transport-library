@@ -1,5 +1,6 @@
 package com.jaffa.rpc.test.grpc;
 
+import com.jaffa.rpc.grpc.services.CommandResponse;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
@@ -7,11 +8,15 @@ import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException;
 import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.grpc.GrpcRequestSender;
+import com.jaffa.rpc.lib.grpc.MessageConverterHelper;
+import com.jaffa.rpc.lib.grpc.receivers.GrpcAsyncAndSyncRequestReceiver;
 import com.jaffa.rpc.lib.grpc.receivers.GrpcAsyncResponseReceiver;
+import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import com.jaffa.rpc.test.ZooKeeperExtension;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
+import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -78,20 +83,20 @@ public class GrpcSecondTest {
         try {
             grpcRequestSender.executeSync(command);
             Assertions.fail();
-        }catch (JaffaRpcExecutionException jaffaRpcNoRouteException){
+        } catch (JaffaRpcExecutionException jaffaRpcNoRouteException) {
             //No-op
         }
         System.setProperty("jaffa.rpc.protocol.grpc.use.ssl", "false");
         try {
             grpcRequestSender.executeSync(command);
             Assertions.fail();
-        }catch (JaffaRpcNoRouteException jaffaRpcNoRouteException){
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             //No-op
         }
         try {
             grpcRequestSender.executeAsync(command);
             Assertions.fail();
-        }catch (JaffaRpcNoRouteException jaffaRpcNoRouteException){
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             //No-op
         }
         Method method = null;
@@ -122,5 +127,49 @@ public class GrpcSecondTest {
         } catch (InvocationTargetException invocationTargetException) {
             Assertions.assertEquals(JaffaRpcExecutionException.class, invocationTargetException.getCause().getClass());
         }
+        System.setProperty("jaffa.rpc.protocol.grpc.use.ssl", "true");
+        try {
+            GrpcAsyncAndSyncRequestReceiver grpcAsyncAndSyncRequestReceiver = new GrpcAsyncAndSyncRequestReceiver();
+            grpcAsyncAndSyncRequestReceiver.run();
+            Assertions.fail();
+        } catch (JaffaRpcSystemException jaffaRpcSystemException) {
+            //No-op
+        }
+        GrpcAsyncAndSyncRequestReceiver.CommandServiceImpl commandService = new GrpcAsyncAndSyncRequestReceiver.CommandServiceImpl();
+        try {
+            commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), null);
+            Assertions.fail();
+        } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
+            //No-op
+        }
+        command.setMethodArgs(new String[]{"xxx"});
+        command.setArgs(new String[]{"xxx"});
+        Serializer.init();
+        try {
+            commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), null);
+            Assertions.fail();
+        } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
+            //No-op
+        }
+        command.setCallbackKey("xxx");
+        command.setCallbackClass("xxx");
+        command.setMethodArgs(null);
+        command.setArgs(null);
+        commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), new StreamObserver<CommandResponse>() {
+            @Override
+            public void onNext(CommandResponse commandResponse) {
+                //No-op
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                //No-op
+            }
+
+            @Override
+            public void onCompleted() {
+                //No-op
+            }
+        });
     }
 }
