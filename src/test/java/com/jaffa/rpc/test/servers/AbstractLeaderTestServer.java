@@ -89,6 +89,7 @@ public abstract class AbstractLeaderTestServer {
                     .onModule("test.server")
                     .withTimeout(5, TimeUnit.SECONDS)
                     .executeSync();
+            fail();
         } catch (JaffaRpcExecutionTimeoutException jaffaRpcExecutionTimeoutException) {
             log.info("Execution timeout exception occurred");
         }
@@ -96,6 +97,7 @@ public abstract class AbstractLeaderTestServer {
             clientService.lol3("test3")
                     .onModule("lol.server")
                     .executeSync();
+            fail();
         } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             log.info("No route exception occurred");
         }
