@@ -4,6 +4,7 @@ import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.http.HttpRequestSender;
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncAndSyncRequestReceiver;
+import com.jaffa.rpc.lib.http.receivers.HttpAsyncResponseReceiver;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -55,5 +56,15 @@ public class HttpSecondTest {
         } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
             //No-op
         }
+        HttpAsyncResponseReceiver httpAsyncResponseReceiver = new HttpAsyncResponseReceiver();
+        try {
+            httpAsyncResponseReceiver.run();
+            fail();
+        } catch (JaffaRpcSystemException jaffaRpcSystemException) {
+            //No-op
+        }
+
+        HttpAsyncResponseReceiver.HttpRequestHandler httpRequestHandler = new HttpAsyncResponseReceiver.HttpRequestHandler();
+        httpRequestHandler.handle(null);
     }
 }

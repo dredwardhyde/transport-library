@@ -53,7 +53,7 @@ public class HttpAsyncResponseReceiver implements Runnable, Closeable {
         log.info("HTTP async response receiver stopped");
     }
 
-    private static class HttpRequestHandler implements HttpHandler {
+    public static class HttpRequestHandler implements HttpHandler {
 
         @Override
         public void handle(HttpExchange request) {
