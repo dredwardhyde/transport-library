@@ -183,7 +183,6 @@ public class Utils {
             services.add("/" + service);
             log.info("Registered service: {}", service);
         } catch (Exception e) {
-            log.error("Can not register services in ZooKeeper", e);
             throw new JaffaRpcSystemException(e);
         }
     }
