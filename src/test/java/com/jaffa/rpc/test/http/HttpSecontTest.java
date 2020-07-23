@@ -33,10 +33,6 @@ public class HttpSecontTest {
         } catch (JaffaRpcSystemException jaffaRpcSystemException) {
             //No-op
         }
-        System.setProperty("jaffa.rpc.protocol.http.ssl.server.truststore.location", "src/test/resources/truststore.jks");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.server.truststore.password", "simulator1");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.server.keystore.location", "src/test/resources/keystore.jks");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.server.keystore.password", "simulator1");
         try {
             httpAsyncAndSyncRequestReceiver.run();
             Assertions.fail();
