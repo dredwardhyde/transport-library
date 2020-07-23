@@ -151,6 +151,8 @@ public class Utils {
     public static String getModuleForService(String service, Protocol protocol) {
         try {
             byte[] zkData = cache.get("/" + service);
+            if (Objects.isNull(zkData))
+                throw new JaffaRpcNoRouteException(service, protocol);
             JSONArray jArray = (JSONArray) new JSONParser().parse(new String(zkData));
             if (jArray.isEmpty())
                 throw new JaffaRpcNoRouteException(service);
