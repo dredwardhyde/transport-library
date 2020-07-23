@@ -11,8 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 @SuppressWarnings({"squid:S5786"})
@@ -29,7 +32,7 @@ public class ZeroMQSecondTest {
         CurveUtils.makeSocketSecure(socket);
         try {
             ZeroMqRequestSender.addCurveKeysToSocket(socket, "xxx");
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
             log.error("No keys were found, just as expected");
         }
@@ -50,13 +53,13 @@ public class ZeroMQSecondTest {
         System.setProperty("jaffa.rpc.protocol.zmq.curve.enabled", "false");
         try {
             new ZMQAsyncAndSyncRequestReceiver();
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcSystemException jaffaRpcSystemException) {
             //No-op
         }
         try {
             ZMQAsyncAndSyncRequestReceiver.checkZMQExceptionAndThrow(new RuntimeException("xxx"));
-            Assertions.fail();
+            fail();
         } catch (JaffaRpcSystemException jaffaRpcSystemException) {
             //No-op
         }

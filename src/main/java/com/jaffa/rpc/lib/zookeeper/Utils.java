@@ -104,15 +104,15 @@ public class Utils {
     }
 
     public static Pair<String, String> getHostForService(String service, String moduleId, Protocol protocol) {
-        service = Utils.getServiceInterfaceNameFromClient(service);
+        String serviceClient = Utils.getServiceInterfaceNameFromClient(service);
         try {
-            MutablePair<String, String> host = getHostsForService("/" + service, moduleId, protocol).get(0);
+            MutablePair<String, String> host = getHostsForService("/" + serviceClient, moduleId, protocol).get(0);
             if (protocol.equals(Protocol.HTTP)) {
                 host.left = getHttpPrefix() + host.left;
             }
             return host;
         } catch (ParseException e) {
-            throw new JaffaRpcNoRouteException(service);
+            throw new JaffaRpcNoRouteException(serviceClient);
         }
     }
 
