@@ -180,7 +180,7 @@ public class Utils {
             }
             services.add("/" + service);
             log.info("Registered service: {}", service);
-        } catch (KeeperException | InterruptedException | UnknownHostException | ParseException e) {
+        } catch (Exception e) {
             log.error("Can not register services in ZooKeeper", e);
             throw new JaffaRpcSystemException(e);
         }
@@ -303,25 +303,20 @@ public class Utils {
                     }
                 }
             }
-            InetAddress jdkSuppliedAddress = InetAddress.getLocalHost();
-            if (Objects.isNull(jdkSuppliedAddress)) {
-                throw new UnknownHostException("The JDK InetAddress.getLocalHost() method unexpectedly returned null.");
-            }
-            return jdkSuppliedAddress;
+            return InetAddress.getLocalHost();
         } catch (SocketException e) {
-            UnknownHostException unknownHostException = new UnknownHostException("Failed to determine LAN address: " + e);
-            unknownHostException.initCause(e);
-            throw unknownHostException;
+            throw new JaffaRpcSystemException(e);
         }
     }
 }
 
+@Slf4j
 class ShutdownHook extends Thread {
     @Override
     public void run() {
         try {
             if (Objects.nonNull(Utils.getConn())) {
-                if(!Utils.isZkTestMode()){
+                if (!Utils.isZkTestMode()) {
                     for (String service : Utils.getServices()) {
                         Utils.deleteAllRegistrations(service);
                     }
@@ -329,8 +324,8 @@ class ShutdownHook extends Thread {
                 if (Objects.nonNull(Utils.getConn())) Utils.getConn().close();
             }
             Utils.setConn(null);
-        } catch (KeeperException | InterruptedException | ParseException | IOException e) {
-            throw new JaffaRpcSystemException(e);
+        } catch (Exception e) {
+            log.error("Error occurred in shutdown hook", e);
         }
     }
 }
