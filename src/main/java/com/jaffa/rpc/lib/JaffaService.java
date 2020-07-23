@@ -41,8 +41,6 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.kafka.common.utils.Time;
-import org.apache.zookeeper.KeeperException;
-import org.json.simple.parser.ParseException;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
@@ -56,8 +54,6 @@ import scala.Option;
 
 import javax.annotation.PostConstruct;
 import java.io.Closeable;
-import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
@@ -71,7 +67,7 @@ public class JaffaService {
     @Getter
     private static final Properties consumerProps = new Properties();
     @Getter
-    @Setter(AccessLevel.PRIVATE)
+    @Setter
     private static KafkaZkClient zkClient;
     @Getter
     @Setter(AccessLevel.PRIVATE)
@@ -88,12 +84,13 @@ public class JaffaService {
     @Getter
     @Setter(AccessLevel.PRIVATE)
     private static Set<String> clientSyncTopics;
-    @Setter(AccessLevel.PRIVATE)
+    @Setter
+    @Getter
     private static AdminZkClient adminZkClient;
     @Setter(AccessLevel.PRIVATE)
     private static RabbitAdmin adminRabbitMQ;
-    @Setter(AccessLevel.PRIVATE)
-    @Getter(AccessLevel.PUBLIC)
+    @Setter
+    @Getter
     private static ConnectionFactory connectionFactory;
     private final List<KafkaReceiver> kafkaReceivers = new ArrayList<>();
     private final List<Closeable> zmqReceivers = new ArrayList<>();
@@ -218,7 +215,6 @@ public class JaffaService {
                 try {
                     server.getConstructor();
                 } catch (NoSuchMethodException e) {
-                    log.error("General error during endpoint initialization", e);
                     throw new IllegalArgumentException(String.format("Class %s does not have default constructor!", server.getName()));
                 }
                 apiImpls.add(serverInterface);
@@ -361,7 +357,6 @@ public class JaffaService {
                     "|____.'    `--'  `\"     |_|        |_|      `--'  `\"  \n" +
                     "                                       STARTED IN {} MS \n", System.currentTimeMillis() - startedTime);
         } catch (Exception e) {
-            log.error("Exception during Jaffa RPC library startup:", e);
             throw new JaffaRpcSystemException(e);
         }
     }
@@ -381,17 +376,16 @@ public class JaffaService {
                 }
                 if (Objects.nonNull(Utils.getConn())) Utils.getConn().close();
                 Utils.setConn(null);
-            } catch (KeeperException | InterruptedException | ParseException | UnknownHostException e) {
-                log.error("Unable to unregister services from ZooKeeper cluster, probably it was done earlier");
+            } catch (Exception e) {
+                log.error("Unable to unregister services from ZooKeeper cluster, probably it was done earlier", e);
             }
         }
         log.info("Services were unregistered");
         this.zmqReceivers.forEach(a -> {
             try {
                 a.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 log.error("Unable to shut down ZeroMQ receivers", e);
-                throw new JaffaRpcSystemException(e);
             }
         });
         log.info("ZMQ receivers were terminated");
@@ -411,7 +405,6 @@ public class JaffaService {
         }
         log.info("All receiver threads stopped");
         FinalizationHelper.stopFinalizer();
-        log.info("Finalizer was stopped");
         log.info("Jaffa RPC shutdown completed");
     }
 }

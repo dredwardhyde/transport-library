@@ -35,25 +35,29 @@ public class GrpcRequestSender extends Sender {
     }
 
     @Override
-    protected byte[] executeSync(byte[] message) {
+    public byte[] executeSync(byte[] message) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected void executeAsync(byte[] message) {
+    public void executeAsync(byte[] message) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public Object executeSync(Command command) {
-        ManagedChannel channel = getManagedChannel();
-        CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
-        int totalTimeout = (int) (this.timeout == -1 ? 1000 * 60 * 60 : this.timeout);
         try {
+            ManagedChannel channel = getManagedChannel();
+            CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
+            int totalTimeout = (int) (this.timeout == -1 ? 1000 * 60 * 60 : this.timeout);
             CommandResponse commandResponse = stub.withDeadlineAfter(totalTimeout, TimeUnit.MILLISECONDS).execute(MessageConverterHelper.toGRPCCommandRequest(command));
             return MessageConverterHelper.fromGRPCCommandResponse(commandResponse);
         } catch (StatusRuntimeException statusRuntimeException) {
             processStatusException(statusRuntimeException);
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
+            throw jaffaRpcNoRouteException;
+        } catch (Exception exception) {
+            throw new JaffaRpcExecutionException(exception);
         }
         return null;
     }
@@ -78,14 +82,18 @@ public class GrpcRequestSender extends Sender {
 
     @Override
     public void executeAsync(Command command) {
-        ManagedChannel channel = getManagedChannel();
-        CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
         try {
+            ManagedChannel channel = getManagedChannel();
+            CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
             CommandResponse response = stub.execute(MessageConverterHelper.toGRPCCommandRequest(command));
             if (!response.getResponse().equals(ByteString.EMPTY))
                 throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
         } catch (StatusRuntimeException statusRuntimeException) {
             processStatusException(statusRuntimeException);
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
+            throw jaffaRpcNoRouteException;
+        } catch (Exception exception) {
+            throw new JaffaRpcExecutionException(exception);
         }
     }
 }

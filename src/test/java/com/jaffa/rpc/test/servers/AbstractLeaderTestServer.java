@@ -25,7 +25,10 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Slf4j
 @SuppressWarnings({"squid:S2187", "squid:S5786"})
@@ -89,6 +92,7 @@ public abstract class AbstractLeaderTestServer {
                     .onModule("test.server")
                     .withTimeout(5, TimeUnit.SECONDS)
                     .executeSync();
+            fail();
         } catch (JaffaRpcExecutionTimeoutException jaffaRpcExecutionTimeoutException) {
             log.info("Execution timeout exception occurred");
         }
@@ -96,6 +100,15 @@ public abstract class AbstractLeaderTestServer {
             clientService.lol3("test3")
                     .onModule("lol.server")
                     .executeSync();
+            fail();
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
+            log.info("No route exception occurred");
+        }
+        try {
+            clientService.lol3("test3")
+                    .onModule("lol.server")
+                    .executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
+            fail();
         } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             log.info("No route exception occurred");
         }

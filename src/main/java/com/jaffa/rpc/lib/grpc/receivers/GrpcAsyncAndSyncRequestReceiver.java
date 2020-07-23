@@ -1,11 +1,14 @@
 package com.jaffa.rpc.lib.grpc.receivers;
 
 import com.google.protobuf.ByteString;
-import com.jaffa.rpc.grpc.services.*;
+import com.jaffa.rpc.grpc.services.CallbackRequest;
+import com.jaffa.rpc.grpc.services.CallbackServiceGrpc;
+import com.jaffa.rpc.grpc.services.CommandRequest;
+import com.jaffa.rpc.grpc.services.CommandResponse;
+import com.jaffa.rpc.grpc.services.CommandServiceGrpc;
 import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.Command;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.grpc.MessageConverterHelper;
 import com.jaffa.rpc.lib.zookeeper.Utils;
@@ -20,10 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
-import javax.net.ssl.SSLException;
 import java.io.Closeable;
 import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -55,7 +56,7 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             } else {
                 return serverBuilder;
             }
-        } catch (SSLException sslException) {
+        } catch (Exception sslException) {
             log.error("Exception occurred while creating SSL context for gRPC", sslException);
             throw new JaffaRpcSystemException(sslException);
         }
@@ -73,7 +74,7 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             } else {
                 return channelBuilder.usePlaintext();
             }
-        } catch (SSLException sslException) {
+        } catch (Exception sslException) {
             log.error("Exception occurred while creating SSL context for gRPC", sslException);
             throw new JaffaRpcSystemException(sslException);
         }
@@ -87,9 +88,9 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             server = serverBuilder.executor(requestService).addService(new CommandServiceImpl()).build();
             server.start();
             server.awaitTermination();
-        } catch (InterruptedException | IOException zmqStartupException) {
-            log.error("Error during gRPC request receiver startup:", zmqStartupException);
-            throw new JaffaRpcSystemException(zmqStartupException);
+        } catch (Exception grpcStartupException) {
+            log.error("Error during gRPC request receiver startup:", grpcStartupException);
+            throw new JaffaRpcSystemException(grpcStartupException);
         }
         log.info("{} terminated", this.getClass().getSimpleName());
     }
@@ -101,7 +102,7 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         requestService.shutdown();
     }
 
-    private static class CommandServiceImpl extends CommandServiceGrpc.CommandServiceImplBase {
+    public static class CommandServiceImpl extends CommandServiceGrpc.CommandServiceImplBase {
 
         private ManagedChannel getManagedChannel(Pair<String, Integer> hostAndPort) {
             return cache.computeIfAbsent(hostAndPort, key -> {
@@ -123,12 +124,9 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                             Pair<String, Integer> hostAndPort = Utils.getHostAndPort(command.getCallBackHost(), ":");
                             ManagedChannel channel = getManagedChannel(hostAndPort);
                             CallbackServiceGrpc.CallbackServiceBlockingStub stub = CallbackServiceGrpc.newBlockingStub(channel);
-                            CallbackResponse response = stub.execute(callbackResponse);
-                            if (!response.getResponse().equals("OK"))
-                                throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
-                        } catch (ClassNotFoundException | NoSuchMethodException e) {
-                            log.error("Error while receiving async request", e);
-                            throw new JaffaRpcExecutionException(e);
+                            stub.execute(callbackResponse);
+                        } catch (Exception exception) {
+                            log.error("Error while receiving async request", exception);
                         }
                     };
                     asyncService.execute(runnable);
@@ -139,9 +137,8 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     responseObserver.onNext(commandResponse);
                 }
                 responseObserver.onCompleted();
-            } catch (ClassNotFoundException exception) {
+            } catch (Exception exception) {
                 log.error("Error while receiving request ", exception);
-                throw new JaffaRpcSystemException(exception);
             }
         }
     }

@@ -3,18 +3,19 @@ package com.jaffa.rpc.lib.rabbitmq.receivers;
 import com.jaffa.rpc.lib.JaffaService;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender;
 import com.jaffa.rpc.lib.serialization.Serializer;
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.connection.Connection;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
@@ -45,15 +46,13 @@ public class RabbitMQAsyncResponseReceiver implements Runnable, Closeable {
                             clientChannel.basicAck(envelope.getDeliveryTag(), false);
                     } catch (IOException ioException) {
                         log.error("General RabbitMQ exception", ioException);
-                        throw new JaffaRpcSystemException(ioException);
-                    } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException | NoSuchMethodException callbackExecutionException) {
+                    } catch (Exception callbackExecutionException) {
                         log.error("RabbitMQ callback execution exception", callbackExecutionException);
-                        throw new JaffaRpcExecutionException(callbackExecutionException);
                     }
                 }
             };
             clientChannel.basicConsume(RabbitMQRequestSender.CLIENT_ASYNC_NAME, false, consumer);
-        } catch (AmqpException | IOException ioException) {
+        } catch (Exception ioException) {
             log.error("Error during RabbitMQ response receiver startup:", ioException);
             throw new JaffaRpcSystemException(ioException);
         }

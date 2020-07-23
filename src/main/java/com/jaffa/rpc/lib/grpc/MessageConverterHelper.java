@@ -2,7 +2,6 @@ package com.jaffa.rpc.lib.grpc;
 
 import com.google.protobuf.ByteString;
 import com.jaffa.rpc.grpc.services.CallbackRequest;
-import com.jaffa.rpc.grpc.services.CallbackResponse;
 import com.jaffa.rpc.grpc.services.CommandRequest;
 import com.jaffa.rpc.grpc.services.CommandResponse;
 import com.jaffa.rpc.lib.entities.CallbackContainer;

@@ -6,7 +6,6 @@ public class ZeroMQLeaderTest extends AbstractLeaderTestServer {
 
     static {
         System.setProperty("jaffa.rpc.protocol", "zmq");
-        System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2181");
         System.setProperty("jaffa.rpc.protocol.zmq.service.port", "6643");
         System.setProperty("jaffa.rpc.protocol.zmq.callback.port", "6343");
         System.setProperty("jaffa.rpc.protocol.zmq.curve.enabled", "true");

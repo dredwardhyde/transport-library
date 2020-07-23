@@ -5,7 +5,6 @@ import com.jaffa.rpc.grpc.services.CallbackResponse;
 import com.jaffa.rpc.grpc.services.CallbackServiceGrpc;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.grpc.MessageConverterHelper;
 import com.jaffa.rpc.lib.zookeeper.Utils;
@@ -15,7 +14,6 @@ import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,7 +31,7 @@ public class GrpcAsyncResponseReceiver implements Runnable, Closeable {
             server = serverBuilder.executor(requestService).addService(new CallbackServiceImpl()).build();
             server.start();
             server.awaitTermination();
-        } catch (InterruptedException | IOException zmqStartupException) {
+        } catch (Exception zmqStartupException) {
             log.error("Error during gRPC async response receiver startup:", zmqStartupException);
             throw new JaffaRpcSystemException(zmqStartupException);
         }
@@ -57,7 +55,6 @@ public class GrpcAsyncResponseReceiver implements Runnable, Closeable {
                 responseObserver.onCompleted();
             } catch (Exception exception) {
                 log.error("gRPC callback execution exception", exception);
-                throw new JaffaRpcExecutionException(exception);
             }
         }
     }

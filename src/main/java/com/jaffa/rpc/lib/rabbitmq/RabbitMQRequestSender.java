@@ -4,10 +4,15 @@ import com.jaffa.rpc.lib.JaffaService;
 import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
+import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.request.Sender;
 import com.jaffa.rpc.lib.zookeeper.Utils;
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.AmqpException;
@@ -71,7 +76,7 @@ public class RabbitMQRequestSender extends Sender {
 
     @Override
     @SuppressWarnings("squid:S1168")
-    protected byte[] executeSync(byte[] message) {
+    public byte[] executeSync(byte[] message) {
         try {
             final AtomicReference<byte[]> atomicReference = new AtomicReference<>();
             requests.put(command.getRqUid(), atomicReference::set);
@@ -84,9 +89,11 @@ public class RabbitMQRequestSender extends Sender {
                 }
             }
             requests.remove(command.getRqUid());
-        } catch (IOException ioException) {
-            log.error("Error while sending sync RabbitMQ request", ioException);
-            throw new JaffaRpcExecutionException(ioException);
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
+            throw jaffaRpcNoRouteException;
+        } catch (Exception exception) {
+            log.error("Error while sending sync RabbitMQ request", exception);
+            throw new JaffaRpcExecutionException(exception);
         }
         return null;
     }
@@ -103,10 +110,12 @@ public class RabbitMQRequestSender extends Sender {
     }
 
     @Override
-    protected void executeAsync(byte[] message) {
+    public void executeAsync(byte[] message) {
         try {
             sendSync(message);
-        } catch (IOException e) {
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
+            throw jaffaRpcNoRouteException;
+        } catch (Exception e) {
             log.error("Error while sending async RabbitMQ request", e);
             throw new JaffaRpcExecutionException(e);
         }

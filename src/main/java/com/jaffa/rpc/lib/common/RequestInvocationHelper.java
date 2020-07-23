@@ -54,11 +54,17 @@ public class RequestInvocationHelper {
     }
 
     public static Object invoke(Command command) {
+        Object result;
+        Object targetService;
+        Method targetMethod;
+        try {
+            targetService = getTargetService(command);
+            targetMethod = getTargetMethod(command);
+        } catch (Exception exception) {
+            throw new JaffaRpcExecutionException(exception);
+        }
         try {
             RequestContextHelper.setMetaData(command);
-            Object targetService = getTargetService(command);
-            Method targetMethod = getTargetMethod(command);
-            Object result;
             if (ArrayUtils.isNotEmpty(command.getMethodArgs())) {
                 result = targetMethod.invoke(targetService, command.getArgs());
             } else {
@@ -84,8 +90,8 @@ public class RequestInvocationHelper {
         } else return result;
     }
 
-    private static Class<?> primitiveToWrapper(Class<?> clz){
-        if(clz.equals(void.class))
+    private static Class<?> primitiveToWrapper(Class<?> clz) {
+        if (clz.equals(void.class))
             return Void.class;
         else
             return ClassUtils.primitiveToWrapper(clz);

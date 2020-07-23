@@ -3,7 +3,6 @@ package com.jaffa.rpc.lib.kafka.receivers;
 import com.jaffa.rpc.lib.JaffaService;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -13,7 +12,6 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.InterruptException;
 
-import java.lang.reflect.InvocationTargetException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,9 +48,8 @@ public class KafkaAsyncResponseReceiver extends KafkaReceiver implements Runnabl
                         Map<TopicPartition, OffsetAndMetadata> commitData = new HashMap<>();
                         commitData.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                         consumer.commitSync(commitData);
-                    } catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException executionException) {
+                    } catch (Exception executionException) {
                         log.error("Error during receiving callback", executionException);
-                        throw new JaffaRpcExecutionException(executionException);
                     }
                 }
             }
