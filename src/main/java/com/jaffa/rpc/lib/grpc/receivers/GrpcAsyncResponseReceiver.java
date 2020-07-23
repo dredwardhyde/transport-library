@@ -5,7 +5,6 @@ import com.jaffa.rpc.grpc.services.CallbackResponse;
 import com.jaffa.rpc.grpc.services.CallbackServiceGrpc;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.grpc.MessageConverterHelper;
 import com.jaffa.rpc.lib.zookeeper.Utils;
@@ -56,7 +55,6 @@ public class GrpcAsyncResponseReceiver implements Runnable, Closeable {
                 responseObserver.onCompleted();
             } catch (Exception exception) {
                 log.error("gRPC callback execution exception", exception);
-                throw new JaffaRpcExecutionException(exception);
             }
         }
     }

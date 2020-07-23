@@ -4,7 +4,6 @@ import com.jaffa.rpc.lib.JaffaService;
 import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.Command;
-import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 
 @Slf4j
 public class KafkaSyncRequestReceiver extends KafkaReceiver implements Runnable {
@@ -58,9 +56,8 @@ public class KafkaSyncRequestReceiver extends KafkaReceiver implements Runnable 
                         Map<TopicPartition, OffsetAndMetadata> commitData = new HashMap<>();
                         commitData.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                         consumer.commitSync(commitData);
-                    } catch (ExecutionException | InterruptedException executionException) {
+                    } catch (Exception executionException) {
                         log.error("Target method execution exception", executionException);
-                        throw new JaffaRpcSystemException(executionException);
                     }
                 }
             }

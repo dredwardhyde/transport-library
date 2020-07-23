@@ -3,7 +3,6 @@ package com.jaffa.rpc.lib.zeromq.receivers;
 import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.Command;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.zeromq.CurveUtils;
@@ -75,9 +74,8 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                             byte[] response = socketAsync.recv(0);
                             assert response[0] == 4;
                             context.destroySocket(socketAsync);
-                        } catch (ClassNotFoundException | NoSuchMethodException e) {
-                            log.error("Error while receiving async request", e);
-                            throw new JaffaRpcExecutionException(e);
+                        } catch (Exception exception) {
+                            log.error("Error while receiving async request", exception);
                         }
                     };
                     service.execute(runnable);
@@ -88,6 +86,8 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                 }
             } catch (ZMQException | ZError.IOException recvTerminationException) {
                 checkZMQExceptionAndThrow(recvTerminationException);
+            } catch (Exception exception) {
+                log.error("Error while receiving sync request", exception);
             }
         }
         log.info("{} terminated", this.getClass().getSimpleName());

@@ -136,21 +136,11 @@ public class GrpcSecondTest {
             //No-op
         }
         GrpcAsyncAndSyncRequestReceiver.CommandServiceImpl commandService = new GrpcAsyncAndSyncRequestReceiver.CommandServiceImpl();
-        try {
-            commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), null);
-            Assertions.fail();
-        } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
-            //No-op
-        }
+        commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), null);
         command.setMethodArgs(new String[]{"xxx"});
         command.setArgs(new String[]{"xxx"});
         Serializer.init();
-        try {
-            commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), null);
-            Assertions.fail();
-        } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
-            //No-op
-        }
+        commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), null);
         command.setCallbackKey("xxx");
         command.setCallbackClass("xxx");
         command.setMethodArgs(null);

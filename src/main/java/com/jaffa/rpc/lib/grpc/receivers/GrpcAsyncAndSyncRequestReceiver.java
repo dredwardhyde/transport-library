@@ -2,7 +2,6 @@ package com.jaffa.rpc.lib.grpc.receivers;
 
 import com.google.protobuf.ByteString;
 import com.jaffa.rpc.grpc.services.CallbackRequest;
-import com.jaffa.rpc.grpc.services.CallbackResponse;
 import com.jaffa.rpc.grpc.services.CallbackServiceGrpc;
 import com.jaffa.rpc.grpc.services.CommandRequest;
 import com.jaffa.rpc.grpc.services.CommandResponse;
@@ -10,7 +9,6 @@ import com.jaffa.rpc.grpc.services.CommandServiceGrpc;
 import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.Command;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.grpc.MessageConverterHelper;
 import com.jaffa.rpc.lib.zookeeper.Utils;
@@ -126,12 +124,9 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                             Pair<String, Integer> hostAndPort = Utils.getHostAndPort(command.getCallBackHost(), ":");
                             ManagedChannel channel = getManagedChannel(hostAndPort);
                             CallbackServiceGrpc.CallbackServiceBlockingStub stub = CallbackServiceGrpc.newBlockingStub(channel);
-                            CallbackResponse response = stub.execute(callbackResponse);
-                            if (!response.getResponse().equals("OK"))
-                                throw new JaffaRpcExecutionException("Wrong value returned after async callback processing!");
-                        } catch (Exception e) {
-                            log.error("Error while receiving async request", e);
-                            throw new JaffaRpcExecutionException(e);
+                            stub.execute(callbackResponse);
+                        } catch (Exception exception) {
+                            log.error("Error while receiving async request", exception);
                         }
                     };
                     asyncService.execute(runnable);
@@ -142,12 +137,8 @@ public class GrpcAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     responseObserver.onNext(commandResponse);
                 }
                 responseObserver.onCompleted();
-            } catch (ClassNotFoundException classNotFoundException){
-                log.error("Error while receiving request ", classNotFoundException);
-                throw new JaffaRpcExecutionException(classNotFoundException);
-            } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
-                log.error("Error while receiving request ", jaffaRpcExecutionException);
-                throw jaffaRpcExecutionException;
+            } catch (Exception exception) {
+                log.error("Error while receiving request ", exception);
             }
         }
     }

@@ -4,7 +4,6 @@ import com.jaffa.rpc.lib.JaffaService;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.entities.Command;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender;
 import com.jaffa.rpc.lib.serialization.Serializer;
@@ -14,7 +13,6 @@ import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.connection.Connection;
 
 import java.io.Closeable;
@@ -67,9 +65,8 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                                                 AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().headers(asyncHeaders).build();
                                                 clientChannel.basicPublish(command.getSourceModuleId(), command.getSourceModuleId() + "-client-async", props, response);
                                                 serverChannel.basicAck(envelope.getDeliveryTag(), false);
-                                            } catch (ClassNotFoundException | NoSuchMethodException | IOException e) {
+                                            } catch (Exception e) {
                                                 log.error("Error while receiving async request", e);
-                                                throw new JaffaRpcExecutionException(e);
                                             }
                                         };
                                         responseService.execute(runnable);
@@ -80,16 +77,15 @@ public class RabbitMQAsyncAndSyncRequestReceiver implements Runnable, Closeable 
                                         clientChannel.basicPublish(command.getSourceModuleId(), command.getSourceModuleId() + "-client-sync", props, response);
                                         serverChannel.basicAck(envelope.getDeliveryTag(), false);
                                     }
-                                } catch (IOException ioException) {
-                                    log.error("General RabbitMQ exception", ioException);
-                                    throw new JaffaRpcSystemException(ioException);
+                                } catch (Exception ioException) {
+                                    log.error("Error while receiving sync request", ioException);
                                 }
                             }
                     );
                 }
             };
             serverChannel.basicConsume(RabbitMQRequestSender.SERVER, false, consumer);
-        } catch (AmqpException | IOException amqpException) {
+        } catch (Exception amqpException) {
             log.error("Error during RabbitMQ request receiver startup:", amqpException);
             throw new JaffaRpcSystemException(amqpException);
         }

@@ -3,8 +3,6 @@ package com.jaffa.rpc.lib.kafka.receivers;
 import com.jaffa.rpc.lib.JaffaService;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.Command;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
-import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
@@ -58,12 +56,10 @@ public class KafkaAsyncRequestReceiver extends KafkaReceiver implements Runnable
                         Map<TopicPartition, OffsetAndMetadata> commitData = new HashMap<>();
                         commitData.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));
                         consumer.commitSync(commitData);
-                    } catch (ClassNotFoundException | NoSuchMethodException executionException) {
-                        log.error("Target method execution exception", executionException);
-                        throw new JaffaRpcExecutionException(executionException);
                     } catch (InterruptedException | ExecutionException systemException) {
                         log.error("General Kafka exception", systemException);
-                        throw new JaffaRpcSystemException(systemException);
+                    } catch (Exception executionException) {
+                        log.error("Async request execution exception", executionException);
                     }
                 }
             }

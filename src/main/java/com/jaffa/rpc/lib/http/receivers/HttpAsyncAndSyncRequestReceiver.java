@@ -8,7 +8,12 @@ import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
-import com.sun.net.httpserver.*;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsParameters;
+import com.sun.net.httpserver.HttpsServer;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -25,12 +30,20 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
 
-import javax.net.ssl.*;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.Closeable;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.security.*;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -145,7 +158,7 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         log.info("HTTP request receiver stopped");
     }
 
-    private static class HttpRequestHandler implements HttpHandler {
+    public static class HttpRequestHandler implements HttpHandler {
 
         @Override
         public void handle(HttpExchange request) throws IOException {
@@ -170,20 +183,23 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                         if (callBackResponse != 200) {
                             throw new JaffaRpcExecutionException("Response for RPC request " + command.getRqUid() + " returned status " + response);
                         }
-                    } catch (ClassNotFoundException | NoSuchMethodException | IOException e) {
-                        log.error("Error while receiving async request");
-                        throw new JaffaRpcExecutionException(e);
+                    } catch (Exception exception) {
+                        log.error("Error while receiving async request", exception);
                     }
                 };
                 service.execute(runnable);
             } else {
-                Object result = RequestInvocationHelper.invoke(command);
-                byte[] response = Serializer.getCurrent().serializeWithClass(RequestInvocationHelper.getResult(result));
-                request.sendResponseHeaders(200, response.length);
-                OutputStream os = request.getResponseBody();
-                os.write(response);
-                os.close();
-                request.close();
+                try {
+                    Object result = RequestInvocationHelper.invoke(command);
+                    byte[] response = Serializer.getCurrent().serializeWithClass(RequestInvocationHelper.getResult(result));
+                    request.sendResponseHeaders(200, response.length);
+                    OutputStream os = request.getResponseBody();
+                    os.write(response);
+                    os.close();
+                    request.close();
+                } catch (Exception exception) {
+                    log.error("Error while receiving sync request", exception);
+                }
             }
         }
     }

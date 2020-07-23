@@ -4,7 +4,6 @@ import com.google.common.io.ByteStreams;
 import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.common.RequestInvocationHelper;
 import com.jaffa.rpc.lib.entities.CallbackContainer;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
@@ -15,9 +14,7 @@ import com.sun.net.httpserver.HttpsServer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Executors;
 
 @Slf4j
@@ -59,7 +56,7 @@ public class HttpAsyncResponseReceiver implements Runnable, Closeable {
     private static class HttpRequestHandler implements HttpHandler {
 
         @Override
-        public void handle(HttpExchange request) throws IOException {
+        public void handle(HttpExchange request) {
             try {
                 CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(ByteStreams.toByteArray(request.getRequestBody()), CallbackContainer.class);
                 RequestInvocationHelper.processCallbackContainer(callbackContainer);
@@ -69,9 +66,8 @@ public class HttpAsyncResponseReceiver implements Runnable, Closeable {
                 os.write(response.getBytes());
                 os.close();
                 request.close();
-            } catch (IllegalAccessException | InvocationTargetException | ClassNotFoundException | NoSuchMethodException callbackExecutionException) {
-                log.error("ZMQ callback execution exception", callbackExecutionException);
-                throw new JaffaRpcExecutionException(callbackExecutionException);
+            } catch (Exception callbackExecutionException) {
+                log.error("HTTP callback execution exception", callbackExecutionException);
             }
         }
     }
