@@ -4,6 +4,7 @@ import com.google.common.io.ByteStreams;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException;
+import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncAndSyncRequestReceiver;
 import com.jaffa.rpc.lib.request.Sender;
 import com.jaffa.rpc.lib.zookeeper.Utils;
@@ -15,7 +16,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.entity.ByteArrayEntity;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
 
@@ -23,7 +23,7 @@ import java.net.SocketTimeoutException;
 public class HttpRequestSender extends Sender {
 
     @Override
-    protected byte[] executeSync(byte[] message) {
+    public byte[] executeSync(byte[] message) {
         try {
             int totalTimeout = (int)(this.timeout == -1 ? 1000 * 60 * 60 : this.timeout);
             RequestConfig config = RequestConfig.custom()
@@ -49,14 +49,16 @@ public class HttpRequestSender extends Sender {
             byte[] byteArray = ByteStreams.toByteArray(responseBody);
             httpResponse.close();
             return byteArray;
-        } catch (IOException e) {
+        } catch (JaffaRpcNoRouteException | JaffaRpcExecutionTimeoutException exception) {
+            throw exception;
+        } catch (Exception e) {
             log.error("Error while sending sync HTTP request", e);
             throw new JaffaRpcExecutionException(e);
         }
     }
 
     @Override
-    protected void executeAsync(byte[] message) {
+    public void executeAsync(byte[] message) {
         try {
             HttpPost httpPost = new HttpPost(Utils.getHostForService(command.getServiceClass(), moduleId, Protocol.HTTP).getLeft() + "/request");
             HttpEntity postParams = new ByteArrayEntity(message);
@@ -67,7 +69,9 @@ public class HttpRequestSender extends Sender {
             if (response != 200) {
                 throw new JaffaRpcExecutionException("Response for RPC request " + command.getRqUid() + " returned status " + response);
             }
-        } catch (IOException e) {
+        } catch (JaffaRpcNoRouteException | JaffaRpcExecutionTimeoutException exception) {
+            throw exception;
+        } catch (Exception e) {
             log.error("Error while sending async HTTP request", e);
             throw new JaffaRpcExecutionException(e);
         }

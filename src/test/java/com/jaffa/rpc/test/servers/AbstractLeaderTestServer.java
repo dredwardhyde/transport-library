@@ -101,6 +101,14 @@ public abstract class AbstractLeaderTestServer {
         } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             log.info("No route exception occurred");
         }
+        try {
+            clientService.lol3("test3")
+                    .onModule("lol.server")
+                    .executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
+            fail();
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
+            log.info("No route exception occurred");
+        }
         personService.get(id)
                 .onModule("test.server")
                 .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
