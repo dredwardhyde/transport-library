@@ -58,18 +58,18 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     private static CloseableHttpClient client;
     private HttpServer server;
 
-    public static void initClient() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
+    public static void initClient() {
         if (Boolean.parseBoolean(System.getProperty(OptionConstants.USE_HTTPS, String.valueOf(false)))) {
-            char[] keyPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_PASSWORD).toCharArray();
-            KeyStore ks = KeyStore.getInstance("JKS");
-            ks.load(new FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_LOCATION)), keyPassphrase);
-            char[] trustPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD).toCharArray();
-            KeyStore tks = KeyStore.getInstance("JKS");
-            tks.load(new FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION)), trustPassphrase);
             SSLContext sslContext;
             try {
+                char[] keyPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_PASSWORD).toCharArray();
+                KeyStore ks = KeyStore.getInstance("JKS");
+                ks.load(new FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_LOCATION)), keyPassphrase);
+                char[] trustPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD).toCharArray();
+                KeyStore tks = KeyStore.getInstance("JKS");
+                tks.load(new FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION)), trustPassphrase);
                 sslContext = SSLContexts.custom().loadKeyMaterial(ks, keyPassphrase).loadTrustMaterial(tks, TrustSelfSignedStrategy.INSTANCE).build();
-            } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException | UnrecoverableKeyException e) {
+            } catch (Exception e) {
                 log.error("Error occurred while creating HttpClient", e);
                 throw new JaffaRpcSystemException(e);
             }
