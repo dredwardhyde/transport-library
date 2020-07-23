@@ -248,7 +248,7 @@ Could be configured as JVM options or by specifying **jaffa-rpc-config** JVM opt
   </tr>
   <tr>
     <td>jaffa.rpc.protocol</td>
-    <td>Could be 'zmq', 'kafka', 'http', 'rabbit'</td>
+    <td>Could be 'zmq', 'kafka', 'http', 'rabbit', 'grpc'</td>
   </tr>
   <tr>
     <td>jaffa.rpc.zookeeper.connection</td>
