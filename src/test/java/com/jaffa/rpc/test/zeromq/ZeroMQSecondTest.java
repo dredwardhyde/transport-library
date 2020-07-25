@@ -55,11 +55,5 @@ public class ZeroMQSecondTest {
         } catch (JaffaRpcSystemException jaffaRpcSystemException) {
             //No-op
         }
-        try {
-            ZMQAsyncAndSyncRequestReceiver.checkZMQExceptionAndThrow(new RuntimeException("xxx"));
-            fail();
-        } catch (JaffaRpcSystemException jaffaRpcSystemException) {
-            //No-op
-        }
     }
 }

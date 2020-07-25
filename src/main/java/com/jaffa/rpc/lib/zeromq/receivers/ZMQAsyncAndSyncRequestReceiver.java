@@ -81,6 +81,8 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             } catch (ZMQException recvTerminationException) {
                 if (recvTerminationException.getErrorCode() == ZMQ.Error.ETERM.getCode()) {
                     break;
+                } else {
+                    recvTerminationException.printStackTrace();
                 }
             } catch (Exception exception) {
                 log.error("Error while receiving sync request", exception);
@@ -90,15 +92,9 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         log.info("{} terminated", this.getClass().getSimpleName());
     }
 
-    public static void checkZMQExceptionAndThrow(Exception recvTerminationException) {
-        if (!recvTerminationException.getMessage().contains("Errno 4") && !recvTerminationException.getMessage().contains("156384765")) {
-            log.error("General ZMQ exception", recvTerminationException);
-            throw new JaffaRpcSystemException(recvTerminationException);
-        }
-    }
-
     @Override
     public void close() {
+        service.shutdownNow();
         if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             try {
                 auth.close();
@@ -108,7 +104,6 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         } else {
             context.close();
         }
-        service.shutdownNow();
         log.info("ZMQAsyncAndSyncRequestReceiver closed");
     }
 }

@@ -54,6 +54,8 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
             } catch (ZMQException recvTerminationException) {
                 if (recvTerminationException.getErrorCode() == ZMQ.Error.ETERM.getCode()) {
                     break;
+                } else {
+                    recvTerminationException.printStackTrace();
                 }
             } catch (Exception callbackExecutionException) {
                 log.error("ZMQ callback execution exception", callbackExecutionException);
