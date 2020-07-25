@@ -37,8 +37,6 @@ public class ZeroMQSecondTest {
             log.error("No keys were found, just as expected");
         }
 
-        ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(context, socket, ZeroMQSecondTest.class);
-
         Method getPublicKeyFromPath = CurveUtils.class.getDeclaredMethod("getPublicKeyFromPath", String.class);
         getPublicKeyFromPath.setAccessible(true);
 

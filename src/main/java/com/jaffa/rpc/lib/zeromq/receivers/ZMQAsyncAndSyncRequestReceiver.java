@@ -14,11 +14,9 @@ import org.zeromq.ZAuth;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
-import zmq.ZError;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,10 +53,6 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 byte[] bytes = socket.recv();
-                if (Objects.nonNull(bytes) && bytes.length == 1 && bytes[0] == 7) {
-                    destroySocketAndContext(context, socket, ZMQAsyncAndSyncRequestReceiver.class);
-                    break;
-                }
                 final Command command = Serializer.getCurrent().deserialize(bytes, Command.class);
                 if (Objects.nonNull(command.getCallbackKey()) && Objects.nonNull(command.getCallbackClass())) {
                     socket.send("OK");
@@ -84,12 +78,15 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
                     byte[] serializedResponse = Serializer.getCurrent().serializeWithClass(RequestInvocationHelper.getResult(result));
                     socket.send(serializedResponse);
                 }
-            } catch (ZMQException | ZError.IOException recvTerminationException) {
-                checkZMQExceptionAndThrow(recvTerminationException);
+            } catch (ZMQException recvTerminationException) {
+                if (recvTerminationException.getErrorCode() == ZMQ.Error.ETERM.getCode()) {
+                    break;
+                }
             } catch (Exception exception) {
                 log.error("Error while receiving sync request", exception);
             }
         }
+        socket.close();
         log.info("{} terminated", this.getClass().getSimpleName());
     }
 
@@ -100,22 +97,16 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         }
     }
 
-    public static void destroySocketAndContext(ZContext context, ZMQ.Socket socket, Class<?> source) {
-        context.destroySocket(socket);
-        log.info("{} socket destroyed", source.getSimpleName());
-        context.destroy();
-        log.info("{} context destroyed", source.getSimpleName());
-    }
-
     @Override
-    public void close() throws UnknownHostException {
-        ZMQAsyncResponseReceiver.sendKillMessageToSocket(Utils.getZeroMQBindAddress());
+    public void close() {
         if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             try {
                 auth.close();
             } catch (IOException ioException) {
                 log.error("Error while closing ZeroMQ context", ioException);
             }
+        } else {
+            context.close();
         }
         service.shutdownNow();
         log.info("ZMQAsyncAndSyncRequestReceiver closed");
