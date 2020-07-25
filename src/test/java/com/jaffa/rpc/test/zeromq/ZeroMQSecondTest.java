@@ -37,6 +37,8 @@ public class ZeroMQSecondTest {
             log.error("No keys were found, just as expected");
         }
 
+        ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(context, socket, ZeroMQSecondTest.class);
+
         Method getPublicKeyFromPath = CurveUtils.class.getDeclaredMethod("getPublicKeyFromPath", String.class);
         getPublicKeyFromPath.setAccessible(true);
 
@@ -51,6 +53,12 @@ public class ZeroMQSecondTest {
         System.setProperty("jaffa.rpc.protocol.zmq.curve.enabled", "false");
         try {
             new ZMQAsyncAndSyncRequestReceiver();
+            fail();
+        } catch (JaffaRpcSystemException jaffaRpcSystemException) {
+            //No-op
+        }
+        try {
+            ZMQAsyncAndSyncRequestReceiver.checkZMQExceptionAndThrow(new RuntimeException("xxx"));
             fail();
         } catch (JaffaRpcSystemException jaffaRpcSystemException) {
             //No-op

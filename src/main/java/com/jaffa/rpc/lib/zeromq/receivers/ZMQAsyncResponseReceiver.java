@@ -6,6 +6,7 @@ import com.jaffa.rpc.lib.entities.CallbackContainer;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.zeromq.CurveUtils;
+import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.zeromq.SocketType;
@@ -13,10 +14,12 @@ import org.zeromq.ZAuth;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQException;
+import zmq.ZError;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.Objects;
 
 @Slf4j
 @SuppressWarnings("squid:S1193")
@@ -49,33 +52,47 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
             try {
                 byte[] bytes = socket.recv();
                 socket.send(new byte[]{4});
+                if (Objects.nonNull(bytes) && bytes.length == 1 && bytes[0] == 7) {
+                    ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(context, socket, ZMQAsyncResponseReceiver.class);
+                    break;
+                }
                 CallbackContainer callbackContainer = Serializer.getCurrent().deserialize(bytes, CallbackContainer.class);
                 RequestInvocationHelper.processCallbackContainer(callbackContainer);
-            } catch (ZMQException recvTerminationException) {
-                if (recvTerminationException.getErrorCode() == ZMQ.Error.ETERM.getCode()) {
-                    break;
-                } else {
-                    recvTerminationException.printStackTrace();
-                }
+            } catch (ZMQException | ZError.IOException recvTerminationException) {
+                ZMQAsyncAndSyncRequestReceiver.checkZMQExceptionAndThrow(recvTerminationException);
             } catch (Exception callbackExecutionException) {
                 log.error("ZMQ callback execution exception", callbackExecutionException);
             }
         }
-        socket.close();
         log.info("{} terminated", this.getClass().getSimpleName());
     }
 
     @Override
-    public void close() {
+    public void close() throws UnknownHostException {
+        sendKillMessageToSocket(Utils.getZeroMQCallbackBindAddress());
         if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             try {
                 auth.close();
             } catch (IOException ioException) {
                 log.error("Error while closing ZeroMQ context", ioException);
             }
-        } else {
-            context.close();
         }
         log.info("ZMQAsyncResponseReceiver closed");
+    }
+
+    public static void sendKillMessageToSocket(String address) {
+        ZContext contextToClose = new ZContext(1);
+        try (ZMQ.Socket socketClose = contextToClose.createSocket(SocketType.REQ)) {
+            ZeroMqRequestSender.addCurveKeysToSocket(socketClose, Utils.getRequiredOption(OptionConstants.MODULE_ID));
+            socketClose.setLinger(0);
+            socketClose.connect("tcp://" + address);
+            socketClose.send(new byte[]{7}, 0);
+            socketClose.setReceiveTimeOut(1);
+            socketClose.recv(0);
+        } catch (Throwable e) {
+            log.error("Error while sending kill message", e);
+        }
+        contextToClose.close();
+        log.info("Kill message sent to {} receiver", address);
     }
 }
