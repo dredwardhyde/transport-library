@@ -52,8 +52,8 @@
     <properties>
         <java.version>1.8</java.version>
         <root-path>src/test/java/</root-path>
-        <spring.version>5.2.7.RELEASE</spring.version>
-        <spring.rabbit.version>2.2.8.RELEASE</spring.rabbit.version>
+        <spring.version>5.2.8.RELEASE</spring.version>
+        <spring.rabbit.version>2.2.9.RELEASE</spring.rabbit.version>
         <zeromq.version>0.5.2</zeromq.version>
         <byte.buddy.version>1.10.13</byte.buddy.version>
         <guava.version>29.0-jre</guava.version>
@@ -63,7 +63,7 @@
         <apache.json.version>0.4</apache.json.version>
         <apache.httpclient.version>4.5.12</apache.httpclient.version>
         <apache.collections.version>4.4</apache.collections.version>
-        <apache.commons.version>3.10</apache.commons.version>
+        <apache.commons.version>3.11</apache.commons.version>
         <kryo.version>4.0.2</kryo.version>
         <junit.version>5.6.2</junit.version>
         <maven.compiler.plugin.version>3.7.0</maven.compiler.plugin.version>
@@ -74,9 +74,9 @@
         <grpc.version>1.30.2</grpc.version>
         <netty.tcnative.version>2.0.31.Final</netty.tcnative.version>
         <zookeeper.curator.test.version>5.1.0</zookeeper.curator.test.version>
-        <kafka.test.version>2.5.3.RELEASE</kafka.test.version>
+        <kafka.test.version>2.5.4.RELEASE</kafka.test.version>
         <apache.commons.io.version>2.7</apache.commons.io.version>
-        <rabbitmq.mock.version>1.1.0</rabbitmq.mock.version>
+        <rabbitmq.mock.version>1.1.1</rabbitmq.mock.version>
     </properties>
 
     <dependencies>
