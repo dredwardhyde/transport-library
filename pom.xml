@@ -6,7 +6,7 @@
 
     <groupId>com.github.dredwardhyde</groupId>
     <artifactId>jaffa-rpc-library</artifactId>
-    <version>1.6</version>
+    <version>1.7</version>
     <name>Jaffa RPC Library</name>
     <description>A high performance RPC library for Java 8+ and Spring Framework</description>
     <url>https://github.com/dredwardhyde/jaffa-rpc-library</url>
