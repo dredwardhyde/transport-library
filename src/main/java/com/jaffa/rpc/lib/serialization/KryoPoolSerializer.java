@@ -3,7 +3,7 @@ package com.jaffa.rpc.lib.serialization;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.esotericsoftware.kryo.pool.KryoPool;
+import com.esotericsoftware.kryo.util.Pool;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
@@ -12,21 +12,25 @@ import java.io.ByteArrayOutputStream;
 @Slf4j
 @SuppressWarnings("squid:S1168")
 public final class KryoPoolSerializer implements ObjectSerializer {
-    private final KryoPool pool;
+    private final Pool<Kryo> pool;
 
     public KryoPoolSerializer() {
-        pool = new KryoPool.Builder(Kryo::new).softReferences().build();
+        pool = new Pool<Kryo>(false, true, 100) {
+            protected Kryo create() {
+                return new Kryo();
+            }
+        };
     }
 
     @Override
     public byte[] serialize(Object obj) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Output output = new Output(baos);
-        Kryo kryo = pool.borrow();
+        Kryo kryo = pool.obtain();
         kryo.writeObject(output, obj);
         output.flush();
         output.close();
-        pool.release(kryo);
+        pool.free(kryo);
         return baos.toByteArray();
     }
 
@@ -34,31 +38,31 @@ public final class KryoPoolSerializer implements ObjectSerializer {
     public byte[] serializeWithClass(Object obj) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         Output output = new Output(baos);
-        Kryo kryo = pool.borrow();
+        Kryo kryo = pool.obtain();
         kryo.writeClassAndObject(output, obj);
         output.flush();
         output.close();
-        pool.release(kryo);
+        pool.free(kryo);
         return baos.toByteArray();
     }
 
     @Override
     public Object deserializeWithClass(byte[] serialized) {
         Object obj;
-        Kryo kryo = pool.borrow();
+        Kryo kryo = pool.obtain();
         Input input = new Input(serialized);
         obj = kryo.readClassAndObject(input);
-        pool.release(kryo);
+        pool.free(kryo);
         return obj;
     }
 
     @Override
     public <T> T deserialize(byte[] serialized, Class<T> clazz) {
         T obj;
-        Kryo kryo = pool.borrow();
+        Kryo kryo = pool.obtain();
         Input input = new Input(serialized);
         obj = kryo.readObject(input, clazz);
-        pool.release(kryo);
+        pool.free(kryo);
         return obj;
     }
 }
