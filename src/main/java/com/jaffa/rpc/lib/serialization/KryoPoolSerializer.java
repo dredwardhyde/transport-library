@@ -17,7 +17,10 @@ public final class KryoPoolSerializer implements ObjectSerializer {
     public KryoPoolSerializer() {
         pool = new Pool<Kryo>(false, true, 100) {
             protected Kryo create() {
-                return new Kryo();
+                Kryo kryo = new Kryo();
+                kryo.setRegistrationRequired(false);
+                kryo.setReferences(true);
+                return kryo;
             }
         };
     }
