@@ -142,7 +142,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka_2.12</artifactId>
+            <artifactId>kafka_2.13</artifactId>
             <version>${apache.kafka.version}</version>
         </dependency>
         <dependency>
