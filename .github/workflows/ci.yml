@@ -5,7 +5,7 @@ on: [push]
 jobs:
   jdk8:
     name: JDK 8 build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -27,7 +27,7 @@ jobs:
           path: ${{ github.workspace }}/build-jdk-8.log
   jdk11:
     name: JDK 11 build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 11
