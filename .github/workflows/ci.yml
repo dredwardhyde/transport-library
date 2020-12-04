@@ -20,7 +20,11 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
-        run: mvn clean install -Dgpg.skip -Dmaven.javadoc.skip=true -P generate-client-api -B -V
+        run: mvn clean install -Dgpg.skip -Dmaven.javadoc.skip=true -P generate-client-api -B -V -l build-jdk-8.log
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build-jdk-8.log
+          path: ${{ github.workspace }}/build-jdk-8.log
   jdk11:
     name: JDK 11 build
     runs-on: ubuntu-latest
@@ -38,9 +42,13 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
-        run: mvn clean install -Dgpg.skip -Dmaven.javadoc.skip=true -P generate-client-api -B -V
+        run: mvn clean install -Dgpg.skip -Dmaven.javadoc.skip=true -P generate-client-api -B -V -l build-jdk-11.log
       - uses: codecov/codecov-action@v1
         with:
           name: codecov-umbrella
           fail_ci_if_error: true
           verbose: true
+      - uses: actions/upload-artifact@v2
+        with:
+          name: build-jdk-11.log
+          path: ${{ github.workspace }}/build-jdk-11.log
