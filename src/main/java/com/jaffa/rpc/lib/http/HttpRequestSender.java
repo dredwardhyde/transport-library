@@ -25,7 +25,7 @@ public class HttpRequestSender extends Sender {
     @Override
     public byte[] executeSync(byte[] message) {
         try {
-            int totalTimeout = (int)(this.timeout == -1 ? 1000 * 60 * 60 : this.timeout);
+            int totalTimeout = (int) (this.timeout == -1 ? 1000 * 60 * 60 : this.timeout);
             RequestConfig config = RequestConfig.custom()
                     .setConnectTimeout(totalTimeout)
                     .setConnectionRequestTimeout(totalTimeout)

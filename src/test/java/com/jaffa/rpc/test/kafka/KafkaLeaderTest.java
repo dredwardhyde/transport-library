@@ -20,9 +20,9 @@ import java.util.Properties;
 @Slf4j
 public class KafkaLeaderTest extends AbstractLeaderTestServer {
 
+    private static final String BROKER_IP_PORT = "127.0.0.1:9092";
     private static Path tmpLogDir;
     private static KafkaServer kafkaServer;
-    private static final String BROKER_IP_PORT = "127.0.0.1:9092";
 
     static {
         System.setProperty("jaffa.rpc.protocol", "kafka");

@@ -8,12 +8,12 @@ import com.jaffa.rpc.test.services.ClientServiceClient;
 import com.jaffa.rpc.test.services.ClientServiceImpl;
 import com.jaffa.rpc.test.services.PersonServiceClient;
 import com.jaffa.rpc.test.services.PersonServiceImpl;
+import com.rabbitmq.client.ConnectionFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
-import com.rabbitmq.client.ConnectionFactory;
 
 @Configuration
 @ComponentScan

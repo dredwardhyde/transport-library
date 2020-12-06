@@ -1,10 +1,10 @@
 package com.jaffa.rpc.lib.security;
 
-import lombok.ToString;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 

@@ -54,7 +54,15 @@ import scala.Option;
 
 import javax.annotation.PostConstruct;
 import java.io.Closeable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -66,6 +74,8 @@ public class JaffaService {
     private static final Properties producerProps = new Properties();
     @Getter
     private static final Properties consumerProps = new Properties();
+    @Getter
+    private static final Map<Class<?>, Class<? extends TicketProvider>> clientsAndTicketProviders = new HashedMap<>();
     @Getter
     @Setter
     private static KafkaZkClient zkClient;
@@ -101,9 +111,6 @@ public class JaffaService {
     private List<ClientEndpoint> clientEndpoints;
     @Autowired
     private ApplicationContext context;
-
-    @Getter
-    private static Map<Class<?>, Class<? extends TicketProvider>> clientsAndTicketProviders = new HashedMap<>();
 
     private static void loadInternalProperties() {
         if (Utils.getRpcProtocol().equals(Protocol.KAFKA)) {
