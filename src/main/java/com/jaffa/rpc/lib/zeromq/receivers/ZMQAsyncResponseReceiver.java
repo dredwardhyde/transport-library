@@ -46,6 +46,22 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
         }
     }
 
+    public static void sendKillMessageToSocket(String address) {
+        ZContext contextToClose = new ZContext(1);
+        try (ZMQ.Socket socketClose = contextToClose.createSocket(SocketType.REQ)) {
+            ZeroMqRequestSender.addCurveKeysToSocket(socketClose, Utils.getRequiredOption(OptionConstants.MODULE_ID));
+            socketClose.setLinger(0);
+            socketClose.connect("tcp://" + address);
+            socketClose.send(new byte[]{7}, 0);
+            socketClose.setReceiveTimeOut(1);
+            socketClose.recv(0);
+        } catch (Throwable e) {
+            log.error("Error while sending kill message", e);
+        }
+        contextToClose.close();
+        log.info("Kill message sent to {} receiver", address);
+    }
+
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
@@ -78,21 +94,5 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
             }
         }
         log.info("ZMQAsyncResponseReceiver closed");
-    }
-
-    public static void sendKillMessageToSocket(String address) {
-        ZContext contextToClose = new ZContext(1);
-        try (ZMQ.Socket socketClose = contextToClose.createSocket(SocketType.REQ)) {
-            ZeroMqRequestSender.addCurveKeysToSocket(socketClose, Utils.getRequiredOption(OptionConstants.MODULE_ID));
-            socketClose.setLinger(0);
-            socketClose.connect("tcp://" + address);
-            socketClose.send(new byte[]{7}, 0);
-            socketClose.setReceiveTimeOut(1);
-            socketClose.recv(0);
-        } catch (Throwable e) {
-            log.error("Error while sending kill message", e);
-        }
-        contextToClose.close();
-        log.info("Kill message sent to {} receiver", address);
     }
 }

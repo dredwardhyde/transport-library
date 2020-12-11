@@ -30,8 +30,8 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
     private static final ExecutorService service = Executors.newFixedThreadPool(3);
 
     private final ZContext context;
-    private ZAuth auth;
     private final ZMQ.Socket socket;
+    private ZAuth auth;
 
     public ZMQAsyncAndSyncRequestReceiver() {
         try {
@@ -48,6 +48,20 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             log.error("Error during ZeroMQ request receiver startup:", zmqStartupException);
             throw new JaffaRpcSystemException(zmqStartupException);
         }
+    }
+
+    public static void checkZMQExceptionAndThrow(Exception recvTerminationException) {
+        if (!recvTerminationException.getMessage().contains("Errno 4") && !recvTerminationException.getMessage().contains("156384765")) {
+            log.error("General ZMQ exception", recvTerminationException);
+            throw new JaffaRpcSystemException(recvTerminationException);
+        }
+    }
+
+    public static void destroySocketAndContext(ZContext context, ZMQ.Socket socket, Class<?> source) {
+        context.destroySocket(socket);
+        log.info("{} socket destroyed", source.getSimpleName());
+        context.destroy();
+        log.info("{} context destroyed", source.getSimpleName());
     }
 
     @Override
@@ -91,20 +105,6 @@ public class ZMQAsyncAndSyncRequestReceiver implements Runnable, Closeable {
             }
         }
         log.info("{} terminated", this.getClass().getSimpleName());
-    }
-
-    public static void checkZMQExceptionAndThrow(Exception recvTerminationException) {
-        if (!recvTerminationException.getMessage().contains("Errno 4") && !recvTerminationException.getMessage().contains("156384765")) {
-            log.error("General ZMQ exception", recvTerminationException);
-            throw new JaffaRpcSystemException(recvTerminationException);
-        }
-    }
-
-    public static void destroySocketAndContext(ZContext context, ZMQ.Socket socket, Class<?> source) {
-        context.destroySocket(socket);
-        log.info("{} socket destroyed", source.getSimpleName());
-        context.destroy();
-        log.info("{} context destroyed", source.getSimpleName());
     }
 
     @Override

@@ -22,10 +22,6 @@ import java.util.UUID;
 @SuppressWarnings({"squid:S5786"})
 public class AdminServerTest {
 
-    private String prefix = null;
-    private AdminServer adminServer = null;
-    private CloseableHttpClient client = null;
-
     static {
         System.setProperty("jaffa.admin.use.https", "true");
         System.setProperty("jaffa.rpc.admin.ssl.truststore.location", "src/test/resources/truststore.jks");
@@ -39,6 +35,10 @@ public class AdminServerTest {
         System.setProperty("jaffa.rpc.protocol.http.ssl.client.keystore.password", "simulator");
         System.setProperty("jaffa.rpc.protocol", "http");
     }
+
+    private String prefix = null;
+    private AdminServer adminServer = null;
+    private CloseableHttpClient client = null;
 
     @BeforeEach
     public void setUp() throws Exception {
