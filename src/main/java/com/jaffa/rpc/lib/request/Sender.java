@@ -5,6 +5,7 @@ import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -19,7 +20,7 @@ public abstract class Sender {
 
     protected abstract void executeAsync(byte[] message);
 
-    public Object executeSync(Command command) {
+    public Object executeSync(@NotNull Command command) {
         byte[] out = Serializer.getCurrent().serialize(command);
         byte[] response = executeSync(out);
         if (Objects.isNull(response)) {
@@ -28,7 +29,7 @@ public abstract class Sender {
         return Serializer.getCurrent().deserializeWithClass(response);
     }
 
-    public void executeAsync(Command command) {
+    public void executeAsync(@NotNull Command command) {
         executeAsync(Serializer.getCurrent().serialize(command));
     }
 }

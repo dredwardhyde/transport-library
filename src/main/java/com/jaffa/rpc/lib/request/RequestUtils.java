@@ -6,12 +6,13 @@ import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RequestUtils {
-    public static String getTopicForService(String service, String moduleId, boolean sync) {
+    public static String getTopicForService(@NotNull String service, String moduleId, boolean sync) {
         String serviceInterface = Utils.getServiceInterfaceNameFromClient(service);
         String availableModuleId = moduleId;
         if (Objects.nonNull(moduleId)) {

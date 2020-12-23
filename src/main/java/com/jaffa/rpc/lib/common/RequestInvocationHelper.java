@@ -16,6 +16,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationContext;
 
 import java.io.PrintWriter;
@@ -36,11 +37,11 @@ public class RequestInvocationHelper {
     @Setter
     private static ApplicationContext context;
 
-    private static Object getTargetService(Command command) throws ClassNotFoundException {
+    private static Object getTargetService(@NotNull Command command) throws ClassNotFoundException {
         return wrappedServices.get(Class.forName(Utils.getServiceInterfaceNameFromClient(command.getServiceClass())));
     }
 
-    private static Method getTargetMethod(Command command) throws ClassNotFoundException, NoSuchMethodException {
+    private static Method getTargetMethod(@NotNull Command command) throws ClassNotFoundException, NoSuchMethodException {
         Object wrappedService = getTargetService(command);
         if (ArrayUtils.isNotEmpty(command.getMethodArgs())) {
             Class<?>[] methodArgClasses = new Class[command.getMethodArgs().length];
@@ -53,7 +54,7 @@ public class RequestInvocationHelper {
         }
     }
 
-    public static Object invoke(Command command) {
+    public static Object invoke(@NotNull Command command) {
         Object result;
         Object targetService;
         Method targetMethod;
@@ -90,14 +91,14 @@ public class RequestInvocationHelper {
         } else return result;
     }
 
-    private static Class<?> primitiveToWrapper(Class<?> clz) {
+    private static Class<?> primitiveToWrapper(@NotNull Class<?> clz) {
         if (clz.equals(void.class))
             return Void.class;
         else
             return ClassUtils.primitiveToWrapper(clz);
     }
 
-    public static CallbackContainer constructCallbackContainer(Command command, Object result) throws ClassNotFoundException, NoSuchMethodException {
+    public static CallbackContainer constructCallbackContainer(@NotNull Command command, Object result) throws ClassNotFoundException, NoSuchMethodException {
         CallbackContainer callbackContainer = new CallbackContainer();
         callbackContainer.setKey(command.getCallbackKey());
         callbackContainer.setListener(command.getCallbackClass());
@@ -107,7 +108,7 @@ public class RequestInvocationHelper {
         return callbackContainer;
     }
 
-    public static boolean processCallbackContainer(CallbackContainer callbackContainer) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public static boolean processCallbackContainer(@NotNull CallbackContainer callbackContainer) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         String key = callbackContainer.getKey();
         Command command = FinalizationHelper.getEventsToConsume().remove(callbackContainer.getKey());
         if (Objects.nonNull(command)) {

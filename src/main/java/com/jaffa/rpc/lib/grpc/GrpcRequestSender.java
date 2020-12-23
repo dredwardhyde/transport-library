@@ -17,6 +17,7 @@ import io.grpc.StatusRuntimeException;
 import io.grpc.netty.NettyChannelBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +46,7 @@ public class GrpcRequestSender extends Sender {
     }
 
     @Override
-    public Object executeSync(Command command) {
+    public Object executeSync(@NotNull Command command) {
         try {
             ManagedChannel channel = getManagedChannel();
             CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);
@@ -81,7 +82,7 @@ public class GrpcRequestSender extends Sender {
     }
 
     @Override
-    public void executeAsync(Command command) {
+    public void executeAsync(@NotNull Command command) {
         try {
             ManagedChannel channel = getManagedChannel();
             CommandServiceGrpc.CommandServiceBlockingStub stub = CommandServiceGrpc.newBlockingStub(channel);

@@ -3,6 +3,7 @@ package com.jaffa.rpc.lib.entities;
 import com.jaffa.rpc.lib.security.SecurityTicket;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RequestContextHelper {
@@ -26,7 +27,7 @@ public class RequestContextHelper {
         RequestContextHelper.securityTicketThreadLocal.set(securityTicket);
     }
 
-    public static void setMetaData(Command command) {
+    public static void setMetaData(@NotNull Command command) {
         setSourceModuleId(command.getSourceModuleId());
         setSecurityTicket(command.getTicket());
     }

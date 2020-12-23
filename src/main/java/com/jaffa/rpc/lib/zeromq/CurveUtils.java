@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.zeromq.ZMQ;
 
 import java.io.IOException;
@@ -24,7 +25,7 @@ public class CurveUtils {
     @Getter
     private static String serverSecretKey;
 
-    private static String getPublicKeyFromPath(String path) {
+    private static String getPublicKeyFromPath(@NotNull String path) {
         try {
             String keys = new String(Files.readAllBytes(Paths.get(path)));
             return keys.substring(keys.indexOf("public-key = \"") + 14, keys.indexOf("public-key = \"") + 54);
@@ -34,7 +35,7 @@ public class CurveUtils {
         return null;
     }
 
-    public static void makeSocketSecure(ZMQ.Socket socket) {
+    public static void makeSocketSecure(@NotNull ZMQ.Socket socket) {
         if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, String.valueOf(false)))) {
             socket.setZAPDomain("global".getBytes());
             socket.setCurveServer(true);
@@ -43,13 +44,13 @@ public class CurveUtils {
         }
     }
 
-    public static String getClientPublicKey(String moduleId) {
+    public static String getClientPublicKey(@NotNull String moduleId) {
         String clientPublicKey = moduleIdWithClientKeys.get(moduleId);
         log.debug("Reading public client key {} for {}", clientPublicKey, moduleId);
         return clientPublicKey;
     }
 
-    private static String getSecretKeyFromPath(String path) {
+    private static String getSecretKeyFromPath(@NotNull String path) {
         try {
             String keys = new String(Files.readAllBytes(Paths.get(path)));
             return keys.substring(keys.indexOf("secret-key = \"") + 14, keys.indexOf("secret-key = \"") + 54);

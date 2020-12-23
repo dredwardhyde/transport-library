@@ -29,6 +29,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
+import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -85,11 +86,11 @@ public class HttpAsyncAndSyncRequestReceiver implements Runnable, Closeable {
         }
     }
 
-    public static void initSSLForHttpsServer(HttpsServer httpsServer,
-                                             String trustStoreLocation,
-                                             String keyStoreLocation,
-                                             String trustStorePassword,
-                                             String keyStorePassword) throws NoSuchAlgorithmException, KeyStoreException, IOException,
+    public static void initSSLForHttpsServer(@NotNull HttpsServer httpsServer,
+                                             @NotNull String trustStoreLocation,
+                                             @NotNull String keyStoreLocation,
+                                             @NotNull String trustStorePassword,
+                                             @NotNull String keyStorePassword) throws NoSuchAlgorithmException, KeyStoreException, IOException,
             CertificateException, UnrecoverableKeyException, KeyManagementException {
         char[] keyPassphrase = keyStorePassword.toCharArray();
         KeyStore ks = KeyStore.getInstance("JKS");

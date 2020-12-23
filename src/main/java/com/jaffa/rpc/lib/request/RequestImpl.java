@@ -2,6 +2,7 @@ package com.jaffa.rpc.lib.request;
 
 import com.jaffa.rpc.lib.callbacks.Callback;
 import com.jaffa.rpc.lib.common.FinalizationHelper;
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.ExceptionHolder;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
@@ -9,7 +10,9 @@ import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.ui.AdminServer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
@@ -20,7 +23,7 @@ public class RequestImpl<T> implements Request<T> {
     private long timeout = -1;
     private String moduleId;
 
-    public RequestImpl(Command command) {
+    public RequestImpl(@NotNull Command command) {
         this.command = command;
         try {
             sender = Utils.getCurrentSenderClass().getDeclaredConstructor().newInstance();
@@ -30,13 +33,19 @@ public class RequestImpl<T> implements Request<T> {
     }
 
     @Override
-    public RequestImpl<T> withTimeout(long timeout, TimeUnit unit) {
+    public RequestImpl<T> withTimeout(long timeout, @NotNull TimeUnit unit) {
+        if (Objects.isNull(unit))
+            throw new IllegalArgumentException(OptionConstants.ILLEGAL_ARGS_MESSAGE);
+        if (timeout < 0)
+            throw new IllegalArgumentException(OptionConstants.NEGATIVE_TIMEOUT_MESSAGE);
         this.timeout = unit.toMillis(timeout);
         return this;
     }
 
     @Override
-    public RequestImpl<T> onModule(String moduleId) {
+    public RequestImpl<T> onModule(@NotNull String moduleId) {
+        if (Objects.isNull(moduleId))
+            throw new IllegalArgumentException(OptionConstants.ILLEGAL_ARGS_MESSAGE);
         this.moduleId = moduleId;
         return this;
     }
@@ -63,7 +72,9 @@ public class RequestImpl<T> implements Request<T> {
     }
 
     @Override
-    public void executeAsync(String key, Class<? extends Callback<T>> listener) {
+    public void executeAsync(@NotNull String key, @NotNull Class<? extends Callback<T>> listener) {
+        if (Objects.isNull(key) || Objects.isNull(listener))
+            throw new IllegalArgumentException(OptionConstants.ILLEGAL_ARGS_MESSAGE);
         initSender();
         command.setCallbackClass(listener.getName());
         command.setCallbackKey(key);

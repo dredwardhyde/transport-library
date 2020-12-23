@@ -5,6 +5,10 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class OptionConstants {
+
+    public static final String ILLEGAL_ARGS_MESSAGE                 = "Arguments can not be null!";
+    public static final String NEGATIVE_TIMEOUT_MESSAGE             = "Request timeout can not be negative!";
+
     public static final String ZK_TEST_MODE                         = "jaffa.rpc.test.mode";
     public static final String MODULE_ID                            = "jaffa.rpc.module.id";
     public static final String PROTOCOL                             = "jaffa.rpc.protocol";

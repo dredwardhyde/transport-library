@@ -18,6 +18,7 @@ import org.apache.kafka.clients.consumer.OffsetAndTimestamp;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -39,7 +40,7 @@ public class KafkaRequestSender extends Sender {
     private static final ConcurrentLinkedQueue<KafkaConsumer<String, byte[]>> consumers = new ConcurrentLinkedQueue<>();
     private final KafkaProducer<String, byte[]> producer = new KafkaProducer<>(JaffaService.getProducerProps());
 
-    public static void initSyncKafkaConsumers(int brokersCount, CountDownLatch started) {
+    public static void initSyncKafkaConsumers(int brokersCount, @NotNull CountDownLatch started) {
         Properties consumerProps = new Properties();
         consumerProps.put("bootstrap.servers", Utils.getRequiredOption(OptionConstants.KAFKA_BOOTSTRAP_SERVERS));
         consumerProps.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -70,14 +71,14 @@ public class KafkaRequestSender extends Sender {
         consumers.forEach(KafkaConsumer::close);
     }
 
-    private void seekTopicsForQuery(KafkaConsumer<String, byte[]> cons, Map<TopicPartition, Long> query) {
+    private void seekTopicsForQuery(@NotNull KafkaConsumer<String, byte[]> cons, @NotNull Map<TopicPartition, Long> query) {
         for (Map.Entry<TopicPartition, OffsetAndTimestamp> entry : cons.offsetsForTimes(query).entrySet()) {
             if (Objects.isNull(entry.getValue())) continue;
             cons.seek(entry.getKey(), entry.getValue().offset());
         }
     }
 
-    private byte[] waitForSyncAnswer(String requestTopic, long requestTime) {
+    private byte[] waitForSyncAnswer(@NotNull String requestTopic, long requestTime) {
         KafkaConsumer<String, byte[]> consumer;
         do {
             consumer = consumers.poll();

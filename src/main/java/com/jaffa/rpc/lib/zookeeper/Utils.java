@@ -26,6 +26,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
 import org.apache.zookeeper.data.Stat;
+import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -90,7 +91,7 @@ public class Utils {
         }
     }
 
-    public static void connect(String url) {
+    public static void connect(@NotNull String url) {
         try {
             conn = new ZooKeeperConnection();
             zk = conn.connect(url);

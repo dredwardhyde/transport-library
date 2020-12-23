@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.QueueUtils;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
@@ -47,7 +48,7 @@ public class AdminServer {
         responses.add(new ResponseMetric(command.getRequestTime(), executionDuration));
     }
 
-    private void respondWithFile(HttpExchange exchange, String fileName) throws IOException {
+    private void respondWithFile(@NotNull HttpExchange exchange, @NotNull String fileName) throws IOException {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
         InputStream is = classloader.getResourceAsStream(fileName);
         if (Objects.isNull(is)) throw new IOException("No such file in resources: " + fileName);
@@ -59,7 +60,7 @@ public class AdminServer {
         exchange.close();
     }
 
-    private void respondWithString(HttpExchange exchange, String response) throws IOException {
+    private void respondWithString(@NotNull HttpExchange exchange, @NotNull String response) throws IOException {
         exchange.sendResponseHeaders(200, response.getBytes().length);
         OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
