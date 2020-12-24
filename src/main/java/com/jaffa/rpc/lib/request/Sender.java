@@ -3,14 +3,12 @@ package com.jaffa.rpc.lib.request;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException;
 import com.jaffa.rpc.lib.serialization.Serializer;
-import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
 @Setter
-@Getter
 public abstract class Sender {
     protected long timeout = -1;
     protected String moduleId;
