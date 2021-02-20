@@ -166,14 +166,14 @@ public class JaffaService {
                     UUID.randomUUID().toString(),
                     UUID.randomUUID().toString(),
                     null, Option.apply(ZooKeeperConnection.getZkConfig()));
-            JaffaService.setZkClient(new KafkaZkClient(zooKeeperClient, false, Time.SYSTEM));
-            JaffaService.setAdminZkClient(new AdminZkClient(zkClient));
-            JaffaService.setBrokersCount(zkClient.getAllBrokersInCluster().size());
+            setZkClient(new KafkaZkClient(zooKeeperClient, false, Time.SYSTEM));
+            setAdminZkClient(new AdminZkClient(zkClient));
+            setBrokersCount(zkClient.getAllBrokersInCluster().size());
             log.info("Kafka brokers: {}", brokersCount);
-            JaffaService.setServerAsyncTopics(createKafkaTopics("server-async"));
-            JaffaService.setClientAsyncTopics(createKafkaTopics("client-async"));
-            JaffaService.setServerSyncTopics(createKafkaTopics("server-sync"));
-            JaffaService.setClientSyncTopics(createKafkaTopics("client-sync"));
+            setServerAsyncTopics(createKafkaTopics("server-async"));
+            setClientAsyncTopics(createKafkaTopics("client-async"));
+            setServerSyncTopics(createKafkaTopics("server-sync"));
+            setClientSyncTopics(createKafkaTopics("client-sync"));
         }
         if (protocol.equals(Protocol.RABBIT)) {
             String rabbitHost = Utils.getRequiredOption(OptionConstants.RABBIT_HOST);
@@ -191,20 +191,20 @@ public class JaffaService {
                 factory.setTrustStorePassphrase(Utils.getRequiredOption(OptionConstants.RABBIT_SSL_TRUSTSTORE_PASSWORD));
             }
             if (Utils.isZkTestMode()) {
-                JaffaService.setConnectionFactory(new CachingConnectionFactory(context.getBean(com.rabbitmq.client.ConnectionFactory.class)));
+                setConnectionFactory(new CachingConnectionFactory(context.getBean(com.rabbitmq.client.ConnectionFactory.class)));
             } else {
-                JaffaService.setConnectionFactory(new CachingConnectionFactory(factory.getRabbitConnectionFactory()));
+                setConnectionFactory(new CachingConnectionFactory(factory.getRabbitConnectionFactory()));
             }
-            JaffaService.setAdminRabbitMQ(new RabbitAdmin(JaffaService.connectionFactory));
-            JaffaService.adminRabbitMQ.declareExchange(new DirectExchange(RabbitMQRequestSender.EXCHANGE_NAME, true, false));
-            if (Objects.isNull(JaffaService.adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.SERVER))) {
-                JaffaService.adminRabbitMQ.declareQueue(new Queue(RabbitMQRequestSender.SERVER));
+            setAdminRabbitMQ(new RabbitAdmin(connectionFactory));
+            adminRabbitMQ.declareExchange(new DirectExchange(RabbitMQRequestSender.EXCHANGE_NAME, true, false));
+            if (Objects.isNull(adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.SERVER))) {
+                adminRabbitMQ.declareQueue(new Queue(RabbitMQRequestSender.SERVER));
             }
-            if (Objects.isNull(JaffaService.adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.CLIENT_ASYNC_NAME))) {
-                JaffaService.adminRabbitMQ.declareQueue(new Queue(RabbitMQRequestSender.CLIENT_ASYNC_NAME));
+            if (Objects.isNull(adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.CLIENT_ASYNC_NAME))) {
+                adminRabbitMQ.declareQueue(new Queue(RabbitMQRequestSender.CLIENT_ASYNC_NAME));
             }
-            if (Objects.isNull(JaffaService.adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.CLIENT_SYNC_NAME))) {
-                JaffaService.adminRabbitMQ.declareQueue(new Queue(RabbitMQRequestSender.CLIENT_SYNC_NAME));
+            if (Objects.isNull(adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.CLIENT_SYNC_NAME))) {
+                adminRabbitMQ.declareQueue(new Queue(RabbitMQRequestSender.CLIENT_SYNC_NAME));
             }
         }
     }
