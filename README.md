@@ -53,29 +53,28 @@ Dashboard URL is logged at startup like this:
 2020-05-01 20:19:00 INFO  AdminServer:112 - Jaffa RPC console started at http://host.docker.internal:62842/admin
 ```
 #### Synchronous RPC  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_sync.png" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_sync.png" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_sync.png" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_sync.png" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/grpc_sync.png" width="900"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_sync.png" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_sync.png" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_sync.png" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_sync.png" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/grpc_sync.png" width="1000"/>  
 
 #### Synchronous RPC  (500kb request/ 500kb response)
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_heavy.png" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_heavy.png" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_heavy.png" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_heavy.png" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/grpc_heavy.png" width="900"/> 
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_heavy.png" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_heavy.png" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_heavy.png" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_heavy.png" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/grpc_heavy.png" width="1000"/> 
 
 #### Asynchronous RPC  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_async.PNG" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_async.PNG" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_async.PNG" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_async.png" width="900"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/grpc_async.png" width="900"/>
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_async.PNG" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_async.PNG" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_async.PNG" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_async.png" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/grpc_async.png" width="1000"/>
 
 ## How to use
 
-[Full code example here](https://github.com/dredwardhyde/jaffa-rpc-library/blob/master/src/test/java/com/jaffa/rpc/test/TestServer.java)  
 [Full project example here](https://github.com/dredwardhyde/jaffa-rpc-library-test)  
 You create an interface with ```@Api```annotation like this:  
 
