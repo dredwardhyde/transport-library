@@ -89,7 +89,7 @@ public class GrpcSecondTest {
         } catch (JaffaRpcExecutionException jaffaRpcNoRouteException) {
             //No-op
         }
-        System.setProperty("jaffa.rpc.protocol.grpc.use.ssl", "false");
+        System.setProperty("jaffa.rpc.test.server.protocol.grpc.use.ssl", "false");
         try {
             grpcRequestSender.executeSync(command);
             fail();
@@ -130,7 +130,7 @@ public class GrpcSecondTest {
         } catch (InvocationTargetException invocationTargetException) {
             Assertions.assertEquals(JaffaRpcExecutionException.class, invocationTargetException.getCause().getClass());
         }
-        System.setProperty("jaffa.rpc.protocol.grpc.use.ssl", "true");
+        System.setProperty("jaffa.rpc.test.server.protocol.grpc.use.ssl", "true");
         try {
             GrpcAsyncAndSyncRequestReceiver grpcAsyncAndSyncRequestReceiver = new GrpcAsyncAndSyncRequestReceiver();
             grpcAsyncAndSyncRequestReceiver.run();
