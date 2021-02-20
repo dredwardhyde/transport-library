@@ -76,7 +76,7 @@ public class ApiClientAdvisor extends AbstractPointcutAdvisor {
             log.error("Error during metadata setting", e);
             throw new JaffaRpcSystemException(e);
         }
-        command.setSourceModuleId(Utils.getRequiredOption(OptionConstants.MODULE_ID));
+        command.setSourceModuleId(OptionConstants.MODULE_ID);
         command.setRqUid(UUID.randomUUID().toString());
     }
 

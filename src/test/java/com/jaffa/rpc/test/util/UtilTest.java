@@ -1,6 +1,7 @@
 package com.jaffa.rpc.test.util;
 
 import com.jaffa.rpc.lib.JaffaService;
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
@@ -40,19 +41,19 @@ public class UtilTest {
     private static final String BROKER_IP_PORT = "127.0.0.1:9092";
 
     static {
-        System.setProperty("jaffa.rpc.module.id", "test.server");
-        System.setProperty("jaffa.rpc.protocol", "kafka");
-        System.setProperty("jaffa.rpc.protocol.kafka.bootstrap.servers", BROKER_IP_PORT);
-        System.setProperty("jaffa.rpc.protocol.kafka.use.ssl", "true");
-        System.setProperty("jaffa.rpc.protocol.kafka.ssl.truststore.location", "src/test/resources/truststore.jks");
-        System.setProperty("jaffa.rpc.protocol.kafka.ssl.truststore.password", "simulator");
-        System.setProperty("jaffa.rpc.protocol.kafka.ssl.keystore.location", "src/test/resources/keystore.jks");
-        System.setProperty("jaffa.rpc.protocol.kafka.ssl.keystore.password", "simulator");
-        System.setProperty("jaffa.rpc.protocol.kafka.ssl.key.password", "simulator");
+        System.setProperty("jaffa.rpc.test.server.protocol", "kafka");
+        System.setProperty("jaffa.rpc.test.server.protocol.kafka.bootstrap.servers", BROKER_IP_PORT);
+        System.setProperty("jaffa.rpc.test.server.protocol.kafka.use.ssl", "true");
+        System.setProperty("jaffa.rpc.test.server.protocol.kafka.ssl.truststore.location", "src/test/resources/truststore.jks");
+        System.setProperty("jaffa.rpc.test.server.protocol.kafka.ssl.truststore.password", "simulator");
+        System.setProperty("jaffa.rpc.test.server.protocol.kafka.ssl.keystore.location", "src/test/resources/keystore.jks");
+        System.setProperty("jaffa.rpc.test.server.protocol.kafka.ssl.keystore.password", "simulator");
+        System.setProperty("jaffa.rpc.test.server.protocol.kafka.ssl.key.password", "simulator");
     }
 
     @Test
     public void stage1() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
+        OptionConstants.setModuleId("test.server");
         Utils.connect("localhost:2181");
         JaffaService.getProducerProps().put("max.block.ms", "500");
         ZooKeeperClient zooKeeperClient = new ZooKeeperClient("localhost:2181",

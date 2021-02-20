@@ -1,5 +1,6 @@
 package com.jaffa.rpc.test.zookeeper;
 
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
@@ -18,15 +19,15 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ExtendWith({ZooKeeperExtension.class})
 public class ZooKeeperSecondTest {
     static {
-        System.setProperty("jaffa.rpc.module.id", "test.server");
-        System.setProperty("jaffa.rpc.protocol", "http");
+        System.setProperty("jaffa.rpc.test.server.protocol", "http");
     }
 
     @Test
     public void stage1() {
+        OptionConstants.setModuleId("test.server");
         Utils.connect("localhost:2181");
         Utils.registerService("xxx", Protocol.HTTP);
-        System.setProperty("jaffa.rpc.protocol.http.service.port", "5843");
+        System.setProperty("jaffa.rpc.test.server.protocol.http.service.port", "5843");
         Utils.registerService("xxx", Protocol.HTTP);
         try {
             Utils.getHostForService("xxx", "xxx", Protocol.HTTP);
@@ -57,7 +58,7 @@ public class ZooKeeperSecondTest {
         }
         try {
             Utils.deleteAllRegistrations("/xxx");
-            System.setProperty("jaffa.rpc.protocol.http.service.port", "4242");
+            System.setProperty("jaffa.rpc.test.server.protocol.http.service.port", "4242");
             Utils.deleteAllRegistrations("/xxx");
         } catch (Exception e) {
             fail();
@@ -75,7 +76,7 @@ public class ZooKeeperSecondTest {
         } catch (JaffaRpcNoRouteException e) {
             //No-op
         }
-        System.setProperty("jaffa.rpc.protocol", "xxx");
+        System.setProperty("jaffa.rpc.test.server.protocol", "xxx");
         try {
             Utils.getCurrentSenderClass();
             fail();

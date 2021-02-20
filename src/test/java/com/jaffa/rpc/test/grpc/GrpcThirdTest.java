@@ -5,7 +5,7 @@ import com.jaffa.rpc.test.servers.AbstractLeaderTestServer;
 public class GrpcThirdTest extends AbstractLeaderTestServer {
 
     static {
-        System.setProperty("jaffa.rpc.protocol", "grpc");
+        System.setProperty("jaffa.rpc.test.server.protocol", "grpc");
     }
 
     @Override

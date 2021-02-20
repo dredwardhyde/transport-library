@@ -17,7 +17,7 @@ public class LoadTest {
         log.info("================ TEST SERVER STARTING ================");
 
         System.setProperty("jaffa-rpc-config", "./jaffa-rpc-config-load-server.properties");
-
+        System.setProperty("module.id", "load.server");
         final AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
         ctx.register(MainConfig.class);
         ctx.refresh();

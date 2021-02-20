@@ -13,7 +13,7 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 public class JaffaRpcConfig {
 
     @Bean(destroyMethod = "close")
-    @DependsOn({"serverEndpoints"})
+    @DependsOn({"serverEndpoints", "moduleId"})
     public JaffaService jaffaService() {
         return new JaffaService();
     }

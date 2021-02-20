@@ -5,8 +5,8 @@ import com.jaffa.rpc.test.servers.AbstractLeaderTestServer;
 public class JavaSerializationTest extends AbstractLeaderTestServer {
 
     static {
-        System.setProperty("jaffa.rpc.protocol", "http");
-        System.setProperty("jaffa.rpc.serializer", "java");
+        System.setProperty("jaffa.rpc.test.server.protocol", "http");
+        System.setProperty("jaffa.rpc.test.server.serializer", "java");
     }
 
     @Override

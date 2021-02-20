@@ -230,6 +230,12 @@ public class MainConfig {
     public ClientEndpoint personEndpoint() {
         return new ClientEndpoint(PersonServiceClient.class);
     }
+
+    // Cluster-wide unique application/module identifier
+    @Bean
+    public String moduleId(){
+        return "main.server";
+    }
 }
 ```
 
@@ -241,17 +247,12 @@ Could be configured as JVM options or by specifying **jaffa-rpc-config** JVM opt
 
 #### Required options (minimal config is available [here](https://github.com/dredwardhyde/jaffa-rpc-library-test/blob/master/config.properties)):  
 <table width="900">
-  <th>Option</th><th>Description</th>
-    <tr>
-    <td>jaffa.rpc.module.id</td>
-    <td>Unique name of this server</td>
-  </tr>
   <tr>
-    <td>jaffa.rpc.protocol</td>
+    <td>jaffa.rpc.*module.id*.protocol</td>
     <td>Could be 'zmq', 'kafka', 'http', 'rabbit', 'grpc'</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.zookeeper.connection</td>
+    <td>jaffa.rpc.*module.id*.zookeeper.connection</td>
     <td>ZooKeeper cluster connection string: 'host:port' </td>
   </tr>
   </table>  
@@ -261,207 +262,207 @@ Could be configured as JVM options or by specifying **jaffa-rpc-config** JVM opt
   <table>
   <th>Option</th><th>Description</th>
     <tr>
-    <td>jaffa.rpc.serializer</td>
+    <td>jaffa.rpc.*module.id*.serializer</td>
     <td>Serialization providers available: 'kryo' (default) and 'java'. Java serialization requires all entities to be Serializable. Same serialization provider must be used clusterwide.</td>
   </tr>
     <tr>
-    <td>jaffa.rpc.zookeeper.client.secure</td>
+    <td>jaffa.rpc.*module.id*.zookeeper.client.secure</td>
     <td>Value 'true' enables TLSv1.2 for Apache ZooKeeper client</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.zookeeper.clientCnxnSocket</td>
+    <td>jaffa.rpc.*module.id*.zookeeper.clientCnxnSocket</td>
     <td>Must be 'org.apache.zookeeper.ClientCnxnSocketNetty' if TLSv1.2 is enabled</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.zookeeper.ssl.keyStore.location</td>
+    <td>jaffa.rpc.*module.id*.zookeeper.ssl.keyStore.location</td>
     <td>Path to JKS keystore that will be used to connect to Apache ZooKeeper</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.zookeeper.ssl.keyStore.password</td>
+    <td>jaffa.rpc.*module.id*.zookeeper.ssl.keyStore.password</td>
     <td>Password to keystore provided by previous option</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.zookeeper.ssl.trustStore.location</td>
+    <td>jaffa.rpc.*module.id*.zookeeper.ssl.trustStore.location</td>
     <td>Path to JKS truststore that will be used to connect to Apache ZooKeeper</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.zookeeper.ssl.trustStore.password</td>
+    <td>jaffa.rpc.*module.id*.zookeeper.ssl.trustStore.password</td>
     <td>Password to truststore provided by previous option</td>
   </tr>
   <tr>
-    <td>jaffa.admin.use.https</td>
+    <td>jaffa.*module.id*.admin.use.https</td>
     <td>Use HTTPS or HTTP for admin console, HTTP is default</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.admin.ssl.keystore.location</td>
+    <td>jaffa.rpc.*module.id*.admin.ssl.keystore.location</td>
     <td>Path to JKS keystore that will be used to configure HTTPS server for admin console</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.admin.ssl.keystore.password</td>
+    <td>jaffa.rpc.*module.id*.admin.ssl.keystore.password</td>
     <td>Password to keystore provided by previous option</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.admin.ssl.truststore.location</td>
+    <td>jaffa.rpc.*module.id*.admin.ssl.truststore.location</td>
     <td>Path to JKS truststore that will be used to configure HTTPS server for admin console</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.admin.ssl.truststore.password</td>
+    <td>jaffa.rpc.*module.id*.admin.ssl.truststore.password</td>
     <td>Password to truststore provided by previous option</td>
   </tr>
    <tr>
-    <td>jaffa.rpc.protocol.http.service.port</td>
+    <td>jaffa.rpc.*module.id*.protocol.http.service.port</td>
     <td>Port for receiving request connections for HTTP (optional, default port is 4242)</td> 
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.callback.port</td>
+    <td>jaffa.rpc.*module.id*.protocol.http.callback.port</td>
     <td>Port for receiving callback connections for HTTP (optional, default port is 4342)</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.use.https</td>
+    <td>jaffa.rpc.*module.id*.protocol.use.https</td>
     <td>Enables HTTPS when 'http' protocol is used. 'false' by default</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.server.keystore.location</td>
+    <td>jaffa.rpc.*module.id*.protocol.http.ssl.server.keystore.location</td>
     <td>Path to JKS keystore that will be used to configure HTTPS server for RPC communication</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.server.keystore.password</td>
+    <td>jaffa.rpc.*module.id*.protocol.http.ssl.server.keystore.password</td>
     <td>Password to keystore provided by previous option</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.server.truststore.location</td>
+    <td>jaffa.rpc.*module.id*.protocol.http.ssl.server.truststore.location</td>
     <td>Path to JKS truststore that will be used to configure HTTPS server for RPC communication</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.server.truststore.password</td>
+    <td>jaffa.rpc.*module.id*.protocol.http.ssl.server.truststore.password</td>
     <td>Password to truststore provided by previous option</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.client.keystore.location</td>
+    <td>jaffa.rpc.*module.id*.protocol.http.ssl.client.keystore.location</td>
     <td>Path to JKS keystore that will be used to configure HTTPS client for RPC communication</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.client.keystore.password</td>
+    <td>jaffa.rpc.*module.id*.protocol.http.ssl.client.keystore.password</td>
     <td>Password to keystore provided by previous option</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.client.truststore.location</td>
+    <td>jaffa.rpc.*module.id*.protocol.http.ssl.client.truststore.location</td>
     <td>Path to JKS truststore that will be used to configure HTTPS client for RPC communication</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.http.ssl.client.truststore.password</td>
+    <td>jaffa.rpc.*module.id*.protocol.http.ssl.client.truststore.password</td>
     <td>Password to truststore provided by previous option</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.kafka.bootstrap.servers</td>
+    <td>jaffa.rpc.*module.id*.protocol.kafka.bootstrap.servers</td>
     <td>Bootstrap servers of Kafka cluster  (optional, only when RPC protocol is Kafka)</td>
   </tr>
     <tr>
-      <td>jaffa.rpc.protocol.kafka.use.ssl</td>
+      <td>jaffa.rpc.*module.id*.protocol.kafka.use.ssl</td>
       <td>Value 'true' enables TLSv1.2 for Apache Kafka</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.kafka.ssl.truststore.location</td>
+      <td>jaffa.rpc.*module.id*.protocol.kafka.ssl.truststore.location</td>
       <td>Path to JKS truststore that will be used to connect to Apache Kafka</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.kafka.ssl.truststore.password</td>
+      <td>jaffa.rpc.*module.id*.protocol.kafka.ssl.truststore.password</td>
       <td>Password to truststore provided by previous option</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.kafka.ssl.keystore.location</td>
+      <td>jaffa.rpc.*module.id*.protocol.kafka.ssl.keystore.location</td>
       <td>Path to JKS keystore that will be used to connect to Apache Kafka</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.kafka.ssl.keystore.password</td>
+      <td>jaffa.rpc.*module.id*.protocol.kafka.ssl.keystore.password</td>
       <td>Password to keystore provided by previous option</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.kafka.ssl.key.password</td>
+      <td>jaffa.rpc.*module.id*.protocol.kafka.ssl.key.password</td>
       <td>Password to key in keystore by previous options</td>
     </tr>
       <tr>
-    <td>jaffa.rpc.protocol.zmq.service.port</td>
+    <td>jaffa.rpc.*module.id*.protocol.zmq.service.port</td>
     <td>Port for receiving request connections for ZeroMQ (optional, default port is 4242)</td>
   </tr>
     <tr>
-    <td>jaffa.rpc.protocol.zmq.callback.port</td>
+    <td>jaffa.rpc.*module.id*.protocol.zmq.callback.port</td>
     <td>Port for receiving callback connections for ZeroMQ (optional, default port is 4342)</td>
   </tr>
     <tr>
-      <td>jaffa.rpc.protocol.zmq.curve.enabled</td>
+      <td>jaffa.rpc.*module.id*.protocol.zmq.curve.enabled</td>
       <td>Enables Curve security for ZeroMQ protocol</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.zmq.client.dir</td>
+      <td>jaffa.rpc.*module.id*.protocol.zmq.client.dir</td>
       <td>Directory with Curve certificates for client requests</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.zmq.server.keys</td>
+      <td>jaffa.rpc.*module.id*.protocol.zmq.server.keys</td>
       <td>Path to the Curve keys for current server</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.zmq.client.key.--jaffa.rpc.module.id--</td>
-      <td>Path to the Curve keys for client with --jaffa.rpc.module.id--</td>
+      <td>jaffa.rpc.*module.id*.protocol.zmq.client.key.*module.id*</td>
+      <td>Path to the Curve keys for client with given *module.id*</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.rabbit.login</td>
+      <td>jaffa.rpc.*module.id*.protocol.rabbit.login</td>
       <td>Login to RabbitMQ server ('guest' is default)</td>
     </tr>
       <tr>
-    <td>jaffa.rpc.protocol.rabbit.host</td>
+    <td>jaffa.rpc.*module.id*.protocol.rabbit.host</td>
     <td>RabbitMQ server host (optional, only when RPC protocol is RabbitMQ)</td>
   </tr>
   <tr>
-    <td>jaffa.rpc.protocol.rabbit.port</td>
+    <td>jaffa.rpc.*module.id*.protocol.rabbit.port</td>
     <td>RabbitMQ server port (optional, only when RPC protocol is RabbitMQ)</td>
   </tr>
     <tr>
-      <td>jaffa.rpc.protocol.rabbit.password</td>
+      <td>jaffa.rpc.*module.id*.protocol.rabbit.password</td>
       <td>Password to RabbitMQ server ('guest' is default)</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.rabbit.use.ssl</td>
+      <td>jaffa.rpc.*module.id*.protocol.rabbit.use.ssl</td>
       <td>Enables TLSv1.2 for connections to RabbitMQ ('false' is default)</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.rabbit.ssl.keystore.location</td>
+      <td>jaffa.rpc.*module.id*.protocol.rabbit.ssl.keystore.location</td>
       <td>Path to JKS keystore that will be used to connect to RabbitMQ</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.rabbit.ssl.keystore.password</td>
+      <td>jaffa.rpc.*module.id*.protocol.rabbit.ssl.keystore.password</td>
       <td>Password to keystore provided by previous option</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.rabbit.ssl.truststore.location</td>
+      <td>jaffa.rpc.*module.id*.protocol.rabbit.ssl.truststore.location</td>
       <td>Path to JKS truststore that will be used to connect to RabbitMQ</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.rabbit.ssl.truststore.password</td>
+      <td>jaffa.rpc.*module.id*.protocol.rabbit.ssl.truststore.password</td>
       <td>Password to truststore provided by previous option</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.grpc.use.ssl</td>
+      <td>jaffa.rpc.*module.id*.protocol.grpc.use.ssl</td>
       <td>Enables TLSv1.2 for connections to gRPC ('false' is default)</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.grpc.ssl.server.key.location</td>
+      <td>jaffa.rpc.*module.id*.protocol.grpc.ssl.server.key.location</td>
       <td>Path to server PKCS private key file in PEM format</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.grpc.ssl.server.store.location</td>
+      <td>jaffa.rpc.*module.id*.protocol.grpc.ssl.server.store.location</td>
       <td>Path to server X.509 certificate chain file in PEM format</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.grpc.ssl.client.key.location</td>
+      <td>jaffa.rpc.*module.id*.protocol.grpc.ssl.client.key.location</td>
       <td>Path to client PKCS private key file in PEM format</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.grpc.ssl.client.keystore.location</td>
+      <td>jaffa.rpc.*module.id*.protocol.grpc.ssl.client.keystore.location</td>
       <td>Path to client X.509 certificate chain file in PEM format</td>
     </tr>
     <tr>
-      <td>jaffa.rpc.protocol.grpc.ssl.client.truststore.location</td>
+      <td>jaffa.rpc.*module.id*.protocol.grpc.ssl.client.truststore.location</td>
       <td>Path to trusted certificates for verifying the remote endpoint's certificate. 
         The file should contain an X.509 certificate collection in PEM format.</td>
     </tr>

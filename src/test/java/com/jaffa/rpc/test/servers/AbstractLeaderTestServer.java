@@ -38,9 +38,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public abstract class AbstractLeaderTestServer {
 
     static {
-        System.setProperty("jaffa.rpc.test.mode", "true");
-        System.setProperty("jaffa.rpc.module.id", "test.server");
-        System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2181");
+        System.setProperty("jaffa.rpc.test.server.test.mode", "true");
+        System.setProperty("module.id", "test.server");
+        System.setProperty("jaffa.rpc.test.server.zookeeper.connection", "localhost:2181");
     }
 
     @Autowired

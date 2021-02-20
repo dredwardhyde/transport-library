@@ -1,5 +1,6 @@
 package com.jaffa.rpc.test.zeromq;
 
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.zeromq.CurveUtils;
@@ -23,11 +24,13 @@ public class ZeroMQSecondTest {
 
     @Test
     public void stage1() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        System.setProperty("jaffa.rpc.protocol.zmq.curve.enabled", "true");
+        OptionConstants.setModuleId("test.server");
+
+        System.setProperty("jaffa.rpc.test.server.protocol.zmq.curve.enabled", "true");
         final ZContext context = new ZContext();
         final ZMQ.Socket socket = context.createSocket(SocketType.REP);
         socket.bind("tcp://localhost:5555");
-        System.setProperty("jaffa.rpc.protocol.zmq.server.keys", "src/test/resources/curve/curve_secret/testcert.pub");
+        System.setProperty("jaffa.rpc.test.server.protocol.zmq.server.keys", "src/test/resources/curve/curve_secret/testcert.pub");
         CurveUtils.readServerKeys();
         CurveUtils.makeSocketSecure(socket);
         try {
@@ -50,7 +53,7 @@ public class ZeroMQSecondTest {
 
         String secretKey = (String) getSecretKeyFromPath.invoke(CurveUtils.class, new Object[]{"xxx"});
         Assertions.assertNull(secretKey);
-        System.setProperty("jaffa.rpc.protocol.zmq.curve.enabled", "false");
+        System.setProperty("jaffa.rpc.test.server.protocol.zmq.curve.enabled", "false");
         try {
             new ZMQAsyncAndSyncRequestReceiver();
             fail();

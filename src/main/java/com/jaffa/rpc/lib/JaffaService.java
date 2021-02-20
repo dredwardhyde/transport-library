@@ -111,6 +111,8 @@ public class JaffaService {
     private List<ClientEndpoint> clientEndpoints;
     @Autowired
     private ApplicationContext context;
+    @Autowired
+    private String moduleId;
 
     private static void loadInternalProperties() {
         if (Utils.getRpcProtocol().equals(Protocol.KAFKA)) {
@@ -235,7 +237,7 @@ public class JaffaService {
                 }
             }
         }
-        apiImpls.forEach(x -> topicsCreated.add(x.getName() + "-" + Utils.getRequiredOption(OptionConstants.MODULE_ID) + "-" + type));
+        apiImpls.forEach(x -> topicsCreated.add(x.getName() + "-" + moduleId + "-" + type));
         return topicsCreated;
     }
 
@@ -254,7 +256,8 @@ public class JaffaService {
     @SuppressWarnings("unused")
     private void init() {
         try {
-            Utils.loadExternalProperties();
+            OptionConstants.setModuleId(moduleId);
+            Utils.loadExternalProperties(moduleId);
             loadInternalProperties();
             long startedTime = System.currentTimeMillis();
             prepareServiceRegistration();

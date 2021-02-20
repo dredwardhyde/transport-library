@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public abstract class AbstractFollowerTestServer {
 
     static {
-        System.setProperty("jaffa.rpc.test.mode", "true");
-        System.setProperty("jaffa.rpc.module.id", "main.server");
-        System.setProperty("jaffa.rpc.zookeeper.connection", "localhost:2181");
+        System.setProperty("jaffa.rpc.main.server.test.mode", "true");
+        System.setProperty("module.id", "main.server");
+        System.setProperty("jaffa.rpc.main.server.zookeeper.connection", "localhost:2181");
     }
 
     public void testAll() {

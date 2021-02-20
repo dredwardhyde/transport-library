@@ -49,7 +49,7 @@ public class ZMQAsyncResponseReceiver implements Runnable, Closeable {
     public static void sendKillMessageToSocket(String address) {
         ZContext contextToClose = new ZContext(1);
         try (ZMQ.Socket socketClose = contextToClose.createSocket(SocketType.REQ)) {
-            ZeroMqRequestSender.addCurveKeysToSocket(socketClose, Utils.getRequiredOption(OptionConstants.MODULE_ID));
+            ZeroMqRequestSender.addCurveKeysToSocket(socketClose, OptionConstants.MODULE_ID);
             socketClose.setLinger(0);
             socketClose.connect("tcp://" + address);
             socketClose.send(new byte[]{7}, 0);

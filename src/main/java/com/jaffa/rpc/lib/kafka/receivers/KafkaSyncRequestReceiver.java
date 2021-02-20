@@ -51,7 +51,7 @@ public class KafkaSyncRequestReceiver extends KafkaReceiver implements Runnable 
                         Command command = Serializer.getCurrent().deserialize(record.value(), Command.class);
                         Object result = RequestInvocationHelper.invoke(command);
                         byte[] serializedResponse = Serializer.getCurrent().serializeWithClass(RequestInvocationHelper.getResult(result));
-                        ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()) + "-" + Utils.getRequiredOption(OptionConstants.MODULE_ID) + "-client-sync", command.getRqUid(), serializedResponse);
+                        ProducerRecord<String, byte[]> resultPackage = new ProducerRecord<>(Utils.getServiceInterfaceNameFromClient(command.getServiceClass()) + "-" + OptionConstants.MODULE_ID + "-client-sync", command.getRqUid(), serializedResponse);
                         producer.send(resultPackage).get();
                         Map<TopicPartition, OffsetAndMetadata> commitData = new HashMap<>();
                         commitData.put(new TopicPartition(record.topic(), record.partition()), new OffsetAndMetadata(record.offset()));

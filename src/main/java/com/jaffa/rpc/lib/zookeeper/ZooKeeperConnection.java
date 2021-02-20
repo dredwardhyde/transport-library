@@ -40,7 +40,7 @@ public class ZooKeeperConnection {
             }
             if (watchedEvent.getType() == Watcher.Event.EventType.NodeDataChanged) {
                 Utils.cache.invalidate(watchedEvent.getPath());
-                log.info("Service {} changed for instance {} ", watchedEvent.getPath(), Utils.getRequiredOption(OptionConstants.MODULE_ID));
+                log.info("Service {} changed for instance {} ", watchedEvent.getPath(), OptionConstants.MODULE_ID);
             }
         }), zkConfig);
         connectedSignal.await();

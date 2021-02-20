@@ -1,5 +1,6 @@
 package com.jaffa.rpc.test.http;
 
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.http.HttpRequestSender;
@@ -15,21 +16,21 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class HttpSecondTest {
 
     static {
-        System.setProperty("jaffa.rpc.protocol", "http");
-        System.setProperty("jaffa.rpc.module.id", "test.server");
-        System.setProperty("jaffa.rpc.protocol.use.https", "true");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.server.truststore.location", "src/test/resources/truststore.jks");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.server.truststore.password", "simulator1");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.server.keystore.location", "src/test/resources/keystore.jks");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.server.keystore.password", "simulator1");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.client.truststore.location", "src/test/resources/truststore.jks");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.client.truststore.password", "simulator1");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.client.keystore.location", "src/test/resources/keystore.jks");
-        System.setProperty("jaffa.rpc.protocol.http.ssl.client.keystore.password", "simulator1");
+        System.setProperty("jaffa.rpc.test.server.protocol", "http");
+        System.setProperty("jaffa.rpc.test.server.protocol.use.https", "true");
+        System.setProperty("jaffa.rpc.test.server.protocol.http.ssl.server.truststore.location", "src/test/resources/truststore.jks");
+        System.setProperty("jaffa.rpc.test.server.protocol.http.ssl.server.truststore.password", "simulator1");
+        System.setProperty("jaffa.rpc.test.server.protocol.http.ssl.server.keystore.location", "src/test/resources/keystore.jks");
+        System.setProperty("jaffa.rpc.test.server.protocol.http.ssl.server.keystore.password", "simulator1");
+        System.setProperty("jaffa.rpc.test.server.protocol.http.ssl.client.truststore.location", "src/test/resources/truststore.jks");
+        System.setProperty("jaffa.rpc.test.server.protocol.http.ssl.client.truststore.password", "simulator1");
+        System.setProperty("jaffa.rpc.test.server.protocol.http.ssl.client.keystore.location", "src/test/resources/keystore.jks");
+        System.setProperty("jaffa.rpc.test.server.protocol.http.ssl.client.keystore.password", "simulator1");
     }
 
     @Test
     public void stage1() {
+        OptionConstants.setModuleId("test.server");
         HttpAsyncAndSyncRequestReceiver httpAsyncAndSyncRequestReceiver = new HttpAsyncAndSyncRequestReceiver();
         try {
             HttpAsyncAndSyncRequestReceiver.initClient();

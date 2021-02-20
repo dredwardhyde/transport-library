@@ -23,12 +23,12 @@ import static org.junit.jupiter.api.Assertions.fail;
 @ExtendWith({ZooKeeperExtension.class})
 public class RabbitMQSecondTest {
     static {
-        System.setProperty("jaffa.rpc.module.id", "test.server");
-        System.setProperty("jaffa.rpc.protocol", "rabbit");
+        System.setProperty("jaffa.rpc.test.server.protocol", "rabbit");
     }
 
     @Test
     public void stage1() {
+        OptionConstants.setModuleId("test.server");
         Utils.connect("localhost:2181");
         Utils.registerService("xxx", Protocol.RABBIT);
         RabbitConnectionFactoryBean factory = new RabbitConnectionFactoryBean();

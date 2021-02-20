@@ -1,6 +1,7 @@
 package com.jaffa.rpc.test.grpc;
 
 import com.jaffa.rpc.grpc.services.CommandResponse;
+import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.entities.Protocol;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
@@ -33,18 +34,18 @@ import static org.junit.jupiter.api.Assertions.fail;
 public class GrpcSecondTest {
 
     static {
-        System.setProperty("jaffa.rpc.protocol", "grpc");
-        System.setProperty("jaffa.rpc.module.id", "test.server");
-        System.setProperty("jaffa.rpc.protocol.grpc.use.ssl", "true");
-        System.setProperty("jaffa.rpc.protocol.grpc.ssl.server.key.location", "src/test/resources/xxx");
-        System.setProperty("jaffa.rpc.protocol.grpc.ssl.server.store.location", "src/test/resources/xxx");
-        System.setProperty("jaffa.rpc.protocol.grpc.ssl.client.key.location", "src/test/resources/xxx");
-        System.setProperty("jaffa.rpc.protocol.grpc.ssl.client.keystore.location", "src/test/resources/xxx");
-        System.setProperty("jaffa.rpc.protocol.grpc.ssl.client.truststore.location", "src/test/resources/xxx");
+        System.setProperty("jaffa.rpc.test.server.protocol", "grpc");
+        System.setProperty("jaffa.rpc.test.server.protocol.grpc.use.ssl", "true");
+        System.setProperty("jaffa.rpc.test.server.protocol.grpc.ssl.server.key.location", "src/test/resources/xxx");
+        System.setProperty("jaffa.rpc.test.server.protocol.grpc.ssl.server.store.location", "src/test/resources/xxx");
+        System.setProperty("jaffa.rpc.test.server.protocol.grpc.ssl.client.key.location", "src/test/resources/xxx");
+        System.setProperty("jaffa.rpc.test.server.protocol.grpc.ssl.client.keystore.location", "src/test/resources/xxx");
+        System.setProperty("jaffa.rpc.test.server.protocol.grpc.ssl.client.truststore.location", "src/test/resources/xxx");
     }
 
     @Test
     public void stage1() {
+        OptionConstants.setModuleId("test.server");
         Utils.connect("localhost:2181");
         GrpcAsyncResponseReceiver grpcAsyncResponseReceiver = new GrpcAsyncResponseReceiver();
         try {

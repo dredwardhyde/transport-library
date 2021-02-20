@@ -25,8 +25,8 @@ public class KafkaLeaderTest extends AbstractLeaderTestServer {
     private static KafkaServer kafkaServer;
 
     static {
-        System.setProperty("jaffa.rpc.protocol", "kafka");
-        System.setProperty("jaffa.rpc.protocol.kafka.bootstrap.servers", BROKER_IP_PORT);
+        System.setProperty("jaffa.rpc.test.server.protocol", "kafka");
+        System.setProperty("jaffa.rpc.test.server.protocol.kafka.bootstrap.servers", BROKER_IP_PORT);
     }
 
     public KafkaLeaderTest() {

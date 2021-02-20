@@ -69,21 +69,23 @@ public class Utils {
         senders.put(Protocol.GRPC, GrpcRequestSender.class);
     }
 
-    public static void loadExternalProperties() {
+    public static void loadExternalProperties(String moduleId) {
         try {
             String path = System.getProperty("jaffa-rpc-config");
+            log.info("Loading Jaffa RPC properies from file {} for moduleId {}", path, moduleId);
             if (Objects.nonNull(path)) {
-                log.info("Loading Jaffa RPC properies from file {}", path);
                 Properties p = new Properties();
                 InputStream is = new FileInputStream(path);
                 p.load(is);
                 for (String name : p.stringPropertyNames()) {
-                    String value = p.getProperty(name);
-                    if (name.toLowerCase().contains("password"))
-                        log.info("Loading property {} = {}", name, "*************");
-                    else
-                        log.info("Loading property {} = {}", name, value);
-                    System.setProperty(name, value);
+                    if(name.contains(moduleId)) {
+                        String value = p.getProperty(name);
+                        if (name.toLowerCase().contains("password"))
+                            log.info("Loading property {} = {}", name, "*************");
+                        else
+                            log.info("Loading property {} = {}", name, value);
+                        System.setProperty(name, value);
+                    }
                 }
             }
         } catch (IOException ioException) {
@@ -178,7 +180,7 @@ public class Utils {
                 return hosts.get(0);
             }
         } catch (ParseException e) {
-            log.error("Error while getting avaiable jaffa.rpc.module.id:", e);
+            log.error("Error while getting avaiable module.id:", e);
             throw new JaffaRpcNoRouteException(service, protocol.getShortName());
         }
     }
@@ -273,7 +275,7 @@ public class Utils {
     }
 
     private static String getServiceBindAddress(Protocol protocol) throws UnknownHostException {
-        return getLocalHostLANAddress().getHostAddress() + ":" + getServicePort() + "#" + Utils.getRequiredOption(OptionConstants.MODULE_ID) + "#" + protocol.getShortName();
+        return getLocalHostLANAddress().getHostAddress() + ":" + getServicePort() + "#" + OptionConstants.MODULE_ID + "#" + protocol.getShortName();
     }
 
     public static String getZeroMQBindAddress() throws UnknownHostException {

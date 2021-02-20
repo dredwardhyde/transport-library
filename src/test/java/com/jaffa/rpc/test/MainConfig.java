@@ -40,4 +40,9 @@ public class MainConfig {
     public ConnectionFactory connectionFactory() {
         return new MockConnectionFactory();
     }
+
+    @Bean
+    public String moduleId(){
+        return System.getProperty("module.id");
+    }
 }

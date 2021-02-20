@@ -5,7 +5,7 @@ import com.jaffa.rpc.test.servers.AbstractLeaderTestServer;
 public class ZeroMQThirdTest extends AbstractLeaderTestServer {
 
     static {
-        System.setProperty("jaffa.rpc.protocol", "zmq");
+        System.setProperty("jaffa.rpc.test.server.protocol", "zmq");
     }
 
     @Override
