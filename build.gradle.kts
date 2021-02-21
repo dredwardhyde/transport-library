@@ -88,7 +88,33 @@ sourceSets.getByName("main") {
 }
 
 publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
+    publications {
+        create<MavenPublication>("mavenJava") {
+            pom {
+                name.set("Jaffa RPC Library")
+                description.set("A high performance RPC library for Java 8+ and Spring Framework")
+                url.set("https://github.com/dredwardhyde/jaffa-rpc-library")
+                inceptionYear.set("2019")
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
+                }
+                developers {
+                    developer {
+                        id.set("dredwardhyde")
+                        name.set("Nikita L")
+                        email.set("komesergey@gmail.com")
+                        roles.addAll(listOf("owner", "developer"))
+                    }
+                }
+                scm {
+                    connection.set("scm:https://github.com/dredwardhyde/jaffa-rpc-library.git")
+                    developerConnection.set("scm:git://github.com/dredwardhyde/jaffa-rpc-library.git")
+                    url.set("https://github.com/dredwardhyde/jaffa-rpc-library")
+                }
+            }
+        }
     }
 }
