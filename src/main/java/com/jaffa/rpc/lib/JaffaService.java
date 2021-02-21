@@ -91,7 +91,6 @@ public class JaffaService {
     @Getter
     @Setter(AccessLevel.PRIVATE)
     private static Set<String> serverSyncTopics;
-    @Getter
     @Setter(AccessLevel.PRIVATE)
     private static Set<String> clientSyncTopics;
     @Setter
