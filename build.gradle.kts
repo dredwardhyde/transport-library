@@ -7,6 +7,8 @@ plugins {
     java
     `maven-publish`
     id("com.google.protobuf") version "0.8.8"
+    signing
+    id("io.codearte.nexus-staging") version "0.22.0"
 }
 
 repositories {
@@ -117,4 +119,8 @@ publishing {
             }
         }
     }
+}
+
+signing {
+    sign(publishing.publications["mavenJava"])
 }
