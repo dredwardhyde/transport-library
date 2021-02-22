@@ -3,7 +3,6 @@ package com.jaffa.rpc.test.services;
 import com.jaffa.rpc.lib.annotations.ApiServer;
 import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.entities.RequestContextHelper;
-import com.jaffa.rpc.lib.zookeeper.Utils;
 import com.jaffa.rpc.test.entities.Address;
 import com.jaffa.rpc.test.entities.Person;
 import lombok.extern.slf4j.Slf4j;

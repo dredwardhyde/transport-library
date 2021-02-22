@@ -42,7 +42,7 @@ public class MainConfig {
     }
 
     @Bean
-    public String moduleId(){
+    public String moduleId() {
         return System.getProperty("module.id");
     }
 }

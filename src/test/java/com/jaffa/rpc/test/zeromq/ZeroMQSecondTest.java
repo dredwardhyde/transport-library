@@ -14,7 +14,6 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import static org.junit.jupiter.api.Assertions.fail;
 

@@ -1,7 +1,6 @@
 package com.jaffa.rpc.test.http;
 
 import com.jaffa.rpc.lib.common.OptionConstants;
-import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
 import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.http.HttpRequestSender;

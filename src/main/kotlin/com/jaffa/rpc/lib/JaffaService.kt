@@ -368,7 +368,7 @@ open class JaffaService {
         var adminRabbitMQ: RabbitAdmin? = null
 
         var connectionFactory: ConnectionFactory? = null
-        public fun loadInternalProperties() {
+        fun loadInternalProperties() {
             if (Utils.rpcProtocol == Protocol.KAFKA) {
                 consumerProps["bootstrap.servers"] = Utils.getRequiredOption(OptionConstants.KAFKA_BOOTSTRAP_SERVERS)
                 consumerProps["key.deserializer"] = "org.apache.kafka.common.serialization.StringDeserializer"

@@ -2,7 +2,6 @@ package com.jaffa.rpc.lib.spring
 
 import com.jaffa.rpc.lib.annotations.ApiClient
 import com.jaffa.rpc.lib.spring.ClientEndpoint
-import com.jaffa.rpc.lib.zeromq.receivers.ZMQAsyncResponseReceiver
 import net.bytebuddy.ByteBuddy
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy
 import net.bytebuddy.implementation.StubMethod
