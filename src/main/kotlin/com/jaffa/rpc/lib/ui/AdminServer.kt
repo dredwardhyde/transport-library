@@ -8,6 +8,8 @@ import com.jaffa.rpc.lib.zookeeper.Utils
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpServer
 import com.sun.net.httpserver.HttpsServer
+import io.prometheus.client.Gauge
+import io.prometheus.client.exporter.HTTPServer
 import org.apache.commons.collections4.QueueUtils
 import org.apache.commons.collections4.queue.CircularFifoQueue
 import org.slf4j.LoggerFactory
@@ -32,6 +34,8 @@ class AdminServer {
     private val log = LoggerFactory.getLogger(AdminServer::class.java)
 
     private var server: HttpServer? = null
+
+    private var prometheusServer: HTTPServer? = null
 
     @Throws(IOException::class)
     private fun respondWithFile(exchange: HttpExchange, fileName: String) {
@@ -65,6 +69,7 @@ class AdminServer {
     fun init() {
         try {
             val useHttps = System.getProperty(OptionConstants.ADMIN_USE_HTTPS, false.toString()).toBoolean()
+            prometheusServer = HTTPServer(1234)
             server = if (useHttps) {
                 val httpsServer = HttpsServer.create(InetSocketAddress(Utils.localHost, freePort), 0)
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,
@@ -77,29 +82,35 @@ class AdminServer {
                 HttpServer.create(InetSocketAddress(Utils.localHost, freePort), 0)
             }
             server?.createContext("/") { exchange: HttpExchange ->
-                val path = exchange.requestURI.path
-                if ("/admin" == path) {
-                    respondWithFile(exchange, "admin.html")
-                } else if ("/vis.min.css" == path) {
-                    respondWithFile(exchange, "vis.min.css")
-                } else if ("/vis.min.js" == path) {
-                    respondWithFile(exchange, "vis.min.js")
-                } else if ("/protocol" == path) {
-                    Utils.rpcProtocol?.fullName?.let { respondWithString(exchange, it) }
-                } else if ("/response" == path) {
-                    var count = 0
-                    val builder = StringBuilder()
-                    var metric: ResponseMetric?
-                    do {
-                        metric = responses.poll()
-                        if (metric != null) {
-                            count++
-                            builder.append(metric.time).append(':').append(metric.duration).append(';')
-                        }
-                    } while (metric != null && count < 30)
-                    respondWithString(exchange, builder.toString())
-                } else {
-                    respondWithString(exchange, "OK")
+                when (exchange.requestURI.path) {
+                    "/admin" -> {
+                        respondWithFile(exchange, "admin.html")
+                    }
+                    "/vis.min.css" -> {
+                        respondWithFile(exchange, "vis.min.css")
+                    }
+                    "/vis.min.js" -> {
+                        respondWithFile(exchange, "vis.min.js")
+                    }
+                    "/protocol" -> {
+                        Utils.rpcProtocol?.fullName?.let { respondWithString(exchange, it) }
+                    }
+                    "/response" -> {
+                        var count = 0
+                        val builder = StringBuilder()
+                        var metric: ResponseMetric?
+                        do {
+                            metric = responses.poll()
+                            if (metric != null) {
+                                count++
+                                builder.append(metric.time).append(':').append(metric.duration).append(';')
+                            }
+                        } while (metric != null && count < 30)
+                        respondWithString(exchange, builder.toString())
+                    }
+                    else -> {
+                        respondWithString(exchange, "OK")
+                    }
                 }
             }
             server?.executor = Executors.newFixedThreadPool(3)
@@ -125,21 +136,25 @@ class AdminServer {
         if (server != null) {
             server?.stop(2)
         }
+        if (prometheusServer != null) {
+            prometheusServer?.stop()
+        }
     }
 
-    class ResponseMetric(requestTime: Long, executionDuration: Double) {
-        val time: Long = 0
-        val duration = 0.0
-    }
+    class ResponseMetric(val time: Long, val duration: Double)
 
     companion object {
         private val log = LoggerFactory.getLogger(AdminServer::class.java)
 
         private val responses: Queue<ResponseMetric> = QueueUtils.synchronizedQueue(CircularFifoQueue(1000))
 
+        private val requestLatency: Gauge = Gauge.build()
+                .name("requests_latency_seconds").help("Request latency in ms.").register()
+
         @kotlin.jvm.JvmStatic
         fun addMetric(command: Command) {
             val executionDuration = (System.nanoTime() - command.localRequestTime) / 1000000.0
+            requestLatency.set(executionDuration)
             log.debug(">>>>>> Executed request {} in {} ms", command.rqUid, executionDuration)
             responses.add(ResponseMetric(command.requestTime, executionDuration))
         }
