@@ -6,13 +6,11 @@ import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException
 import com.jaffa.rpc.lib.request.RequestUtils
 import com.jaffa.rpc.lib.request.Sender
 import com.jaffa.rpc.lib.zookeeper.Utils
-import lombok.extern.slf4j.Slf4j
 import org.apache.kafka.clients.consumer.*
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.TopicPartition
 import org.slf4j.LoggerFactory
-import java.lang.Boolean
 import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -21,7 +19,6 @@ import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.function.Consumer
 
-@Slf4j
 class KafkaRequestSender : Sender() {
     private val log = LoggerFactory.getLogger(KafkaRequestSender::class.java)
 
@@ -124,7 +121,7 @@ class KafkaRequestSender : Sender() {
             consumerProps["value.deserializer"] = "org.apache.kafka.common.serialization.ByteArrayDeserializer"
             consumerProps["enable.auto.commit"] = false.toString()
             consumerProps[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
-            if (Boolean.parseBoolean(System.getProperty(OptionConstants.KAFKA_USE_SSL, false.toString()))) {
+            if (System.getProperty(OptionConstants.KAFKA_USE_SSL, false.toString()).toBoolean()) {
                 val sslProps: MutableMap<String, String?> = HashMap()
                 sslProps["security.protocol"] = "SSL"
                 sslProps["ssl.truststore.location"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)

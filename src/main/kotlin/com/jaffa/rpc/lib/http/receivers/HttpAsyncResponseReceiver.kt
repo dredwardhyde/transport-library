@@ -13,7 +13,6 @@ import com.sun.net.httpserver.HttpServer
 import com.sun.net.httpserver.HttpsServer
 import org.slf4j.LoggerFactory
 import java.io.Closeable
-import java.lang.Boolean
 import java.util.concurrent.Executors
 
 class HttpAsyncResponseReceiver : Runnable, Closeable {
@@ -23,7 +22,7 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
 
     override fun run() {
         try {
-            server = if (Boolean.parseBoolean(System.getProperty(OptionConstants.USE_HTTPS, false.toString()))) {
+            server = if (System.getProperty(OptionConstants.USE_HTTPS, false.toString()).toBoolean()) {
                 val httpsServer = HttpsServer.create(Utils.httpCallbackBindAddress, 0)
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,
                         Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),

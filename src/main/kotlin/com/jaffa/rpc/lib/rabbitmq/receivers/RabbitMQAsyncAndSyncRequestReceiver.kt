@@ -5,10 +5,8 @@ import com.jaffa.rpc.lib.common.RequestInvocationHelper
 import com.jaffa.rpc.lib.entities.Command
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException
 import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender
-import com.jaffa.rpc.lib.rabbitmq.receivers.RabbitMQAsyncAndSyncRequestReceiver
 import com.jaffa.rpc.lib.serialization.Serializer
 import com.rabbitmq.client.*
-import lombok.extern.slf4j.Slf4j
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.connection.Connection
 import java.io.Closeable
@@ -17,7 +15,6 @@ import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeoutException
 
-@Slf4j
 class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
     private val log = LoggerFactory.getLogger(RabbitMQAsyncAndSyncRequestReceiver::class.java)
 

@@ -10,8 +10,7 @@ class JavaSerializer : ObjectSerializer {
     override fun serialize(obj: Any?): ByteArray? {
         try {
             ByteArrayOutputStream().use { bos ->
-                val out: ObjectOutputStream
-                out = ObjectOutputStream(bos)
+                val out = ObjectOutputStream(bos)
                 out.writeObject(obj)
                 out.flush()
                 return bos.toByteArray()

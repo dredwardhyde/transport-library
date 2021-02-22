@@ -9,8 +9,6 @@ import com.jaffa.rpc.lib.exception.JaffaRpcSystemException
 import com.jaffa.rpc.lib.request.RequestImpl
 import com.jaffa.rpc.lib.security.TicketProvider
 import com.jaffa.rpc.lib.zookeeper.Utils
-import lombok.EqualsAndHashCode
-import lombok.extern.slf4j.Slf4j
 import org.aopalliance.aop.Advice
 import org.aopalliance.intercept.MethodInterceptor
 import org.aopalliance.intercept.MethodInvocation
@@ -27,9 +25,7 @@ import java.lang.reflect.Method
 import java.net.UnknownHostException
 import java.util.*
 
-@Slf4j
 @Component
-@EqualsAndHashCode(callSuper = false)
 class ApiClientAdvisor : AbstractPointcutAdvisor() {
 
     private val log = LoggerFactory.getLogger(ApiClientAdvisor::class.java)

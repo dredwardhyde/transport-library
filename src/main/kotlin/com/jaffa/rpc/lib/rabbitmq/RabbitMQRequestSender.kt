@@ -6,7 +6,6 @@ import com.jaffa.rpc.lib.entities.Protocol
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException
 import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException
-import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender
 import com.jaffa.rpc.lib.request.Sender
 import com.jaffa.rpc.lib.zookeeper.Utils
 import com.rabbitmq.client.*

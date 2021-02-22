@@ -4,15 +4,12 @@ import com.jaffa.rpc.lib.common.OptionConstants
 import com.jaffa.rpc.lib.entities.Protocol
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException
 import com.jaffa.rpc.lib.request.Sender
-import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender
 import com.jaffa.rpc.lib.zookeeper.Utils
-import lombok.extern.slf4j.Slf4j
 import org.slf4j.LoggerFactory
 import org.zeromq.SocketType
 import org.zeromq.ZContext
 import org.zeromq.ZMQ
 
-@Slf4j
 class ZeroMqRequestSender : Sender() {
 
     private val log = LoggerFactory.getLogger(ZeroMqRequestSender::class.java)

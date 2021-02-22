@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.io.FileInputStream
 import java.io.IOException
-import java.lang.Boolean
 import java.security.*
 import java.security.cert.CertificateException
 import java.util.concurrent.Executors
@@ -37,7 +36,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
     private var server: HttpServer? = null
     override fun run() {
         try {
-            server = if (Boolean.parseBoolean(System.getProperty(OptionConstants.USE_HTTPS, false.toString()))) {
+            server = if (System.getProperty(OptionConstants.USE_HTTPS, false.toString()).toBoolean()) {
                 val httpsServer = HttpsServer.create(Utils.httpBindAddress, 0)
                 initSSLForHttpsServer(httpsServer,
                         Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
@@ -125,7 +124,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
         @kotlin.jvm.JvmStatic
         fun initClient() {
-            if (Boolean.parseBoolean(System.getProperty(OptionConstants.USE_HTTPS, false.toString()))) {
+            if (System.getProperty(OptionConstants.USE_HTTPS, false.toString()).toBoolean()) {
                 val sslContext: SSLContext = try {
                     val keyPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_PASSWORD).toCharArray()
                     val ks = KeyStore.getInstance("JKS")

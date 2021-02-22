@@ -8,13 +8,8 @@ import com.jaffa.rpc.lib.entities.CallbackContainer
 import com.jaffa.rpc.lib.entities.Command
 import com.jaffa.rpc.lib.security.SecurityTicket
 import com.jaffa.rpc.lib.serialization.Serializer
-import lombok.AccessLevel
-import lombok.NoArgsConstructor
-import lombok.extern.slf4j.Slf4j
 import org.apache.commons.lang3.StringUtils
 
-@Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 object MessageConverterHelper {
     @Throws(ClassNotFoundException::class)
     fun fromGRPCCommandRequest(request: CommandRequest): Command {

@@ -4,10 +4,7 @@ import com.jaffa.rpc.lib.JaffaService
 import com.jaffa.rpc.lib.entities.Protocol
 import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException
 import com.jaffa.rpc.lib.zookeeper.Utils
-import lombok.AccessLevel
-import lombok.NoArgsConstructor
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 object RequestUtils {
     fun getTopicForService(service: String, moduleId: String?, sync: Boolean): String {
         val serviceInterface = Utils.getServiceInterfaceNameFromClient(service)

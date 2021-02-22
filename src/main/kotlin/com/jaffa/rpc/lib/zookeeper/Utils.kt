@@ -110,9 +110,9 @@ object Utils {
     }
 
     private val httpPrefix: String
-        private get() = (if (java.lang.Boolean.parseBoolean(System.getProperty(OptionConstants.USE_HTTPS, false.toString()))) "https" else "http") + "://"
+        get() = (if (System.getProperty(OptionConstants.USE_HTTPS, false.toString()).toBoolean()) "https" else "http") + "://"
     val isZkTestMode: Boolean
-        get() = java.lang.Boolean.parseBoolean(System.getProperty(OptionConstants.ZK_TEST_MODE, false.toString()))
+        get() = System.getProperty(OptionConstants.ZK_TEST_MODE, false.toString()).toBoolean()
 
     @Throws(ParseException::class)
     private fun getHostsForService(service: String, moduleId: String?, protocol: Protocol): ArrayList<MutablePair<String?, String?>> {

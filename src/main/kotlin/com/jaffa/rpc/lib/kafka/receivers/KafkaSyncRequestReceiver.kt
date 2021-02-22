@@ -6,7 +6,6 @@ import com.jaffa.rpc.lib.common.RequestInvocationHelper
 import com.jaffa.rpc.lib.entities.Command
 import com.jaffa.rpc.lib.serialization.Serializer
 import com.jaffa.rpc.lib.zookeeper.Utils
-import lombok.extern.slf4j.Slf4j
 import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.consumer.OffsetAndMetadata
@@ -19,7 +18,6 @@ import java.time.Duration
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
-@Slf4j
 class KafkaSyncRequestReceiver(private val countDownLatch: CountDownLatch?) : KafkaReceiver(), Runnable {
     private val log = LoggerFactory.getLogger(KafkaAsyncResponseReceiver::class.java)
 

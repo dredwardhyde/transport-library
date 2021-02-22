@@ -8,7 +8,6 @@ import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncAndSyncRequestReceiver
 import com.jaffa.rpc.lib.request.Sender
 import com.jaffa.rpc.lib.zookeeper.Utils
-import lombok.extern.slf4j.Slf4j
 import org.apache.http.HttpEntity
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.CloseableHttpResponse
@@ -18,7 +17,6 @@ import org.apache.http.entity.ByteArrayEntity
 import org.slf4j.LoggerFactory
 import java.net.SocketTimeoutException
 
-@Slf4j
 class HttpRequestSender : Sender() {
 
     private val log = LoggerFactory.getLogger(HttpAsyncAndSyncRequestReceiver::class.java)

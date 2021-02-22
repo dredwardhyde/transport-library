@@ -7,7 +7,6 @@ import com.jaffa.rpc.lib.exception.JaffaRpcSystemException
 import com.jaffa.rpc.lib.serialization.Serializer
 import com.jaffa.rpc.lib.zeromq.CurveUtils
 import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender
-import com.jaffa.rpc.lib.zeromq.receivers.ZMQAsyncAndSyncRequestReceiver
 import com.jaffa.rpc.lib.zookeeper.Utils
 import org.slf4j.LoggerFactory
 import org.zeromq.*

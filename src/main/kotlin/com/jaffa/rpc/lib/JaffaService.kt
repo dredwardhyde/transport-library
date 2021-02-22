@@ -35,7 +35,6 @@ import kafka.admin.RackAwareMode
 import kafka.zk.AdminZkClient
 import kafka.zk.KafkaZkClient
 import kafka.zookeeper.ZooKeeperClient
-import lombok.extern.slf4j.Slf4j
 import org.apache.commons.collections4.map.HashedMap
 import org.apache.kafka.common.utils.Time
 import org.slf4j.LoggerFactory
@@ -50,14 +49,12 @@ import org.springframework.context.ApplicationContext
 import org.zeromq.ZContext
 import scala.Option
 import java.io.Closeable
-import java.lang.Boolean
 import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.function.Consumer
 import java.util.stream.Collectors
 import javax.annotation.PostConstruct
 
-@Slf4j
 open class JaffaService {
 
     private val log = LoggerFactory.getLogger(JaffaService::class.java)
@@ -120,7 +117,7 @@ open class JaffaService {
             factory.setPort(rabbitPort)
             factory.setUsername(System.getProperty(OptionConstants.RABBIT_LOGIN, "guest"))
             factory.setPassword(System.getProperty(OptionConstants.RABBIT_PASSWORD, "guest"))
-            if (Boolean.parseBoolean(System.getProperty(OptionConstants.RABBIT_USE_SSL, "false"))) {
+            if (System.getProperty(OptionConstants.RABBIT_USE_SSL, "false").toBoolean()) {
                 factory.setUseSSL(true)
                 factory.setKeyStore(Utils.getRequiredOption(OptionConstants.RABBIT_SSL_KEYSTORE_LOCATION))
                 factory.setKeyStorePassphrase(Utils.getRequiredOption(OptionConstants.RABBIT_SSL_KEYSTORE_PASSWORD))
@@ -378,7 +375,7 @@ open class JaffaService {
                 producerProps["bootstrap.servers"] = Utils.getRequiredOption(OptionConstants.KAFKA_BOOTSTRAP_SERVERS)
                 producerProps["key.serializer"] = "org.apache.kafka.common.serialization.StringSerializer"
                 producerProps["value.serializer"] = "org.apache.kafka.common.serialization.ByteArraySerializer"
-                if (Boolean.parseBoolean(System.getProperty(OptionConstants.KAFKA_USE_SSL, false.toString()))) {
+                if (System.getProperty(OptionConstants.KAFKA_USE_SSL, false.toString()).toBoolean()) {
                     val sslProps: MutableMap<String, String?> = HashMap()
                     sslProps["security.protocol"] = "SSL"
                     sslProps["ssl.truststore.location"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)
