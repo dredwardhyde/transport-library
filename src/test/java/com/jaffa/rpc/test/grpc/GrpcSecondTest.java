@@ -146,8 +146,8 @@ public class GrpcSecondTest {
         commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), null);
         command.setCallbackKey("xxx");
         command.setCallbackClass("xxx");
-        command.setMethodArgs(null);
-        command.setArgs(null);
+        command.setMethodArgs(new String[]{});
+        command.setArgs(new String[]{});
         commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), new StreamObserver<CommandResponse>() {
             @Override
             public void onNext(CommandResponse commandResponse) {

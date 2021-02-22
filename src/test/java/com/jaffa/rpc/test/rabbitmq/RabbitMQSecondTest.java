@@ -36,7 +36,7 @@ public class RabbitMQSecondTest {
         factory.setPort(5672);
         factory.setUsername(System.getProperty(OptionConstants.RABBIT_LOGIN, "guest"));
         factory.setPassword(System.getProperty(OptionConstants.RABBIT_PASSWORD, "guest"));
-        JaffaService.setConnectionFactory(new CachingConnectionFactory(factory.getRabbitConnectionFactory()));
+        JaffaService.Companion.setConnectionFactory(new CachingConnectionFactory(factory.getRabbitConnectionFactory()));
         try {
             RabbitMQRequestSender.init();
             fail();

@@ -2,6 +2,7 @@ package com.jaffa.rpc.test.http;
 
 import com.jaffa.rpc.lib.common.OptionConstants;
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException;
+import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.http.HttpRequestSender;
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncAndSyncRequestReceiver;
@@ -48,13 +49,13 @@ public class HttpSecondTest {
         try {
             httpRequestSender.executeAsync(new byte[]{});
             fail();
-        } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             //No-op
         }
         try {
             httpRequestSender.executeSync(new byte[]{});
             fail();
-        } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
+        } catch (JaffaRpcNoRouteException jaffaRpcExecutionException) {
             //No-op
         }
         HttpAsyncResponseReceiver httpAsyncResponseReceiver = new HttpAsyncResponseReceiver();

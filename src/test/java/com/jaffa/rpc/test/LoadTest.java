@@ -48,7 +48,7 @@ public class LoadTest {
                     // Async call
                     clientService.lol3("test3")
                             .onModule("load.server")
-                            .withTimeout(10, TimeUnit.SECONDS)
+                            .withTimeout(10L, TimeUnit.SECONDS)
                             .executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
                 }
                 try {

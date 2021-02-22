@@ -83,7 +83,7 @@ public class ZooKeeperSecondTest {
         } catch (JaffaRpcSystemException e) {
             //No-op
         }
-        if (Objects.nonNull(Utils.getConn())) {
+        if (Utils.getConn() != null) {
             try {
                 Utils.getConn().close();
             } catch (Exception exception) {

@@ -41,7 +41,7 @@ public abstract class AbstractFollowerTestServer {
 
         Runnable runnable = () -> {
             Integer id = personService.add("Test name 2", "test2@mail.com", null)
-                    .withTimeout(15, TimeUnit.SECONDS)
+                    .withTimeout(15L, TimeUnit.SECONDS)
                     .onModule("main.server")
                     .executeSync();
             Person person = personService.get(id)
@@ -75,7 +75,7 @@ public abstract class AbstractFollowerTestServer {
                     .executeAsync(UUID.randomUUID().toString(), PersonCallback.class);
 
             id = personService.add("Test name 2", "test2@mail.com", null)
-                    .withTimeout(10, TimeUnit.SECONDS)
+                    .withTimeout(10L, TimeUnit.SECONDS)
                     .onModule("test.server")
                     .executeSync();
             log.info("Resulting id is {}", id);
@@ -94,7 +94,7 @@ public abstract class AbstractFollowerTestServer {
                     .executeSync();
             clientService.lol4("test4")
                     .onModule("test.server")
-                    .withTimeout(10, TimeUnit.SECONDS)
+                    .withTimeout(10L, TimeUnit.SECONDS)
                     .executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
             personService.get(id)
                     .onModule("test.server")

@@ -42,16 +42,11 @@ public class ZeroMQSecondTest {
 
         ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(context, socket, ZeroMQSecondTest.class);
 
-        Method getPublicKeyFromPath = CurveUtils.class.getDeclaredMethod("getPublicKeyFromPath", String.class);
-        getPublicKeyFromPath.setAccessible(true);
+        String publicKey = CurveUtils.getPublicKeyFromPath("xxx");
 
-        String publicKey = (String) getPublicKeyFromPath.invoke(CurveUtils.class, new Object[]{"xxx"});
         Assertions.assertNull(publicKey);
 
-        Method getSecretKeyFromPath = CurveUtils.class.getDeclaredMethod("getSecretKeyFromPath", String.class);
-        getSecretKeyFromPath.setAccessible(true);
-
-        String secretKey = (String) getSecretKeyFromPath.invoke(CurveUtils.class, new Object[]{"xxx"});
+        String secretKey = CurveUtils.getSecretKeyFromPath("xxx");
         Assertions.assertNull(secretKey);
         System.setProperty("jaffa.rpc.test.server.protocol.zmq.curve.enabled", "false");
         try {

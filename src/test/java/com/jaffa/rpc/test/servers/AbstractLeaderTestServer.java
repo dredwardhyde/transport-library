@@ -66,7 +66,7 @@ public abstract class AbstractLeaderTestServer {
         log.info("Started {}", new Object() {
         }.getClass().getEnclosingMethod().getName());
         Integer id = personService.add("Test name", "test@mail.com", null)
-                .withTimeout(15, TimeUnit.SECONDS)
+                .withTimeout(15L, TimeUnit.SECONDS)
                 .onModule("test.server")
                 .executeSync();
         Person person = personService.get(id)
@@ -85,12 +85,12 @@ public abstract class AbstractLeaderTestServer {
                 .executeSync();
         clientService.lol4("test4")
                 .onModule("test.server")
-                .withTimeout(10, TimeUnit.SECONDS)
+                .withTimeout(10L, TimeUnit.SECONDS)
                 .executeAsync(UUID.randomUUID().toString(), ServiceCallback.class);
         try {
             clientService.lol4("test4")
                     .onModule("test.server")
-                    .withTimeout(5, TimeUnit.SECONDS)
+                    .withTimeout(5L, TimeUnit.SECONDS)
                     .executeSync();
             fail();
         } catch (JaffaRpcExecutionTimeoutException jaffaRpcExecutionTimeoutException) {

@@ -52,7 +52,7 @@ public class KafkaLeaderTest extends AbstractLeaderTestServer {
 
     @AfterAll
     public static void tearDown() {
-        if (Objects.nonNull(kafkaServer)) {
+        if (kafkaServer != null) {
             kafkaServer.shutdown();
             kafkaServer.awaitShutdown();
         }

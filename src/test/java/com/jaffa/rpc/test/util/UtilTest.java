@@ -55,7 +55,7 @@ public class UtilTest {
     public void stage1() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, IOException {
         OptionConstants.setModuleId("test.server");
         Utils.connect("localhost:2181");
-        JaffaService.getProducerProps().put("max.block.ms", "500");
+        JaffaService.Companion.getProducerProps().put("max.block.ms", "500");
         ZooKeeperClient zooKeeperClient = new ZooKeeperClient("localhost:2181",
                 200000,
                 15000,
@@ -63,13 +63,11 @@ public class UtilTest {
                 Time.SYSTEM,
                 UUID.randomUUID().toString(),
                 UUID.randomUUID().toString(),
-                null, Option.apply(ZooKeeperConnection.getZkConfig()));
-        JaffaService.setZkClient(new KafkaZkClient(zooKeeperClient, false, Time.SYSTEM));
-        JaffaService.setAdminZkClient(new AdminZkClient(JaffaService.getZkClient()));
-        Method method = JaffaService.class.getDeclaredMethod("loadInternalProperties");
-        method.setAccessible(true);
-        method.invoke(JaffaService.class);
-        Properties consumerProps = JaffaService.getConsumerProps();
+                null, Option.apply(ZooKeeperConnection.Companion.getZkConfig()));
+        JaffaService.Companion.setZkClient(new KafkaZkClient(zooKeeperClient, false, Time.SYSTEM));
+        JaffaService.Companion.setAdminZkClient(new AdminZkClient(JaffaService.Companion.getZkClient()));
+        JaffaService.Companion.loadInternalProperties();
+        Properties consumerProps = JaffaService.Companion.getConsumerProps();
         Assertions.assertEquals("src/test/resources/truststore.jks", consumerProps.get("ssl.truststore.location"));
         Assertions.assertEquals("simulator", consumerProps.get("ssl.truststore.password"));
         Assertions.assertEquals("src/test/resources/keystore.jks", consumerProps.get("ssl.keystore.location"));
@@ -88,8 +86,8 @@ public class UtilTest {
         KafkaConfig config = new KafkaConfig(brokerProps);
         KafkaServer kafkaServer = TestUtils.createServer(config, Time.SYSTEM);
         kafkaServer.startup();
-        JaffaService.getAdminZkClient().createTopic("xxx-test.server-server-async", 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$);
-        JaffaService.getAdminZkClient().createTopic("xxx-test.server-server-sync", 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$);
+        JaffaService.Companion.getAdminZkClient().createTopic("xxx-test.server-server-async", 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$);
+        JaffaService.Companion.getAdminZkClient().createTopic("xxx-test.server-server-sync", 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$);
         kafkaServer.shutdown();
         kafkaServer.awaitShutdown();
         KafkaRequestSender sender = new KafkaRequestSender();
@@ -122,6 +120,6 @@ public class UtilTest {
         }
         Assertions.assertNotNull(hook);
         Assertions.assertNotNull(runMethod);
-        method.invoke(hook);
+        runMethod.invoke(hook);
     }
 }

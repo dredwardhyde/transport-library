@@ -45,7 +45,7 @@ public class AdminServerTest {
     public void setUp() throws Exception {
         OptionConstants.setModuleId("test.server");
         HttpAsyncAndSyncRequestReceiver.initClient();
-        client = HttpAsyncAndSyncRequestReceiver.getClient();
+        client = HttpAsyncAndSyncRequestReceiver.client;
         adminServer = new AdminServer();
         adminServer.init();
         Field f = AdminServer.class.getDeclaredField("server");
@@ -84,7 +84,7 @@ public class AdminServerTest {
     public void tearDown() {
         adminServer.destroy();
         try {
-            HttpAsyncAndSyncRequestReceiver.getClient().close();
+            HttpAsyncAndSyncRequestReceiver.client.close();
         } catch (IOException e) {
             log.error("Error while closing HTTP client", e);
         }

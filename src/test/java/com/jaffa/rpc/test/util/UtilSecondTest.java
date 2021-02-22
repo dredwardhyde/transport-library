@@ -45,13 +45,13 @@ public class UtilSecondTest {
             //No-op
         }
         try {
-            request.withTimeout(10, null);
+            request.withTimeout(10L, null);
             Assertions.fail();
         } catch (IllegalArgumentException e) {
             //No-op
         }
         try {
-            request.withTimeout(-10, TimeUnit.SECONDS);
+            request.withTimeout(-10L, TimeUnit.SECONDS);
             Assertions.fail();
         } catch (IllegalArgumentException e) {
             //No-op
