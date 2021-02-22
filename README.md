@@ -42,7 +42,7 @@
     - More efficient
     - **Only stacktraces will be returned in response**
 - **User could specify custom OTT provider (see example below)**
-
+- **Prometheus metrics published on port 1234**
 ## Latency
 
 Only **relative** latency could be estimated, because hardware and software varies greatly.   
