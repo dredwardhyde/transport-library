@@ -13,7 +13,6 @@ import org.zeromq.*
 import zmq.ZError
 import java.io.Closeable
 import java.io.IOException
-import java.lang.Boolean
 import java.net.UnknownHostException
 import java.util.concurrent.Executors
 
@@ -70,7 +69,7 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
     @Throws(UnknownHostException::class)
     override fun close() {
         ZMQAsyncResponseReceiver.sendKillMessageToSocket(Utils.zeroMQBindAddress)
-        if (Boolean.parseBoolean(System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()))) {
+        if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
             try {
                 auth?.close()
             } catch (ioException: IOException) {

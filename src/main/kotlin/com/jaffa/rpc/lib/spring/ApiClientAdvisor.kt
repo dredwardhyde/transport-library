@@ -39,7 +39,7 @@ class ApiClientAdvisor : AbstractPointcutAdvisor() {
     @Autowired
     @Transient
     private val context: ApplicationContext? = null
-    fun setMetadata(command: Command) {
+    private fun setMetadata(command: Command) {
         try {
             if (Utils.rpcProtocol == Protocol.ZMQ) command.callBackHost = Utils.zeroMQCallbackBindAddress
             if (Utils.rpcProtocol == Protocol.HTTP) command.callBackHost = Utils.httpCallbackStringAddress
