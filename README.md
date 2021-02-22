@@ -79,6 +79,8 @@ Dashboard URL is logged at startup like this:
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_async.PNG" width="1000"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_async.PNG" width="1000"/>  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_async.png" width="1000"/>  
+
+#### gRPC
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/grpc_async.png" width="1000"/>
 
 ## How to use
