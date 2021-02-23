@@ -11,7 +11,6 @@ import com.jaffa.rpc.lib.kafka.KafkaRequestSender
 import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender
 import com.jaffa.rpc.lib.request.Sender
 import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender
-import lombok.extern.slf4j.Slf4j
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.lang3.tuple.ImmutablePair
 import org.apache.commons.lang3.tuple.MutablePair
@@ -305,7 +304,6 @@ object Utils {
     }
 }
 
-@Slf4j
 internal class ShutdownHook : Thread() {
 
     private val log = LoggerFactory.getLogger(ShutdownHook::class.java)
