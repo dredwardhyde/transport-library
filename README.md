@@ -58,7 +58,11 @@ Dashboard URL is logged at startup like this:
 
 #### ZeroMQ  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_sync.png" width="1000"/>  
+
+#### Apache Kafka  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_sync.png" width="1000"/>  
+
+#### RabbitMQ  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_sync.png" width="1000"/>
 
 #### gRPC  
@@ -67,8 +71,14 @@ Dashboard URL is logged at startup like this:
 #### Synchronous RPC  (500kb request/ 500kb response)  
 #### HTTP  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_heavy.png" width="1000"/>  
+
+#### ZeroMQ  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_heavy.png" width="1000"/>  
+
+#### Apache Kafka  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_heavy.png" width="1000"/>  
+
+#### RabbitMQ
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_heavy.png" width="1000"/>  
 
 #### gRPC  
@@ -76,11 +86,15 @@ Dashboard URL is logged at startup like this:
 
 #### Asynchronous RPC  
 #### HTTP  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_async.PNG" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/http_async.png" width="1000"/>  
 
 #### ZeroMQ  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_async.PNG" width="1000"/>  
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_async.PNG" width="1000"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/zmq_async.png" width="1000"/>  
+
+#### Apache Kafka  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/kafka_async.png" width="1000"/>  
+
+#### RabbitMQ  
 <img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/rabbit_async.png" width="1000"/>  
 
 #### gRPC
