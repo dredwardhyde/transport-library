@@ -88,14 +88,13 @@ object RequestInvocationHelper {
     }
 
     @Throws(ClassNotFoundException::class, NoSuchMethodException::class)
-    fun constructCallbackContainer(command: Command, result: Any?): CallbackContainer {
+    fun constructCallbackContainer(command: Command, res: Any?): CallbackContainer {
         val callbackContainer = CallbackContainer()
-        callbackContainer.key = command.callbackKey
-        callbackContainer.listener = command.callbackClass
-        callbackContainer.result = getResult(result)
-        val targetMethod = getTargetMethod(command)
-        if (targetMethod != null) {
-            callbackContainer.resultClass = primitiveToWrapper(targetMethod.returnType).name
+        with(callbackContainer){
+            key = command.callbackKey
+            listener = command.callbackClass
+            result = getResult(res)
+            getTargetMethod(command)?.let {resultClass = primitiveToWrapper(it.returnType).name }
         }
         return callbackContainer
     }

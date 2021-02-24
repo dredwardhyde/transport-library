@@ -133,12 +133,8 @@ class AdminServer {
 
     @PreDestroy
     fun destroy() {
-        if (server != null) {
-            server?.stop(2)
-        }
-        if (prometheusServer != null) {
-            prometheusServer?.stop()
-        }
+        server?.stop(2)
+        prometheusServer?.stop()
     }
 
     class ResponseMetric(val time: Long, val duration: Double)

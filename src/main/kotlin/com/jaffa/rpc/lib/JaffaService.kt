@@ -308,7 +308,7 @@ open class JaffaService {
                         Utils.deleteAllRegistrations(service)
                     }
                 }
-                if (Utils.conn != null) Utils.conn?.close()
+                Utils.conn?.close()
                 Utils.conn = null
             } catch (e: Exception) {
                 log.error("Unable to unregister services from ZooKeeper cluster, probably it was done earlier", e)

@@ -316,7 +316,7 @@ internal class ShutdownHook : Thread() {
                         Utils.deleteAllRegistrations(service)
                     }
                 }
-                if (Utils.conn != null) Utils.conn?.close()
+                Utils.conn?.close()
             }
             Utils.conn = null
         } catch (e: Exception) {
