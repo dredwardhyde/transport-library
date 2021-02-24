@@ -62,14 +62,11 @@ object MessageConverterHelper {
             if (StringUtils.isNotBlank(command.serviceClass)) serviceClass = command.serviceClass
             if (StringUtils.isNotBlank(command.sourceModuleId)) sourceModuleId = command.sourceModuleId
         }
-        if (command.ticket != null) {
-            commandRequest.setUser(command.ticket?.user).token = command.ticket?.token
-        }
+        command.ticket?.let { commandRequest.setUser(it.user).token = it.token }
         for (i in command.methodArgs.indices) {
             commandRequest = commandRequest.addMethodArgs(command.methodArgs[i])
-            if (command.args[i] != null) commandRequest.addArgs(ByteString.copyFrom(Serializer.current.serialize(command.args[i]))) else commandRequest.addArgs(
-                ByteString.EMPTY
-            )
+            if (command.args[i] != null) commandRequest.addArgs(ByteString.copyFrom(Serializer.current.serialize(command.args[i])))
+            else commandRequest.addArgs(ByteString.EMPTY)
         }
         return commandRequest.build()
     }

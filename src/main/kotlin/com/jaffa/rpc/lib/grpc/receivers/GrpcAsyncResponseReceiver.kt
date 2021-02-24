@@ -19,11 +19,9 @@ class GrpcAsyncResponseReceiver : Runnable, Closeable {
     private var server: Server? = null
     override fun run() {
         try {
-            var serverBuilder = NettyServerBuilder.forPort(Utils.callbackPort)
-            serverBuilder = GrpcAsyncAndSyncRequestReceiver.addSecurityContext(serverBuilder)
-            server = serverBuilder.executor(requestService).addService(CallbackServiceImpl()).build()
-            server?.start()
-            server?.awaitTermination()
+            server = GrpcAsyncAndSyncRequestReceiver.addSecurityContext(NettyServerBuilder.forPort(Utils.callbackPort))
+                .executor(requestService).addService(CallbackServiceImpl()).build().also { it.start() }
+                .also { it.awaitTermination() }
         } catch (zmqStartupException: Exception) {
             log.error("Error during gRPC async response receiver startup:", zmqStartupException)
             throw JaffaRpcSystemException(zmqStartupException)
@@ -42,8 +40,7 @@ class GrpcAsyncResponseReceiver : Runnable, Closeable {
 
         override fun execute(request: CallbackRequest, responseObserver: StreamObserver<CallbackResponse>) {
             try {
-                val callbackContainer = MessageConverterHelper.fromGRPCCallbackRequest(request)
-                RequestInvocationHelper.processCallbackContainer(callbackContainer)
+                RequestInvocationHelper.processCallbackContainer(MessageConverterHelper.fromGRPCCallbackRequest(request))
                 responseObserver.onNext(CallbackResponse.newBuilder().setResponse("OK").build())
                 responseObserver.onCompleted()
             } catch (exception: Exception) {

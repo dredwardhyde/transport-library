@@ -34,10 +34,7 @@ class HttpRequestSender : Sender() {
                     moduleId,
                     Protocol.HTTP
                 ).left.toString() + "/request"
-            )
-            httpPost.config = config
-            val postParams: HttpEntity = ByteArrayEntity(message)
-            httpPost.entity = postParams
+            ).also { it.config = config }.also { it.entity = ByteArrayEntity(message) }
             val httpResponse: CloseableHttpResponse = try {
                 HttpAsyncAndSyncRequestReceiver.client.execute(httpPost)
             } catch (e: ConnectTimeoutException) {
@@ -72,9 +69,7 @@ class HttpRequestSender : Sender() {
                     moduleId,
                     Protocol.HTTP
                 ).left.toString() + "/request"
-            )
-            val postParams: HttpEntity = ByteArrayEntity(message)
-            httpPost.entity = postParams
+            ).also { it.entity = ByteArrayEntity(message) }
             val httpResponse = HttpAsyncAndSyncRequestReceiver.client.execute(httpPost)
             val response = httpResponse.statusLine.statusCode
             httpResponse.close()

@@ -34,10 +34,8 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
                 httpsServer
             } else {
                 HttpServer.create(Utils.httpCallbackBindAddress, 0)
-            }
-            server?.createContext("/response", HttpRequestHandler())
-            server?.executor = Executors.newFixedThreadPool(3)
-            server?.start()
+            }.also { it.createContext("/response", HttpRequestHandler()) }
+                .also { it.executor = Executors.newFixedThreadPool(3) }.also { it.start() }
         } catch (httpServerStartupException: Exception) {
             log.error("Error during HTTP request receiver startup:", httpServerStartupException)
             throw JaffaRpcSystemException(httpServerStartupException)

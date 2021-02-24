@@ -33,11 +33,9 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
     var server: Server? = null
     override fun run() {
         try {
-            var serverBuilder = NettyServerBuilder.forPort(Utils.servicePort)
-            serverBuilder = addSecurityContext(serverBuilder)
-            server = serverBuilder.executor(requestService).addService(CommandServiceImpl()).build()
-            server?.start()
-            server?.awaitTermination()
+            val serverBuilder = NettyServerBuilder.forPort(Utils.servicePort).also { addSecurityContext(it) }
+            server = serverBuilder.executor(requestService).addService(CommandServiceImpl()).build().also { it.start() }
+                .also { it.awaitTermination() }
         } catch (grpcStartupException: Exception) {
             log.error("Error during gRPC request receiver startup:", grpcStartupException)
             throw JaffaRpcSystemException(grpcStartupException)
@@ -66,17 +64,20 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 if (StringUtils.isNotBlank(command.callbackKey) && StringUtils.isNotBlank(command.callbackClass)) {
                     val runnable = Runnable {
                         try {
-                            val result = RequestInvocationHelper.invoke(command)
                             val callbackResponse = MessageConverterHelper.toGRPCCallbackRequest(
                                 RequestInvocationHelper.constructCallbackContainer(
                                     command,
-                                    result
+                                    RequestInvocationHelper.invoke(command)
                                 )
                             )
-                            val hostAndPort = Utils.getHostAndPort(command.callBackHost, ":")
-                            val channel = getManagedChannel(hostAndPort)
-                            val stub = CallbackServiceGrpc.newBlockingStub(channel)
-                            stub.execute(callbackResponse)
+                            CallbackServiceGrpc.newBlockingStub(
+                                getManagedChannel(
+                                    Utils.getHostAndPort(
+                                        command.callBackHost,
+                                        ":"
+                                    )
+                                )
+                            ).also { it.execute(callbackResponse) }
                         } catch (exception: Exception) {
                             log.error("Error while receiving async request", exception)
                         }

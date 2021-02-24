@@ -53,9 +53,12 @@ class GrpcRequestSender : Sender() {
             val hostAndPort =
                 Utils.getHostAndPort(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.GRPC).left, ":")
             return cache.computeIfAbsent(hostAndPort) { key: Pair<String?, Int?>? ->
-                var channelBuilder = NettyChannelBuilder.forAddress(key?.left, key?.right!!)
-                channelBuilder = GrpcAsyncAndSyncRequestReceiver.addSecurityContext(channelBuilder)
-                channelBuilder.build()
+                GrpcAsyncAndSyncRequestReceiver.addSecurityContext(
+                    NettyChannelBuilder.forAddress(
+                        key?.left,
+                        key?.right!!
+                    )
+                ).build()
             }
         }
 
