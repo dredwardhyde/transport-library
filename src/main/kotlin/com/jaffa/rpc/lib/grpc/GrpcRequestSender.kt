@@ -32,12 +32,12 @@ class GrpcRequestSender : Sender() {
 
     override fun executeSync(command: Command): Any? {
         try {
-            val channel = managedChannel
-            val stub = CommandServiceGrpc.newBlockingStub(channel)
             val totalTimeout = (if (timeout == -1L) 1000 * 60 * 60 else timeout).toInt()
-            val commandResponse = stub.withDeadlineAfter(totalTimeout.toLong(), TimeUnit.MILLISECONDS)
-                .execute(MessageConverterHelper.toGRPCCommandRequest(command))
-            return MessageConverterHelper.fromGRPCCommandResponse(commandResponse)
+            return MessageConverterHelper.fromGRPCCommandResponse(
+                CommandServiceGrpc.newBlockingStub(managedChannel)
+                    .withDeadlineAfter(totalTimeout.toLong(), TimeUnit.MILLISECONDS)
+                    .execute(MessageConverterHelper.toGRPCCommandRequest(command))
+            )
         } catch (statusRuntimeException: StatusRuntimeException) {
             processStatusException(statusRuntimeException)
         } catch (jaffaRpcNoRouteException: JaffaRpcNoRouteException) {
@@ -50,9 +50,15 @@ class GrpcRequestSender : Sender() {
 
     private val managedChannel: ManagedChannel
         get() {
-            val hostAndPort =
-                Utils.getHostAndPort(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.GRPC).left, ":")
-            return cache.computeIfAbsent(hostAndPort) { key: Pair<String?, Int?>? ->
+            return cache.computeIfAbsent(
+                Utils.getHostAndPort(
+                    Utils.getHostForService(
+                        command?.serviceClass,
+                        moduleId,
+                        Protocol.GRPC
+                    ).left, ":"
+                )
+            ) { key: Pair<String?, Int?>? ->
                 GrpcAsyncAndSyncRequestReceiver.addSecurityContext(
                     NettyChannelBuilder.forAddress(
                         key?.left,
@@ -63,16 +69,19 @@ class GrpcRequestSender : Sender() {
         }
 
     private fun processStatusException(statusRuntimeException: StatusRuntimeException) {
-        if (statusRuntimeException.status.code == Status.DEADLINE_EXCEEDED.code) throw JaffaRpcExecutionTimeoutException() else if (statusRuntimeException.status.code == Status.UNAVAILABLE.code) {
-            throw JaffaRpcNoRouteException(command?.serviceClass, Protocol.GRPC)
-        } else throw JaffaRpcExecutionException(statusRuntimeException)
+        when (statusRuntimeException.status.code) {
+            Status.DEADLINE_EXCEEDED.code -> throw JaffaRpcExecutionTimeoutException()
+            Status.UNAVAILABLE.code -> {
+                throw JaffaRpcNoRouteException(command?.serviceClass, Protocol.GRPC)
+            }
+            else -> throw JaffaRpcExecutionException(statusRuntimeException)
+        }
     }
 
     override fun executeAsync(command: Command) {
         try {
-            val channel = managedChannel
-            val stub = CommandServiceGrpc.newBlockingStub(channel)
-            val response = stub.execute(MessageConverterHelper.toGRPCCommandRequest(command))
+            val response = CommandServiceGrpc.newBlockingStub(managedChannel)
+                .execute(MessageConverterHelper.toGRPCCommandRequest(command))
             if (response.response != ByteString.EMPTY) throw JaffaRpcExecutionException("Wrong value returned after async callback processing!")
         } catch (statusRuntimeException: StatusRuntimeException) {
             processStatusException(statusRuntimeException)

@@ -14,7 +14,6 @@ import com.sun.net.httpserver.HttpServer
 import com.sun.net.httpserver.HttpsConfigurator
 import com.sun.net.httpserver.HttpsParameters
 import com.sun.net.httpserver.HttpsServer
-import org.apache.http.HttpEntity
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.config.RegistryBuilder
 import org.apache.http.conn.socket.ConnectionSocketFactory
@@ -92,17 +91,16 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 request.close()
                 val runnable = Runnable {
                     try {
-                        val result = RequestInvocationHelper.invoke(command)
-                        val serializedResponse = Serializer.current.serialize(
-                            RequestInvocationHelper.constructCallbackContainer(
-                                command,
-                                result
+                        val httpResponse = client.execute(HttpPost(command.callBackHost + "/response").also {
+                            it.entity = ByteArrayEntity(
+                                Serializer.current.serialize(
+                                    RequestInvocationHelper.constructCallbackContainer(
+                                        command,
+                                        RequestInvocationHelper.invoke(command)
+                                    )
+                                )
                             )
-                        )
-                        val httpPost = HttpPost(command.callBackHost + "/response")
-                        val postParams: HttpEntity = ByteArrayEntity(serializedResponse)
-                        httpPost.entity = postParams
-                        val httpResponse = client.execute(httpPost)
+                        })
                         val callBackResponse = httpResponse.statusLine.statusCode
                         httpResponse.close()
                         if (callBackResponse != 200) {
@@ -115,8 +113,12 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 service.execute(runnable)
             } else {
                 try {
-                    val result = command?.let { RequestInvocationHelper.invoke(it) }
-                    val response = Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(result))
+                    val response =
+                        Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let {
+                            RequestInvocationHelper.invoke(
+                                it
+                            )
+                        }))
                     response?.size?.toLong()?.let { request.sendResponseHeaders(200, it) }
                     val os = request.responseBody
                     os.write(response)
@@ -192,15 +194,14 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
             keyStorePassword: String
         ) {
             val keyPassphrase = keyStorePassword.toCharArray()
-            val ks = KeyStore.getInstance("JKS")
-            ks.load(FileInputStream(keyStoreLocation), keyPassphrase)
             val kmf = KeyManagerFactory.getInstance("SunX509")
-            kmf.init(ks, keyPassphrase)
+            kmf.init(
+                KeyStore.getInstance("JKS").also { it.load(FileInputStream(keyStoreLocation), keyPassphrase) },
+                keyPassphrase
+            )
             val trustPassphrase = trustStorePassword.toCharArray()
-            val tks = KeyStore.getInstance("JKS")
-            tks.load(FileInputStream(trustStoreLocation), trustPassphrase)
             val tmf = TrustManagerFactory.getInstance("SunX509")
-            tmf.init(tks)
+            tmf.init(KeyStore.getInstance("JKS").also { it.load(FileInputStream(trustStoreLocation), trustPassphrase) })
             val c = SSLContext.getInstance("TLSv1.2")
             c.init(kmf.keyManagers, tmf.trustManagers, null)
             httpsServer.httpsConfigurator = object : HttpsConfigurator(c) {
@@ -208,11 +209,12 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     try {
                         val c = SSLContext.getDefault()
                         val engine = c.createSSLEngine()
-                        params.needClientAuth = true
-                        params.cipherSuites = engine.enabledCipherSuites
-                        params.protocols = engine.enabledProtocols
-                        val defaultSSLParameters = c.defaultSSLParameters
-                        params.setSSLParameters(defaultSSLParameters)
+                        with(params) {
+                            needClientAuth = true
+                            cipherSuites = engine.enabledCipherSuites
+                            protocols = engine.enabledProtocols
+                            setSSLParameters(c.defaultSSLParameters)
+                        }
                     } catch (ex: Exception) {
                         log.error("Failed to create Jaffa HTTPS server", ex)
                         throw JaffaRpcSystemException(ex)

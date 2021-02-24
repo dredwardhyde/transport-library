@@ -47,12 +47,13 @@ class KafkaAsyncRequestReceiver(private val countDownLatch: CountDownLatch?) : K
                                 result
                             )
                         })
-                        val resultPackage = ProducerRecord(
-                            Utils.getServiceInterfaceNameFromClient(command?.serviceClass) + "-" + command?.sourceModuleId + "-client-async",
-                            UUID.randomUUID().toString(),
-                            serializedResponse
-                        )
-                        producer.send(resultPackage).get()
+                        producer.send(
+                            ProducerRecord(
+                                Utils.getServiceInterfaceNameFromClient(command?.serviceClass) + "-" + command?.sourceModuleId + "-client-async",
+                                UUID.randomUUID().toString(),
+                                serializedResponse
+                            )
+                        ).get()
                         val commitData: MutableMap<TopicPartition, OffsetAndMetadata> = HashMap()
                         commitData[TopicPartition(record.topic(), record.partition())] =
                             OffsetAndMetadata(record.offset())

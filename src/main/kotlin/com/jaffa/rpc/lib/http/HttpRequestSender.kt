@@ -23,17 +23,18 @@ class HttpRequestSender : Sender() {
     public override fun executeSync(message: ByteArray?): ByteArray? {
         return try {
             val totalTimeout = (if (timeout == -1L) 1000 * 60 * 60 else timeout).toInt()
-            val config = RequestConfig.custom()
-                .setConnectTimeout(totalTimeout)
-                .setConnectionRequestTimeout(totalTimeout)
-                .setSocketTimeout(totalTimeout).build()
             val httpPost = HttpPost(
                 Utils.getHostForService(
                     command?.serviceClass,
                     moduleId,
                     Protocol.HTTP
                 ).left.toString() + "/request"
-            ).also { it.config = config }.also { it.entity = ByteArrayEntity(message) }
+            ).also {
+                it.config = RequestConfig.custom()
+                    .setConnectTimeout(totalTimeout)
+                    .setConnectionRequestTimeout(totalTimeout)
+                    .setSocketTimeout(totalTimeout).build()
+            }.also { it.entity = ByteArrayEntity(message) }
             val httpResponse: CloseableHttpResponse = try {
                 HttpAsyncAndSyncRequestReceiver.client.execute(httpPost)
             } catch (e: ConnectTimeoutException) {
