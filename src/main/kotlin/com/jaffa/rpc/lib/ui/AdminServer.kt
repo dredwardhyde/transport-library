@@ -31,7 +31,6 @@ import javax.annotation.PreDestroy
 @Component
 @DependsOn("jaffaService")
 class AdminServer {
-    private val log = LoggerFactory.getLogger(AdminServer::class.java)
 
     private var server: HttpServer? = null
 

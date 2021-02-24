@@ -22,8 +22,6 @@ import java.util.concurrent.Executors
 
 class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
-    private val log = LoggerFactory.getLogger(ZMQAsyncAndSyncRequestReceiver::class.java)
-
     private var context: ZContext? = null
     private var socket: ZMQ.Socket? = null
     private var auth: ZAuth? = null
@@ -38,34 +36,30 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 val command = Serializer.current.deserialize(bytes, Command::class.java)
                 if (command?.callbackKey != null && command.callbackClass != null) {
                     socket?.send("OK")
-                    val runnable = Runnable {
+                    service.execute {
                         try {
                             context?.createSocket(SocketType.REQ)
-                                .also { ZeroMqRequestSender.addCurveKeysToSocket(it, command.sourceModuleId) }
-                                .also { it?.connect("tcp://" + command.callBackHost) }
-                                .also {
-                                    it?.send(
-                                        Serializer.current.serialize(
-                                            RequestInvocationHelper.constructCallbackContainer(
-                                                command,
-                                                RequestInvocationHelper.invoke(command)
-                                            )
-                                        ), 0
-                                    )
-                                }
-                                .also { log.debug("Async response to request {} is ready", command.callbackKey) }
-                                .also { it?.recv(0) }
-                                .also { context?.destroySocket(it) }
+                                    .also { ZeroMqRequestSender.addCurveKeysToSocket(it, command.sourceModuleId) }
+                                    .also { it?.connect("tcp://" + command.callBackHost) }
+                                    .also {
+                                        it?.send(
+                                                Serializer.current.serialize(
+                                                        RequestInvocationHelper.constructCallbackContainer(
+                                                                command,
+                                                                RequestInvocationHelper.invoke(command)
+                                                        )
+                                                ), 0
+                                        )
+                                    }
+                                    .also { log.debug("Async response to request {} is ready", command.callbackKey) }
+                                    .also { it?.recv(0) }
+                                    .also { context?.destroySocket(it) }
                         } catch (exception: Exception) {
                             log.error("Error while receiving async request", exception)
                         }
                     }
-                    service.execute(runnable)
                 } else {
-                    val result = command?.let { RequestInvocationHelper.invoke(it) }
-                    val serializedResponse =
-                        Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(result))
-                    socket?.send(serializedResponse)
+                    socket?.send(Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let { RequestInvocationHelper.invoke(it) })))
                 }
             } catch (recvTerminationException: ZMQException) {
                 checkZMQExceptionAndThrow(recvTerminationException)
@@ -100,9 +94,8 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
         @kotlin.jvm.JvmStatic
         fun checkZMQExceptionAndThrow(recvTerminationException: Exception) {
-            if (!recvTerminationException.message?.contains("Errno 4")!! && !recvTerminationException.message?.contains(
-                    "156384765"
-                )!!
+            if (!recvTerminationException.message?.contains("Errno 4")!!
+                    && !recvTerminationException.message?.contains("156384765")!!
             ) {
                 log.error("General ZMQ exception", recvTerminationException)
                 throw JaffaRpcSystemException(recvTerminationException)
@@ -122,16 +115,13 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
         try {
             context = ZContext(10).also { it.linger = 0 }
             if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
-                auth =
-                    ZAuth(context).also { it.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR)) }
+                auth = ZAuth(context).also { it.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR)) }
             }
-            socket = context?.createSocket(SocketType.REP).also { CurveUtils.makeSocketSecure(it) }
-            socket?.bind("tcp://" + Utils.zeroMQBindAddress)
+            socket = context?.createSocket(SocketType.REP)
+                    .also { CurveUtils.makeSocketSecure(it) }
+                    .also { it?.bind("tcp://" + Utils.zeroMQBindAddress) }
         } catch (zmqStartupException: Exception) {
-            ZMQAsyncAndSyncRequestReceiver.log.error(
-                "Error during ZeroMQ request receiver startup:",
-                zmqStartupException
-            )
+            log.error("Error during ZeroMQ request receiver startup:", zmqStartupException)
             throw JaffaRpcSystemException(zmqStartupException)
         }
     }

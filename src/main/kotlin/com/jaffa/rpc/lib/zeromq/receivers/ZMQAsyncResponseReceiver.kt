@@ -21,8 +21,6 @@ import java.net.UnknownHostException
 
 class ZMQAsyncResponseReceiver : Runnable, Closeable {
 
-    private val log = LoggerFactory.getLogger(ZMQAsyncResponseReceiver::class.java)
-
     private var context: ZContext? = null
     private var socket: ZMQ.Socket? = null
     private var auth: ZAuth? = null
@@ -33,14 +31,13 @@ class ZMQAsyncResponseReceiver : Runnable, Closeable {
                 socket?.send(byteArrayOf(4))
                 if (bytes != null && bytes.size == 1 && bytes[0] == 7.toByte()) {
                     ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(
-                        context,
-                        socket,
-                        ZMQAsyncResponseReceiver::class.java
+                            context,
+                            socket,
+                            ZMQAsyncResponseReceiver::class.java
                     )
                     break
                 }
-                val callbackContainer = Serializer.current.deserialize(bytes, CallbackContainer::class.java)
-                RequestInvocationHelper.processCallbackContainer(callbackContainer)
+                RequestInvocationHelper.processCallbackContainer(Serializer.current.deserialize(bytes, CallbackContainer::class.java))
             } catch (recvTerminationException: ZMQException) {
                 ZMQAsyncAndSyncRequestReceiver.checkZMQExceptionAndThrow(recvTerminationException)
             } catch (recvTerminationException: ZError.IOException) {
@@ -92,8 +89,7 @@ class ZMQAsyncResponseReceiver : Runnable, Closeable {
             context = ZContext(10)
             context?.linger = 0
             if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
-                auth = ZAuth(context)
-                auth?.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR))
+                auth = ZAuth(context).also { it.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR)) }
             }
             socket = context?.createSocket(SocketType.REP)
             CurveUtils.makeSocketSecure(socket)

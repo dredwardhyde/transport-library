@@ -41,7 +41,6 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
 
 class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
-    private val log = LoggerFactory.getLogger(HttpAsyncAndSyncRequestReceiver::class.java)
     private var server: HttpServer? = null
     override fun run() {
         try {

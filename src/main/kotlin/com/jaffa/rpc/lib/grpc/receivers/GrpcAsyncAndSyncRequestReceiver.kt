@@ -28,8 +28,6 @@ import java.util.function.Consumer
 
 class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
-    private val log = LoggerFactory.getLogger(GrpcAsyncAndSyncRequestReceiver::class.java)
-
     var server: Server? = null
     override fun run() {
         try {

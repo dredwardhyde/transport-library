@@ -24,8 +24,6 @@ import java.util.concurrent.atomic.AtomicReference
 
 class RabbitMQRequestSender : Sender() {
 
-    private val log = LoggerFactory.getLogger(RabbitMQRequestSender::class.java)
-
     public override fun executeSync(message: ByteArray?): ByteArray? {
         try {
             val atomicReference = AtomicReference<ByteArray>()
