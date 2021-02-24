@@ -8,7 +8,6 @@ import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncAndSyncRequestReceiver
 import com.jaffa.rpc.lib.request.Sender
 import com.jaffa.rpc.lib.zookeeper.Utils
-import org.apache.http.HttpEntity
 import org.apache.http.client.config.RequestConfig
 import org.apache.http.client.methods.CloseableHttpResponse
 import org.apache.http.client.methods.HttpPost

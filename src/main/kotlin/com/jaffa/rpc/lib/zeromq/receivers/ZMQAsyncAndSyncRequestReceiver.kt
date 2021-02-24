@@ -122,7 +122,8 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
         try {
             context = ZContext(10).also { it.linger = 0 }
             if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
-                auth = ZAuth(context).also { it.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR)) }
+                auth =
+                    ZAuth(context).also { it.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR)) }
             }
             socket = context?.createSocket(SocketType.REP).also { CurveUtils.makeSocketSecure(it) }
             socket?.bind("tcp://" + Utils.zeroMQBindAddress)
