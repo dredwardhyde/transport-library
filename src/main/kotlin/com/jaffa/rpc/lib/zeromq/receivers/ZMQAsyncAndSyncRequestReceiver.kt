@@ -36,6 +36,7 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     break
                 }
                 val command = Serializer.current.deserialize(bytes, Command::class.java)
+                val result = command?.let { RequestInvocationHelper.invoke(it) }
                 if (command?.callbackKey != null && command.callbackClass != null) {
                     socket?.send("OK")
                     val runnable = Runnable {
@@ -49,7 +50,7 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                                         Serializer.current.serialize(
                                             RequestInvocationHelper.constructCallbackContainer(
                                                 command,
-                                                RequestInvocationHelper.invoke(command)
+                                                result
                                             )
                                         ), 0
                                     )
