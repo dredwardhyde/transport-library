@@ -67,6 +67,7 @@ class RabbitMQAsyncResponseReceiver : Runnable, Closeable {
         } catch (ignore: IOException) {
             // No-op
         } catch (ignore: TimeoutException) {
+            // No-op
         }
         connection?.close()
     }

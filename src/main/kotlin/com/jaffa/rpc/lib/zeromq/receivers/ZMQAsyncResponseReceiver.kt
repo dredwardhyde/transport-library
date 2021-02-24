@@ -95,7 +95,7 @@ class ZMQAsyncResponseReceiver : Runnable, Closeable {
             CurveUtils.makeSocketSecure(socket)
             socket?.bind("tcp://" + Utils.zeroMQCallbackBindAddress)
         } catch (zmqStartupException: UnknownHostException) {
-            ZMQAsyncResponseReceiver.log.error("Error during ZeroMQ response receiver startup:", zmqStartupException)
+            log.error("Error during ZeroMQ response receiver startup:", zmqStartupException)
             throw JaffaRpcSystemException(zmqStartupException)
         }
     }

@@ -121,17 +121,17 @@ class AdminServer {
                     (if (useHttps) "https://" else "http://") + server?.address?.hostName + ":" + server?.address?.port + "/admin"
             )
         } catch (httpServerStartupException: IOException) {
-            log.error("Exception during admin HTTP server startup", httpServerStartupException)
+            log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
         } catch (httpServerStartupException: KeyStoreException) {
-            log.error("Exception during admin HTTP server startup", httpServerStartupException)
+            log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
         } catch (httpServerStartupException: NoSuchAlgorithmException) {
-            log.error("Exception during admin HTTP server startup", httpServerStartupException)
+            log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
         } catch (httpServerStartupException: CertificateException) {
-            log.error("Exception during admin HTTP server startup", httpServerStartupException)
+            log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
         } catch (httpServerStartupException: UnrecoverableKeyException) {
-            log.error("Exception during admin HTTP server startup", httpServerStartupException)
+            log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
         } catch (httpServerStartupException: KeyManagementException) {
-            log.error("Exception during admin HTTP server startup", httpServerStartupException)
+            log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
         }
     }
 
@@ -148,8 +148,9 @@ class AdminServer {
 
         private val responses: Queue<ResponseMetric> = QueueUtils.synchronizedQueue(CircularFifoQueue(1000))
 
-        private val requestLatency: Gauge = Gauge.build()
-                .name("requests_latency_seconds").help("Request latency in ms.").register()
+        private val requestLatency: Gauge = Gauge.build().name("requests_latency_seconds").help("Request latency in ms.").register()
+
+        private const val SERVER_STARTUP_ERROR_MESSAGE = "Exception during admin HTTP server startup"
 
         @kotlin.jvm.JvmStatic
         fun addMetric(command: Command) {
