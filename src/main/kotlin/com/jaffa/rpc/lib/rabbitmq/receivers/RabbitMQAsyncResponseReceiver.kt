@@ -6,7 +6,11 @@ import com.jaffa.rpc.lib.entities.CallbackContainer
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException
 import com.jaffa.rpc.lib.rabbitmq.RabbitMQRequestSender
 import com.jaffa.rpc.lib.serialization.Serializer
-import com.rabbitmq.client.*
+import com.rabbitmq.client.AMQP
+import com.rabbitmq.client.Channel
+import com.rabbitmq.client.Consumer
+import com.rabbitmq.client.DefaultConsumer
+import com.rabbitmq.client.Envelope
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.connection.Connection
 import java.io.Closeable

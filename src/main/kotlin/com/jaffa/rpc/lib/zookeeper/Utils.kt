@@ -27,7 +27,11 @@ import org.slf4j.LoggerFactory
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
-import java.net.*
+import java.net.InetAddress
+import java.net.InetSocketAddress
+import java.net.NetworkInterface
+import java.net.SocketException
+import java.net.UnknownHostException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -309,7 +313,7 @@ internal class ShutdownHook : Thread() {
         try {
             if (Utils.conn != null) {
                 if (!Utils.isZkTestMode) {
-                    Utils.services.forEach{Utils.deleteAllRegistrations(it)}
+                    Utils.services.forEach { Utils.deleteAllRegistrations(it) }
                 }
                 Utils.conn?.close()
             }

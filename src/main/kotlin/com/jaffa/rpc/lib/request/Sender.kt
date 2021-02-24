@@ -3,7 +3,6 @@ package com.jaffa.rpc.lib.request
 import com.jaffa.rpc.lib.entities.Command
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException
 import com.jaffa.rpc.lib.serialization.Serializer
-import java.util.*
 
 abstract class Sender {
     var timeout: Long = -1

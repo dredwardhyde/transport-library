@@ -6,7 +6,11 @@ import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException
 import com.jaffa.rpc.lib.request.RequestUtils
 import com.jaffa.rpc.lib.request.Sender
 import com.jaffa.rpc.lib.zookeeper.Utils
-import org.apache.kafka.clients.consumer.*
+import org.apache.kafka.clients.consumer.CommitFailedException
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener
+import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.clients.consumer.OffsetAndMetadata
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.TopicPartition
@@ -24,7 +28,7 @@ class KafkaRequestSender : Sender() {
 
     private val producer: KafkaProducer<String, ByteArray?> = KafkaProducer(JaffaService.producerProps)
     private fun seekTopicsForQuery(cons: KafkaConsumer<String, ByteArray>, query: Map<TopicPartition, Long>) {
-        cons.offsetsForTimes(query).forEach{entry ->
+        cons.offsetsForTimes(query).forEach { entry ->
             entry.value?.let { cons.seek(entry.key, entry.value.offset()) }
         }
     }

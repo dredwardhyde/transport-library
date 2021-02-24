@@ -14,7 +14,7 @@ object MessageConverterHelper {
     @Throws(ClassNotFoundException::class)
     fun fromGRPCCommandRequest(request: CommandRequest): Command {
         val command = Command()
-        with(command){
+        with(command) {
             callBackHost = request.callBackHost
             callbackClass = request.callbackClass
             asyncExpireTime = request.asyncExpireTime
@@ -28,7 +28,7 @@ object MessageConverterHelper {
         }
         if (StringUtils.isNotBlank(request.token) && StringUtils.isNotBlank(request.user)) {
             val securityTicket = SecurityTicket()
-            with(securityTicket){
+            with(securityTicket) {
                 token = request.token
                 user = request.user
             }
@@ -52,7 +52,7 @@ object MessageConverterHelper {
         commandRequest.setAsyncExpireTime(command.asyncExpireTime)
                 .setAsyncExpireTime(command.asyncExpireTime)
                 .setRequestTime(command.requestTime).localRequestTime = command.localRequestTime
-        with(commandRequest){
+        with(commandRequest) {
             if (StringUtils.isNotBlank(command.callbackClass)) callbackClass = command.callbackClass
             if (StringUtils.isNotBlank(command.callBackHost)) callBackHost = command.callBackHost
             if (StringUtils.isNotBlank(command.callbackKey)) callbackKey = command.callbackKey
@@ -73,7 +73,7 @@ object MessageConverterHelper {
 
     fun fromGRPCCallbackRequest(callbackRequest: CallbackRequest): CallbackContainer {
         val callbackContainer = CallbackContainer()
-        with(callbackContainer){
+        with(callbackContainer) {
             key = callbackRequest.key
             listener = callbackRequest.listener
             resultClass = callbackRequest.resultClass
@@ -86,7 +86,7 @@ object MessageConverterHelper {
 
     fun toGRPCCallbackRequest(callbackContainer: CallbackContainer?): CallbackRequest {
         val callbackRequest = CallbackRequest.newBuilder()
-        with(callbackRequest){
+        with(callbackRequest) {
             key = callbackContainer?.key
             listener = callbackContainer?.listener
             resultClass = callbackContainer?.resultClass

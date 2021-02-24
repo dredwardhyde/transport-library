@@ -8,13 +8,16 @@ import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException
 import com.jaffa.rpc.lib.request.Sender
 import com.jaffa.rpc.lib.zookeeper.Utils
-import com.rabbitmq.client.*
+import com.rabbitmq.client.AMQP
+import com.rabbitmq.client.Channel
+import com.rabbitmq.client.Consumer
+import com.rabbitmq.client.DefaultConsumer
+import com.rabbitmq.client.Envelope
 import org.apache.commons.lang3.StringUtils
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.AmqpException
 import org.springframework.amqp.rabbit.connection.Connection
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
@@ -125,6 +128,7 @@ class RabbitMQRequestSender : Sender() {
             } catch (ignore: IOException) {
                 // No-op
             } catch (ignore: TimeoutException) {
+                // No-op
             }
             if (connection != null) connection?.close()
         }

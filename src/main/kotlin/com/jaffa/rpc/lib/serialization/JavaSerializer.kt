@@ -1,15 +1,19 @@
 package com.jaffa.rpc.lib.serialization
 
 import org.slf4j.LoggerFactory
-import java.io.*
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 class JavaSerializer : ObjectSerializer {
 
     private val log = LoggerFactory.getLogger(JavaSerializer::class.java)
 
     companion object {
-        const val ERROR_DESERIALIZATION_MESSAGE = "Exception while object Java deserialization";
-        const val ERROR_SERIALIZATION_MESSAGE = "Exception while object Java serialization";
+        const val ERROR_DESERIALIZATION_MESSAGE = "Exception while object Java deserialization"
+        const val ERROR_SERIALIZATION_MESSAGE = "Exception while object Java serialization"
     }
 
     override fun serialize(obj: Any?): ByteArray? {

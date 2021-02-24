@@ -9,7 +9,11 @@ import com.jaffa.rpc.lib.zeromq.CurveUtils
 import com.jaffa.rpc.lib.zeromq.ZeroMqRequestSender
 import com.jaffa.rpc.lib.zookeeper.Utils
 import org.slf4j.LoggerFactory
-import org.zeromq.*
+import org.zeromq.SocketType
+import org.zeromq.ZAuth
+import org.zeromq.ZContext
+import org.zeromq.ZMQ
+import org.zeromq.ZMQException
 import zmq.ZError
 import java.io.Closeable
 import java.io.IOException

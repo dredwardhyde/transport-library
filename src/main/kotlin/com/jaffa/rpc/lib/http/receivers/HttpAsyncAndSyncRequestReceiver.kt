@@ -8,7 +8,12 @@ import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException
 import com.jaffa.rpc.lib.serialization.Serializer
 import com.jaffa.rpc.lib.zookeeper.Utils
-import com.sun.net.httpserver.*
+import com.sun.net.httpserver.HttpExchange
+import com.sun.net.httpserver.HttpHandler
+import com.sun.net.httpserver.HttpServer
+import com.sun.net.httpserver.HttpsConfigurator
+import com.sun.net.httpserver.HttpsParameters
+import com.sun.net.httpserver.HttpsServer
 import org.apache.http.HttpEntity
 import org.apache.http.client.methods.HttpPost
 import org.apache.http.config.RegistryBuilder
@@ -24,7 +29,11 @@ import org.slf4j.LoggerFactory
 import java.io.Closeable
 import java.io.FileInputStream
 import java.io.IOException
-import java.security.*
+import java.security.KeyManagementException
+import java.security.KeyStore
+import java.security.KeyStoreException
+import java.security.NoSuchAlgorithmException
+import java.security.UnrecoverableKeyException
 import java.security.cert.CertificateException
 import java.util.concurrent.Executors
 import javax.net.ssl.KeyManagerFactory
