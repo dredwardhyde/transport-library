@@ -25,10 +25,16 @@ class HttpRequestSender : Sender() {
         return try {
             val totalTimeout = (if (timeout == -1L) 1000 * 60 * 60 else timeout).toInt()
             val config = RequestConfig.custom()
-                    .setConnectTimeout(totalTimeout)
-                    .setConnectionRequestTimeout(totalTimeout)
-                    .setSocketTimeout(totalTimeout).build()
-            val httpPost = HttpPost(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.HTTP).left.toString() + "/request")
+                .setConnectTimeout(totalTimeout)
+                .setConnectionRequestTimeout(totalTimeout)
+                .setSocketTimeout(totalTimeout).build()
+            val httpPost = HttpPost(
+                Utils.getHostForService(
+                    command?.serviceClass,
+                    moduleId,
+                    Protocol.HTTP
+                ).left.toString() + "/request"
+            )
             httpPost.config = config
             val postParams: HttpEntity = ByteArrayEntity(message)
             httpPost.entity = postParams
@@ -60,7 +66,13 @@ class HttpRequestSender : Sender() {
 
     public override fun executeAsync(message: ByteArray?) {
         try {
-            val httpPost = HttpPost(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.HTTP).left.toString() + "/request")
+            val httpPost = HttpPost(
+                Utils.getHostForService(
+                    command?.serviceClass,
+                    moduleId,
+                    Protocol.HTTP
+                ).left.toString() + "/request"
+            )
             val postParams: HttpEntity = ByteArrayEntity(message)
             httpPost.entity = postParams
             val httpResponse = HttpAsyncAndSyncRequestReceiver.client.execute(httpPost)

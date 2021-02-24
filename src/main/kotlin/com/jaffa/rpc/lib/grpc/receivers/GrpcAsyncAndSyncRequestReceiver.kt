@@ -67,7 +67,12 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     val runnable = Runnable {
                         try {
                             val result = RequestInvocationHelper.invoke(command)
-                            val callbackResponse = MessageConverterHelper.toGRPCCallbackRequest(RequestInvocationHelper.constructCallbackContainer(command, result))
+                            val callbackResponse = MessageConverterHelper.toGRPCCallbackRequest(
+                                RequestInvocationHelper.constructCallbackContainer(
+                                    command,
+                                    result
+                                )
+                            )
                             val hostAndPort = Utils.getHostAndPort(command.callBackHost, ":")
                             val channel = getManagedChannel(hostAndPort)
                             val stub = CallbackServiceGrpc.newBlockingStub(channel)
@@ -80,7 +85,8 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     responseObserver?.onNext(CommandResponse.newBuilder().setResponse(ByteString.EMPTY).build())
                 } else {
                     val result = RequestInvocationHelper.invoke(command)
-                    val commandResponse = MessageConverterHelper.toGRPCCommandResponse(RequestInvocationHelper.getResult(result))
+                    val commandResponse =
+                        MessageConverterHelper.toGRPCCommandResponse(RequestInvocationHelper.getResult(result))
                     responseObserver?.onNext(commandResponse)
                 }
                 responseObserver?.onCompleted()
@@ -103,8 +109,14 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
         fun addSecurityContext(serverBuilder: NettyServerBuilder): NettyServerBuilder {
             return try {
                 if (System.getProperty(OptionConstants.GRPC_USE_SSL, "false").toBoolean()) {
-                    serverBuilder.sslContext(GrpcSslContexts.configure(SslContextBuilder.forServer(File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_SERVER_STORE_LOCATION)),
-                            File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_SERVER_KEY_LOCATION)))).build())
+                    serverBuilder.sslContext(
+                        GrpcSslContexts.configure(
+                            SslContextBuilder.forServer(
+                                File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_SERVER_STORE_LOCATION)),
+                                File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_SERVER_KEY_LOCATION))
+                            )
+                        ).build()
+                    )
                 } else {
                     serverBuilder
                 }
@@ -117,10 +129,16 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
         fun addSecurityContext(channelBuilder: NettyChannelBuilder): NettyChannelBuilder {
             return try {
                 if (System.getProperty(OptionConstants.GRPC_USE_SSL, "false").toBoolean()) {
-                    channelBuilder.sslContext(GrpcSslContexts.configure(SslContextBuilder.forClient().keyManager(File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_KEYSTORE_LOCATION)),
-                            File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_KEY_LOCATION))))
+                    channelBuilder.sslContext(
+                        GrpcSslContexts.configure(
+                            SslContextBuilder.forClient().keyManager(
+                                File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_KEYSTORE_LOCATION)),
+                                File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_KEY_LOCATION))
+                            )
+                        )
                             .trustManager(File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_TRUSTSTORE_LOCATION)))
-                            .build()).useTransportSecurity()
+                            .build()
+                    ).useTransportSecurity()
                 } else {
                     channelBuilder.usePlaintext()
                 }

@@ -52,7 +52,7 @@ class ZeroMqRequestSender : Sender() {
                 socket?.curvePublicKey = CurveUtils.serverPublicKey?.toByteArray()
                 socket?.curveSecretKey = CurveUtils.serverSecretKey?.toByteArray()
                 val clientPublicKey = CurveUtils.getClientPublicKey(moduleId)
-                        ?: throw JaffaRpcExecutionException("No Curve client key was provided for module.id $moduleId")
+                    ?: throw JaffaRpcExecutionException("No Curve client key was provided for module.id $moduleId")
                 socket?.curveServerKey = clientPublicKey.toByteArray(Charsets.UTF_8)
             }
         }

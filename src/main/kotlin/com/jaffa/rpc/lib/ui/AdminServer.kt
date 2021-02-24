@@ -41,7 +41,7 @@ class AdminServer {
     private fun respondWithFile(exchange: HttpExchange, fileName: String) {
         val classloader = Thread.currentThread().contextClassLoader
         val inputStream = classloader.getResourceAsStream(fileName)
-                ?: throw IOException("No such file in resources: $fileName")
+            ?: throw IOException("No such file in resources: $fileName")
         val page = ByteStreams.toByteArray(inputStream)
         exchange.sendResponseHeaders(200, page.size.toLong())
         val os = exchange.responseBody
@@ -73,11 +73,13 @@ class AdminServer {
             log.info("Prometheus metrics are published on port {}", prometheusServer?.port)
             server = if (useHttps) {
                 val httpsServer = HttpsServer.create(InetSocketAddress(Utils.localHost, freePort), 0)
-                HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,
-                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_TRUSTSTORE_LOCATION),
-                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_KEYSTORE_LOCATION),
-                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_TRUSTSTORE_PASSWORD),
-                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_KEYSTORE_PASSWORD))
+                HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(
+                    httpsServer,
+                    Utils.getRequiredOption(OptionConstants.ADMIN_SSL_TRUSTSTORE_LOCATION),
+                    Utils.getRequiredOption(OptionConstants.ADMIN_SSL_KEYSTORE_LOCATION),
+                    Utils.getRequiredOption(OptionConstants.ADMIN_SSL_TRUSTSTORE_PASSWORD),
+                    Utils.getRequiredOption(OptionConstants.ADMIN_SSL_KEYSTORE_PASSWORD)
+                )
                 httpsServer
             } else {
                 HttpServer.create(InetSocketAddress(Utils.localHost, freePort), 0)
@@ -116,7 +118,10 @@ class AdminServer {
             }
             server?.executor = Executors.newFixedThreadPool(3)
             server?.start()
-            log.info("Jaffa RPC console started at {}", (if (useHttps) "https://" else "http://") + server?.address?.hostName + ":" + server?.address?.port + "/admin")
+            log.info(
+                "Jaffa RPC console started at {}",
+                (if (useHttps) "https://" else "http://") + server?.address?.hostName + ":" + server?.address?.port + "/admin"
+            )
         } catch (httpServerStartupException: IOException) {
             log.error("Exception during admin HTTP server startup", httpServerStartupException)
         } catch (httpServerStartupException: KeyStoreException) {
@@ -146,7 +151,7 @@ class AdminServer {
         private val responses: Queue<ResponseMetric> = QueueUtils.synchronizedQueue(CircularFifoQueue(1000))
 
         private val requestLatency: Gauge = Gauge.build()
-                .name("requests_latency_seconds").help("Request latency in ms.").register()
+            .name("requests_latency_seconds").help("Request latency in ms.").register()
 
         @kotlin.jvm.JvmStatic
         fun addMetric(command: Command) {

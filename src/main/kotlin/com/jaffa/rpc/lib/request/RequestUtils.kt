@@ -15,6 +15,9 @@ object RequestUtils {
             availableModuleId = Utils.getModuleForService(serviceInterface, Protocol.KAFKA)
         }
         val topicName = serviceInterface + "-" + availableModuleId + "-server" + if (sync) "-sync" else "-async"
-        return if (!JaffaService.zkClient?.topicExists(topicName)!!) throw JaffaRpcNoRouteException(serviceInterface, availableModuleId) else topicName
+        return if (!JaffaService.zkClient?.topicExists(topicName)!!) throw JaffaRpcNoRouteException(
+            serviceInterface,
+            availableModuleId
+        ) else topicName
     }
 }

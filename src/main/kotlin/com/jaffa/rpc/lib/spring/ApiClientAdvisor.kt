@@ -83,8 +83,8 @@ class ApiClientAdvisor : AbstractPointcutAdvisor() {
             command.args = invocation.arguments
             if (invocation.method.parameterCount != 0) {
                 command.methodArgs = Arrays.stream(invocation.method.parameterTypes)
-                        .map { obj: Class<*> -> obj.name }
-                        .toArray { size -> arrayOfNulls<String>(size) }
+                    .map { obj: Class<*> -> obj.name }
+                    .toArray { size -> arrayOfNulls<String>(size) }
             }
             RequestImpl<Any>(command)
         }

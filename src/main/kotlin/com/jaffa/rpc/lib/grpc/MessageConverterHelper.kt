@@ -39,7 +39,8 @@ object MessageConverterHelper {
             command.methodArgs = methodArgs
             val argsObjects = arrayOfNulls<Any>(methodArgs.size)
             for (i in methodArgs.indices) {
-                if (request.getArgs(i) == ByteString.EMPTY) argsObjects[i] = null else argsObjects[i] = Serializer.current.deserialize(request.getArgs(i).toByteArray(), Class.forName(methodArgs[i]))
+                if (request.getArgs(i) == ByteString.EMPTY) argsObjects[i] = null else argsObjects[i] =
+                    Serializer.current.deserialize(request.getArgs(i).toByteArray(), Class.forName(methodArgs[i]))
             }
             command.args = argsObjects
         }
@@ -50,8 +51,8 @@ object MessageConverterHelper {
     fun toGRPCCommandRequest(command: Command): CommandRequest {
         var commandRequest = CommandRequest.newBuilder()
         commandRequest.setAsyncExpireTime(command.asyncExpireTime)
-                .setAsyncExpireTime(command.asyncExpireTime)
-                .setRequestTime(command.requestTime).localRequestTime = command.localRequestTime
+            .setAsyncExpireTime(command.asyncExpireTime)
+            .setRequestTime(command.requestTime).localRequestTime = command.localRequestTime
         with(commandRequest) {
             if (StringUtils.isNotBlank(command.callbackClass)) callbackClass = command.callbackClass
             if (StringUtils.isNotBlank(command.callBackHost)) callBackHost = command.callBackHost
@@ -66,7 +67,9 @@ object MessageConverterHelper {
         }
         for (i in command.methodArgs.indices) {
             commandRequest = commandRequest.addMethodArgs(command.methodArgs[i])
-            if (command.args[i] != null) commandRequest.addArgs(ByteString.copyFrom(Serializer.current.serialize(command.args[i]))) else commandRequest.addArgs(ByteString.EMPTY)
+            if (command.args[i] != null) commandRequest.addArgs(ByteString.copyFrom(Serializer.current.serialize(command.args[i]))) else commandRequest.addArgs(
+                ByteString.EMPTY
+            )
         }
         return commandRequest.build()
     }

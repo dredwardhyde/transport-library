@@ -99,7 +99,12 @@ object RequestInvocationHelper {
         return callbackContainer
     }
 
-    @Throws(ClassNotFoundException::class, NoSuchMethodException::class, IllegalAccessException::class, InvocationTargetException::class)
+    @Throws(
+        ClassNotFoundException::class,
+        NoSuchMethodException::class,
+        IllegalAccessException::class,
+        InvocationTargetException::class
+    )
     fun processCallbackContainer(callbackContainer: CallbackContainer?): Boolean {
         val key = callbackContainer?.key
         val command: Command? = FinalizationHelper.eventsToConsume.remove(callbackContainer?.key)

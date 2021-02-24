@@ -22,6 +22,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.concurrent.CountDownLatch
 import java.util.function.Consumer
+import kotlin.collections.HashMap
 
 class KafkaRequestSender : Sender() {
     private val log = LoggerFactory.getLogger(KafkaRequestSender::class.java)
@@ -127,8 +128,10 @@ class KafkaRequestSender : Sender() {
             if (System.getProperty(OptionConstants.KAFKA_USE_SSL, false.toString()).toBoolean()) {
                 val sslProps: MutableMap<String, String?> = HashMap()
                 sslProps["security.protocol"] = "SSL"
-                sslProps["ssl.truststore.location"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)
-                sslProps["ssl.truststore.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD)
+                sslProps["ssl.truststore.location"] =
+                    Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)
+                sslProps["ssl.truststore.password"] =
+                    Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD)
                 sslProps["ssl.keystore.location"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_LOCATION)
                 sslProps["ssl.keystore.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_PASSWORD)
                 sslProps["ssl.key.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEY_PASSWORD)

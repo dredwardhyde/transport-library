@@ -32,7 +32,11 @@ class ZMQAsyncResponseReceiver : Runnable, Closeable {
                 val bytes = socket?.recv()
                 socket?.send(byteArrayOf(4))
                 if (bytes != null && bytes.size == 1 && bytes[0] == 7.toByte()) {
-                    ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(context, socket, ZMQAsyncResponseReceiver::class.java)
+                    ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(
+                        context,
+                        socket,
+                        ZMQAsyncResponseReceiver::class.java
+                    )
                     break
                 }
                 val callbackContainer = Serializer.current.deserialize(bytes, CallbackContainer::class.java)

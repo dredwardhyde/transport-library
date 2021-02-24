@@ -24,11 +24,13 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
         try {
             server = if (System.getProperty(OptionConstants.USE_HTTPS, false.toString()).toBoolean()) {
                 val httpsServer = HttpsServer.create(Utils.httpCallbackBindAddress, 0)
-                HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,
-                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
-                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
-                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
-                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_PASSWORD))
+                HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(
+                    httpsServer,
+                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
+                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
+                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
+                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_PASSWORD)
+                )
                 httpsServer
             } else {
                 HttpServer.create(Utils.httpCallbackBindAddress, 0)
@@ -54,7 +56,10 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
 
         override fun handle(request: HttpExchange?) {
             try {
-                val callbackContainer = Serializer.current.deserialize(ByteStreams.toByteArray(request?.requestBody), CallbackContainer::class.java)
+                val callbackContainer = Serializer.current.deserialize(
+                    ByteStreams.toByteArray(request?.requestBody),
+                    CallbackContainer::class.java
+                )
                 callbackContainer?.let { RequestInvocationHelper.processCallbackContainer(it) }
                 val response = "OK"
                 request?.sendResponseHeaders(200, response.toByteArray().size.toLong())

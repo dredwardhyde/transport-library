@@ -41,11 +41,21 @@ class KafkaAsyncRequestReceiver(private val countDownLatch: CountDownLatch?) : K
                     try {
                         val command = Serializer.current.deserialize(record.value(), Command::class.java)
                         val result = command?.let { RequestInvocationHelper.invoke(it) }
-                        val serializedResponse = Serializer.current.serialize(command?.let { RequestInvocationHelper.constructCallbackContainer(it, result) })
-                        val resultPackage = ProducerRecord(Utils.getServiceInterfaceNameFromClient(command?.serviceClass) + "-" + command?.sourceModuleId + "-client-async", UUID.randomUUID().toString(), serializedResponse)
+                        val serializedResponse = Serializer.current.serialize(command?.let {
+                            RequestInvocationHelper.constructCallbackContainer(
+                                it,
+                                result
+                            )
+                        })
+                        val resultPackage = ProducerRecord(
+                            Utils.getServiceInterfaceNameFromClient(command?.serviceClass) + "-" + command?.sourceModuleId + "-client-async",
+                            UUID.randomUUID().toString(),
+                            serializedResponse
+                        )
                         producer.send(resultPackage).get()
                         val commitData: MutableMap<TopicPartition, OffsetAndMetadata> = HashMap()
-                        commitData[TopicPartition(record.topic(), record.partition())] = OffsetAndMetadata(record.offset())
+                        commitData[TopicPartition(record.topic(), record.partition())] =
+                            OffsetAndMetadata(record.offset())
                         consumer.commitSync(commitData)
                     } catch (systemException: InterruptedException) {
                         log.error("General Kafka exception", systemException)

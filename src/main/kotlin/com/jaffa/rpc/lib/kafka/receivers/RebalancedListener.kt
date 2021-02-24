@@ -9,7 +9,10 @@ import java.util.*
 import java.util.concurrent.CountDownLatch
 import java.util.function.Consumer
 
-class RebalancedListener(val consumer: org.apache.kafka.clients.consumer.Consumer<String, ByteArray>?, val countDownLatch: CountDownLatch?) : ConsumerRebalanceListener {
+class RebalancedListener(
+    val consumer: org.apache.kafka.clients.consumer.Consumer<String, ByteArray>?,
+    private val countDownLatch: CountDownLatch?
+) : ConsumerRebalanceListener {
 
     private val log = LoggerFactory.getLogger(KafkaAsyncResponseReceiver::class.java)
 
@@ -26,6 +29,10 @@ class RebalancedListener(val consumer: org.apache.kafka.clients.consumer.Consume
             entry.value?.let { consumer.seek(entry.key, entry.value.offset()) }
         }
         countDownLatch?.countDown()
-        log.debug(">>>>>> Partitions assigned took {} ns, latch {}", System.nanoTime() - startRebalanced, countDownLatch?.count)
+        log.debug(
+            ">>>>>> Partitions assigned took {} ns, latch {}",
+            System.nanoTime() - startRebalanced,
+            countDownLatch?.count
+        )
     }
 }

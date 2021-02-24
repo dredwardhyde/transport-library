@@ -47,11 +47,13 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
         try {
             server = if (System.getProperty(OptionConstants.USE_HTTPS, false.toString()).toBoolean()) {
                 val httpsServer = HttpsServer.create(Utils.httpBindAddress, 0)
-                initSSLForHttpsServer(httpsServer,
-                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
-                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
-                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
-                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_PASSWORD))
+                initSSLForHttpsServer(
+                    httpsServer,
+                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
+                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
+                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
+                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_PASSWORD)
+                )
                 httpsServer
             } else {
                 HttpServer.create(Utils.httpBindAddress, 0)
@@ -82,7 +84,8 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
         @Throws(IOException::class)
         override fun handle(request: HttpExchange) {
-            val command = Serializer.current.deserialize(ByteStreams.toByteArray(request.requestBody), Command::class.java)
+            val command =
+                Serializer.current.deserialize(ByteStreams.toByteArray(request.requestBody), Command::class.java)
             if (command?.callbackKey != null && command.callbackClass != null) {
                 val response = "OK"
                 request.sendResponseHeaders(200, response.toByteArray().size.toLong())
@@ -93,7 +96,12 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 val runnable = Runnable {
                     try {
                         val result = RequestInvocationHelper.invoke(command)
-                        val serializedResponse = Serializer.current.serialize(RequestInvocationHelper.constructCallbackContainer(command, result))
+                        val serializedResponse = Serializer.current.serialize(
+                            RequestInvocationHelper.constructCallbackContainer(
+                                command,
+                                result
+                            )
+                        )
                         val httpPost = HttpPost(command.callBackHost + "/response")
                         val postParams: HttpEntity = ByteArrayEntity(serializedResponse)
                         httpPost.entity = postParams
@@ -135,22 +143,35 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
         fun initClient() {
             if (System.getProperty(OptionConstants.USE_HTTPS, false.toString()).toBoolean()) {
                 val sslContext: SSLContext = try {
-                    val keyPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_PASSWORD).toCharArray()
+                    val keyPassphrase =
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_PASSWORD).toCharArray()
                     val ks = KeyStore.getInstance("JKS")
-                    ks.load(FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_LOCATION)), keyPassphrase)
-                    val trustPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD).toCharArray()
+                    ks.load(
+                        FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_LOCATION)),
+                        keyPassphrase
+                    )
+                    val trustPassphrase =
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD).toCharArray()
                     val tks = KeyStore.getInstance("JKS")
-                    tks.load(FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION)), trustPassphrase)
-                    SSLContexts.custom().loadKeyMaterial(ks, keyPassphrase).loadTrustMaterial(tks, TrustSelfSignedStrategy.INSTANCE).build()
+                    tks.load(
+                        FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION)),
+                        trustPassphrase
+                    )
+                    SSLContexts.custom().loadKeyMaterial(ks, keyPassphrase)
+                        .loadTrustMaterial(tks, TrustSelfSignedStrategy.INSTANCE).build()
                 } catch (e: Exception) {
                     log.error("Error occurred while creating HttpClient", e)
                     throw JaffaRpcSystemException(e)
                 }
-                val sslConnectionSocketFactory = SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.getDefaultHostnameVerifier())
-                val socketFactoryRegistry = RegistryBuilder.create<ConnectionSocketFactory>().register("https", sslConnectionSocketFactory).build()
+                val sslConnectionSocketFactory =
+                    SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.getDefaultHostnameVerifier())
+                val socketFactoryRegistry =
+                    RegistryBuilder.create<ConnectionSocketFactory>().register("https", sslConnectionSocketFactory)
+                        .build()
                 val connectionManager = PoolingHttpClientConnectionManager(socketFactoryRegistry)
                 connectionManager.maxTotal = 200
-                client = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).setConnectionManager(connectionManager).build()
+                client = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
+                    .setConnectionManager(connectionManager).build()
             } else {
                 val connManager = PoolingHttpClientConnectionManager()
                 connManager.maxTotal = 200
@@ -158,12 +179,21 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
             }
         }
 
-        @Throws(NoSuchAlgorithmException::class, KeyStoreException::class, IOException::class, CertificateException::class, UnrecoverableKeyException::class, KeyManagementException::class)
-        fun initSSLForHttpsServer(httpsServer: HttpsServer,
-                                  trustStoreLocation: String,
-                                  keyStoreLocation: String,
-                                  trustStorePassword: String,
-                                  keyStorePassword: String) {
+        @Throws(
+            NoSuchAlgorithmException::class,
+            KeyStoreException::class,
+            IOException::class,
+            CertificateException::class,
+            UnrecoverableKeyException::class,
+            KeyManagementException::class
+        )
+        fun initSSLForHttpsServer(
+            httpsServer: HttpsServer,
+            trustStoreLocation: String,
+            keyStoreLocation: String,
+            trustStorePassword: String,
+            keyStorePassword: String
+        ) {
             val keyPassphrase = keyStorePassword.toCharArray()
             val ks = KeyStore.getInstance("JKS")
             ks.load(FileInputStream(keyStoreLocation), keyPassphrase)

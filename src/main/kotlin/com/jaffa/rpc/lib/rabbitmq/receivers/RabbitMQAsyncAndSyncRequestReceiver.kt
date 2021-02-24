@@ -40,13 +40,18 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
             connection = JaffaService.connectionFactory?.createConnection()
             serverChannel = connection?.createChannel(false)
             clientChannel = connection?.createChannel(false)
-            serverChannel?.queueBind(RabbitMQRequestSender.SERVER, RabbitMQRequestSender.EXCHANGE_NAME, RabbitMQRequestSender.SERVER)
+            serverChannel?.queueBind(
+                RabbitMQRequestSender.SERVER,
+                RabbitMQRequestSender.EXCHANGE_NAME,
+                RabbitMQRequestSender.SERVER
+            )
             val consumer: Consumer = object : DefaultConsumer(serverChannel) {
                 override fun handleDelivery(
-                        consumerTag: String,
-                        envelope: Envelope,
-                        properties: AMQP.BasicProperties,
-                        body: ByteArray) {
+                    consumerTag: String,
+                    envelope: Envelope,
+                    properties: AMQP.BasicProperties,
+                    body: ByteArray
+                ) {
                     requestService.execute {
                         try {
                             val command = Serializer.current.deserialize(body, Command::class.java)
@@ -54,10 +59,16 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                                 val runnable = Runnable {
                                     try {
                                         val result = RequestInvocationHelper.invoke(command)
-                                        val callbackContainer = RequestInvocationHelper.constructCallbackContainer(command, result)
+                                        val callbackContainer =
+                                            RequestInvocationHelper.constructCallbackContainer(command, result)
                                         val response = Serializer.current.serialize(callbackContainer)
                                         val props = AMQP.BasicProperties.Builder().headers(asyncHeaders).build()
-                                        clientChannel?.basicPublish(command.sourceModuleId, command.sourceModuleId + "-client-async", props, response)
+                                        clientChannel?.basicPublish(
+                                            command.sourceModuleId,
+                                            command.sourceModuleId + "-client-async",
+                                            props,
+                                            response
+                                        )
                                         serverChannel?.basicAck(envelope.deliveryTag, false)
                                     } catch (e: Exception) {
                                         log.error("Error while receiving async request", e)
@@ -66,10 +77,16 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                                 responseService.execute(runnable)
                             } else {
                                 val result = command?.let { RequestInvocationHelper.invoke(it) }
-                                val response = Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(result))
+                                val response =
+                                    Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(result))
                                 val props = AMQP.BasicProperties.Builder().correlationId(command?.rqUid).build()
                                 if (command != null) {
-                                    clientChannel?.basicPublish(command.sourceModuleId, command.sourceModuleId + "-client-sync", props, response)
+                                    clientChannel?.basicPublish(
+                                        command.sourceModuleId,
+                                        command.sourceModuleId + "-client-sync",
+                                        props,
+                                        response
+                                    )
                                 }
                                 serverChannel?.basicAck(envelope.deliveryTag, false)
                             }

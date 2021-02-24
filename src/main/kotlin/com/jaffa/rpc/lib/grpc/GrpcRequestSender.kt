@@ -35,7 +35,8 @@ class GrpcRequestSender : Sender() {
             val channel = managedChannel
             val stub = CommandServiceGrpc.newBlockingStub(channel)
             val totalTimeout = (if (timeout == -1L) 1000 * 60 * 60 else timeout).toInt()
-            val commandResponse = stub.withDeadlineAfter(totalTimeout.toLong(), TimeUnit.MILLISECONDS).execute(MessageConverterHelper.toGRPCCommandRequest(command))
+            val commandResponse = stub.withDeadlineAfter(totalTimeout.toLong(), TimeUnit.MILLISECONDS)
+                .execute(MessageConverterHelper.toGRPCCommandRequest(command))
             return MessageConverterHelper.fromGRPCCommandResponse(commandResponse)
         } catch (statusRuntimeException: StatusRuntimeException) {
             processStatusException(statusRuntimeException)
@@ -49,7 +50,8 @@ class GrpcRequestSender : Sender() {
 
     private val managedChannel: ManagedChannel
         get() {
-            val hostAndPort = Utils.getHostAndPort(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.GRPC).left, ":")
+            val hostAndPort =
+                Utils.getHostAndPort(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.GRPC).left, ":")
             return cache.computeIfAbsent(hostAndPort) { key: Pair<String?, Int?>? ->
                 var channelBuilder = NettyChannelBuilder.forAddress(key?.left, key?.right!!)
                 channelBuilder = GrpcAsyncAndSyncRequestReceiver.addSecurityContext(channelBuilder)

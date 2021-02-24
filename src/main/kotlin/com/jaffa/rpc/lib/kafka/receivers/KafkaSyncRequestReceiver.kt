@@ -39,11 +39,17 @@ class KafkaSyncRequestReceiver(private val countDownLatch: CountDownLatch?) : Ka
                     try {
                         val command = Serializer.current.deserialize(record.value(), Command::class.java)
                         val result = command?.let { RequestInvocationHelper.invoke(it) }
-                        val serializedResponse = Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(result))
-                        val resultPackage = ProducerRecord(Utils.getServiceInterfaceNameFromClient(command?.serviceClass) + "-" + OptionConstants.MODULE_ID + "-client-sync", command?.rqUid, serializedResponse)
+                        val serializedResponse =
+                            Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(result))
+                        val resultPackage = ProducerRecord(
+                            Utils.getServiceInterfaceNameFromClient(command?.serviceClass) + "-" + OptionConstants.MODULE_ID + "-client-sync",
+                            command?.rqUid,
+                            serializedResponse
+                        )
                         producer.send(resultPackage).get()
                         val commitData: MutableMap<TopicPartition, OffsetAndMetadata> = HashMap()
-                        commitData[TopicPartition(record.topic(), record.partition())] = OffsetAndMetadata(record.offset())
+                        commitData[TopicPartition(record.topic(), record.partition())] =
+                            OffsetAndMetadata(record.offset())
                         consumer.commitSync(commitData)
                     } catch (executionException: Exception) {
                         log.error("Target method execution exception", executionException)
