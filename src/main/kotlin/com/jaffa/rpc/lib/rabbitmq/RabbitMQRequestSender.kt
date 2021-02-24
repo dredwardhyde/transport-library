@@ -35,7 +35,7 @@ class RabbitMQRequestSender : Sender() {
             val start = System.currentTimeMillis()
             while (!(timeout != -1L && System.currentTimeMillis() - start > timeout || System.currentTimeMillis() - start > 1000 * 60 * 60)) {
                 val result = atomicReference.get()
-                if (Objects.nonNull(result)) {
+                if (result != null) {
                     return result
                 }
             }

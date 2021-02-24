@@ -13,10 +13,7 @@ abstract class Sender {
     protected abstract fun executeAsync(message: ByteArray?)
     open fun executeSync(command: Command): Any? {
         val out = Serializer.current.serialize(command)
-        val response = executeSync(out)
-        if (Objects.isNull(response)) {
-            throw JaffaRpcExecutionTimeoutException()
-        }
+        val response = executeSync(out) ?: throw JaffaRpcExecutionTimeoutException()
         return Serializer.current.deserializeWithClass(response)
     }
 

@@ -17,6 +17,7 @@ public class UtilSecondTest {
 
     @Test
     public void stage1() {
+        OptionConstants.setModuleId("test.server");
         try {
             new RequestImpl<>(null);
             Assertions.fail();
@@ -24,7 +25,6 @@ public class UtilSecondTest {
             //No-op
         }
         System.setProperty("jaffa.rpc.test.server.protocol", "http");
-        OptionConstants.setModuleId("test.server");
         RequestImpl<Void> request = new RequestImpl<>(null);
         try {
             request.executeAsync(null, ServiceCallback.class);

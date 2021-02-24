@@ -31,10 +31,10 @@ open class BeanStubLoader : BeanDefinitionRegistryPostProcessor {
         } catch (e: BeansException) {
             log.info("No client endpoints were defined")
         }
-        if (Objects.isNull(clientEndpoints)) return
+        if (clientEndpoints == null) return
         val cl = BeanStubLoader::class.java.classLoader
         val annotated: MutableSet<Class<*>> = HashSet()
-        for (client in clientEndpoints!!.values.stream().map { obj: ClientEndpoint -> obj.endpoint }.collect(Collectors.toList())) {
+        for (client in clientEndpoints.values.stream().map { obj: ClientEndpoint -> obj.endpoint }.collect(Collectors.toList())) {
             val isClient = client.isAnnotationPresent(ApiClient::class.java)
             log.info("Client endpoint: {} isClient: {}", client.name, isClient)
             require(isClient) { "Class " + client.name + " is not annotated as ApiClient!" }

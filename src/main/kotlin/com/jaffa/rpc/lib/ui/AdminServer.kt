@@ -40,9 +40,9 @@ class AdminServer {
     @Throws(IOException::class)
     private fun respondWithFile(exchange: HttpExchange, fileName: String) {
         val classloader = Thread.currentThread().contextClassLoader
-        val `is` = classloader.getResourceAsStream(fileName)
-        if (Objects.isNull(`is`)) throw IOException("No such file in resources: $fileName")
-        val page = ByteStreams.toByteArray(`is`)
+        val inputStream = classloader.getResourceAsStream(fileName)
+                ?: throw IOException("No such file in resources: $fileName")
+        val page = ByteStreams.toByteArray(inputStream)
         exchange.sendResponseHeaders(200, page.size.toLong())
         val os = exchange.responseBody
         os.write(page)
@@ -69,7 +69,7 @@ class AdminServer {
     fun init() {
         try {
             val useHttps = System.getProperty(OptionConstants.ADMIN_USE_HTTPS, false.toString()).toBoolean()
-            prometheusServer = HTTPServer(1234)
+            prometheusServer = HTTPServer(1337)
             server = if (useHttps) {
                 val httpsServer = HttpsServer.create(InetSocketAddress(Utils.localHost, freePort), 0)
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,

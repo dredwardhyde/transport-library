@@ -6,6 +6,7 @@ import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.http.HttpRequestSender;
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncAndSyncRequestReceiver;
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncResponseReceiver;
+import com.jaffa.rpc.lib.serialization.Serializer;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +32,7 @@ public class HttpSecondTest {
     @Test
     public void stage1() {
         OptionConstants.setModuleId("test.server");
+        Serializer.init();
         HttpAsyncAndSyncRequestReceiver httpAsyncAndSyncRequestReceiver = new HttpAsyncAndSyncRequestReceiver();
         try {
             HttpAsyncAndSyncRequestReceiver.initClient();

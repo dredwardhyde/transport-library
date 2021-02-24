@@ -135,9 +135,8 @@ object Utils {
     @kotlin.jvm.JvmStatic
     fun getModuleForService(service: String?, protocol: Protocol): String {
         return try {
-            val zkData = cache["/$service"]
-            if (Objects.isNull(zkData)) throw JaffaRpcNoRouteException(service, protocol)
-            val jArray = JSONParser().parse(zkData?.let { String(it) }) as JSONArray
+            val zkData = cache["/$service"] ?: throw JaffaRpcNoRouteException(service, protocol)
+            val jArray = JSONParser().parse(String(zkData)) as JSONArray
             if (jArray.isEmpty()) throw JaffaRpcNoRouteException(service) else {
                 val hosts = ArrayList<String>()
                 for (json in jArray) {
