@@ -51,7 +51,7 @@ class KryoPoolSerializer : ObjectSerializer {
     init {
         pool = object : Pool<Kryo>(true, true, 100) {
             override fun create(): Kryo {
-                return Kryo().also { it.register(Void.TYPE) }.also { it.isRegistrationRequired = true }
+                return Kryo().also { it.register(Void.TYPE) }.also { it.isRegistrationRequired = false }
                     .also { it.references = true }
             }
         }

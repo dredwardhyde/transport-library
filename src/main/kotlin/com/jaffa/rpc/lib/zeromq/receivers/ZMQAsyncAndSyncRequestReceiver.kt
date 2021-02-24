@@ -40,8 +40,6 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     socket?.send("OK")
                     val runnable = Runnable {
                         try {
-                            val result = RequestInvocationHelper.invoke(command)
-                            log.debug("Async response to request {} is ready", command.callbackKey)
                             context?.createSocket(SocketType.REQ)
                                 .also { ZeroMqRequestSender.addCurveKeysToSocket(it, command.sourceModuleId) }
                                 .also { it?.connect("tcp://" + command.callBackHost) }
@@ -50,11 +48,12 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                                         Serializer.current.serialize(
                                             RequestInvocationHelper.constructCallbackContainer(
                                                 command,
-                                                result
+                                                RequestInvocationHelper.invoke(command)
                                             )
                                         ), 0
                                     )
                                 }
+                                .also { log.debug("Async response to request {} is ready", command.callbackKey) }
                                 .also { it?.recv(0) }
                                 .also { context?.destroySocket(it) }
                         } catch (exception: Exception) {
