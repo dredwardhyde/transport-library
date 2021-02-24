@@ -1,7 +1,7 @@
 package com.jaffa.rpc.test.services;
 
 import com.jaffa.rpc.lib.annotations.ApiServer;
-import com.jaffa.rpc.lib.entities.RequestContextHelper;
+import com.jaffa.rpc.lib.common.RequestContextHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.stereotype.Component;

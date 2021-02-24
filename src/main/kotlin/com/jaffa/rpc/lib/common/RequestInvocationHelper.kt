@@ -3,7 +3,6 @@ package com.jaffa.rpc.lib.common
 import com.jaffa.rpc.lib.entities.CallbackContainer
 import com.jaffa.rpc.lib.entities.Command
 import com.jaffa.rpc.lib.entities.ExceptionHolder
-import com.jaffa.rpc.lib.entities.RequestContextHelper
 import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException
 import com.jaffa.rpc.lib.serialization.Serializer

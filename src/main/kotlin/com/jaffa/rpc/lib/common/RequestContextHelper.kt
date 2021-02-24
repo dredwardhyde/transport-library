@@ -1,5 +1,6 @@
-package com.jaffa.rpc.lib.entities
+package com.jaffa.rpc.lib.common
 
+import com.jaffa.rpc.lib.entities.Command
 import com.jaffa.rpc.lib.security.SecurityTicket
 
 object RequestContextHelper {

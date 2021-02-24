@@ -2,6 +2,18 @@ package com.jaffa.rpc.lib.entities
 
 import com.jaffa.rpc.lib.security.SecurityTicket
 import java.io.Serializable
+import java.util.*
+
+class CallbackContainer : Serializable {
+    var key: String? = null
+    var listener: String? = null
+    var result: Any? = null
+    var resultClass: String? = null
+
+    override fun toString(): String {
+        return "CallbackContainer(key=$key, listener=$listener, result=$result, resultClass=$resultClass)"
+    }
+}
 
 class Command : Serializable {
     var serviceClass: String? = null
@@ -33,3 +45,26 @@ class Command : Serializable {
                 "localRequestTime=$localRequestTime)"
     }
 }
+
+class ExceptionHolder(toString: String?) : Serializable {
+    val stackTrace: String? = toString
+
+    constructor() : this(null)
+}
+
+enum class Protocol(val shortName: String, val fullName: String) : Serializable {
+    KAFKA("kafka", "Apache Kafka"),
+    ZMQ("zmq", "ZeroMQ"),
+    HTTP("http", "HTTP/1.1"),
+    GRPC("grpc", "gRPC"),
+    RABBIT("rabbit", "RabbitMQ");
+
+    companion object {
+        fun getByName(name: String): Protocol? {
+            return Arrays.stream(values()).filter { x: Protocol -> x.shortName == name }.findFirst().orElse(null)
+        }
+    }
+}
+
+
+
