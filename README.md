@@ -12,7 +12,7 @@
 **Key features:**  
 - **Apache ZooKeeper (with TLSv1.2) is used for service discovery**
 - **Synchronous & asynchronous RPC calls - type of communication is determined by the client, not server**
-- **One interface could have multiple server implementations - client choose required one by specifying target's jaffa.rpc.module.id in request**
+- **One interface could have multiple server implementations - client choose required one by specifying target's moduleId in request**
 - **Request-scoped timeout for both sync/async calls**
 - **[Caffeine](https://github.com/ben-manes/caffeine) is used for caching service discovery information**
 - **5 transport protocols are supported**:
