@@ -36,11 +36,11 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     break
                 }
                 val command = Serializer.current.deserialize(bytes, Command::class.java)
-                val result = command?.let { RequestInvocationHelper.invoke(it) }
                 if (command?.callbackKey != null && command.callbackClass != null) {
                     socket?.send("OK")
                     val runnable = Runnable {
                         try {
+                            val result = RequestInvocationHelper.invoke(command)
                             log.debug("Async response to request {} is ready", command.callbackKey)
                             context?.createSocket(SocketType.REQ)
                                 .also { ZeroMqRequestSender.addCurveKeysToSocket(it, command.sourceModuleId) }
