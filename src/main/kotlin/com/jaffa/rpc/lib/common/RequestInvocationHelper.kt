@@ -99,10 +99,10 @@ object RequestInvocationHelper {
     }
 
     @Throws(
-        ClassNotFoundException::class,
-        NoSuchMethodException::class,
-        IllegalAccessException::class,
-        InvocationTargetException::class
+            ClassNotFoundException::class,
+            NoSuchMethodException::class,
+            IllegalAccessException::class,
+            InvocationTargetException::class
     )
     fun processCallbackContainer(callbackContainer: CallbackContainer?): Boolean {
         val key = callbackContainer?.key

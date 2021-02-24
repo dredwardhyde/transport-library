@@ -52,7 +52,7 @@ class KryoPoolSerializer : ObjectSerializer {
         pool = object : Pool<Kryo>(true, true, 100) {
             override fun create(): Kryo {
                 return Kryo().also { it.register(Void.TYPE) }.also { it.isRegistrationRequired = false }
-                    .also { it.references = true }
+                        .also { it.references = true }
             }
         }
     }

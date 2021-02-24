@@ -34,9 +34,9 @@ class GrpcRequestSender : Sender() {
         try {
             val totalTimeout = (if (timeout == -1L) 1000 * 60 * 60 else timeout).toInt()
             return MessageConverterHelper.fromGRPCCommandResponse(
-                CommandServiceGrpc.newBlockingStub(managedChannel)
-                    .withDeadlineAfter(totalTimeout.toLong(), TimeUnit.MILLISECONDS)
-                    .execute(MessageConverterHelper.toGRPCCommandRequest(command))
+                    CommandServiceGrpc.newBlockingStub(managedChannel)
+                            .withDeadlineAfter(totalTimeout.toLong(), TimeUnit.MILLISECONDS)
+                            .execute(MessageConverterHelper.toGRPCCommandRequest(command))
             )
         } catch (statusRuntimeException: StatusRuntimeException) {
             processStatusException(statusRuntimeException)
@@ -51,19 +51,19 @@ class GrpcRequestSender : Sender() {
     private val managedChannel: ManagedChannel
         get() {
             return cache.computeIfAbsent(
-                Utils.getHostAndPort(
-                    Utils.getHostForService(
-                        command?.serviceClass,
-                        moduleId,
-                        Protocol.GRPC
-                    ).left, ":"
-                )
+                    Utils.getHostAndPort(
+                            Utils.getHostForService(
+                                    command?.serviceClass,
+                                    moduleId,
+                                    Protocol.GRPC
+                            ).left, ":"
+                    )
             ) { key: Pair<String?, Int?>? ->
                 GrpcAsyncAndSyncRequestReceiver.addSecurityContext(
-                    NettyChannelBuilder.forAddress(
-                        key?.left,
-                        key?.right!!
-                    )
+                        NettyChannelBuilder.forAddress(
+                                key?.left,
+                                key?.right!!
+                        )
                 ).build()
             }
         }
@@ -81,7 +81,7 @@ class GrpcRequestSender : Sender() {
     override fun executeAsync(command: Command) {
         try {
             val response = CommandServiceGrpc.newBlockingStub(managedChannel)
-                .execute(MessageConverterHelper.toGRPCCommandRequest(command))
+                    .execute(MessageConverterHelper.toGRPCCommandRequest(command))
             if (response.response != ByteString.EMPTY) throw JaffaRpcExecutionException("Wrong value returned after async callback processing!")
         } catch (statusRuntimeException: StatusRuntimeException) {
             processStatusException(statusRuntimeException)

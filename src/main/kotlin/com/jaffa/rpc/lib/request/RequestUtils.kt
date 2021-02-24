@@ -16,8 +16,8 @@ object RequestUtils {
         }
         val topicName = serviceInterface + "-" + availableModuleId + "-server" + if (sync) "-sync" else "-async"
         return if (!JaffaService.zkClient?.topicExists(topicName)!!) throw JaffaRpcNoRouteException(
-            serviceInterface,
-            availableModuleId
+                serviceInterface,
+                availableModuleId
         ) else topicName
     }
 }

@@ -49,7 +49,7 @@ object Utils {
 
     @kotlin.jvm.JvmField
     val cache = Caffeine.newBuilder().maximumSize(100).expireAfterWrite(10, TimeUnit.MINUTES)
-        .build { k: String? -> zk?.getData(k, true, null) }
+            .build { k: String? -> zk?.getData(k, true, null) }
 
     @kotlin.jvm.JvmStatic
     fun loadExternalProperties(moduleId: String?) {
@@ -64,9 +64,9 @@ object Utils {
                     if (moduleId != null && name.contains(moduleId)) {
                         val value = p.getProperty(name)
                         if (name.toLowerCase().contains("password")) log.info(
-                            "Loading property {} = {}",
-                            name,
-                            "*************"
+                                "Loading property {} = {}",
+                                name,
+                                "*************"
                         ) else log.info("Loading property {} = {}", name, value)
                         System.setProperty(name, value)
                     }
@@ -119,16 +119,16 @@ object Utils {
 
     private val httpPrefix: String
         get() = (if (System.getProperty(OptionConstants.USE_HTTPS, false.toString())
-                .toBoolean()
+                        .toBoolean()
         ) "https" else "http") + "://"
     val isZkTestMode: Boolean
         get() = System.getProperty(OptionConstants.ZK_TEST_MODE, false.toString()).toBoolean()
 
     @Throws(ParseException::class)
     private fun getHostsForService(
-        service: String,
-        moduleId: String?,
-        protocol: Protocol
+            service: String,
+            moduleId: String?,
+            protocol: Protocol
     ): ArrayList<MutablePair<String?, String?>> {
         val zkData = cache[service] ?: throw JaffaRpcNoRouteException(service)
         val jArray = JSONParser().parse(String(zkData)) as JSONArray
@@ -138,10 +138,10 @@ object Utils {
                 val params = (json as String).split("#".toRegex()).toTypedArray()
                 if (moduleId != null) {
                     if (moduleId == params[1] && protocol.shortName == params[2]) hosts.add(
-                        MutablePair(
-                            params[0],
-                            params[1]
-                        )
+                            MutablePair(
+                                    params[0],
+                                    params[1]
+                            )
                     )
                 } else {
                     if (protocol.shortName == params[2]) hosts.add(MutablePair(params[0], params[1]))
@@ -208,8 +208,8 @@ object Utils {
             val defaultPort = 4242
             return try {
                 System.getProperty(
-                    OptionConstants.PROTOCOL_OPTION_PREFIX + rpcProtocol?.shortName + OptionConstants.SERVICE_PORT_OPTION_SUFFIX,
-                    defaultPort.toString()
+                        OptionConstants.PROTOCOL_OPTION_PREFIX + rpcProtocol?.shortName + OptionConstants.SERVICE_PORT_OPTION_SUFFIX,
+                        defaultPort.toString()
                 ).toInt()
             } catch (e: NumberFormatException) {
                 defaultPort
@@ -222,8 +222,8 @@ object Utils {
             val defaultPort = 4342
             return try {
                 System.getProperty(
-                    OptionConstants.PROTOCOL_OPTION_PREFIX + rpcProtocol?.shortName + OptionConstants.CALLBACK_PORT_OPTION_SUFFIX,
-                    defaultPort.toString()
+                        OptionConstants.PROTOCOL_OPTION_PREFIX + rpcProtocol?.shortName + OptionConstants.CALLBACK_PORT_OPTION_SUFFIX,
+                        defaultPort.toString()
                 ).toInt()
             } catch (e: NumberFormatException) {
                 defaultPort

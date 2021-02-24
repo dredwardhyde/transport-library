@@ -39,7 +39,7 @@ class AdminServer {
     @Throws(IOException::class)
     private fun respondWithFile(exchange: HttpExchange, fileName: String) {
         val inputStream = Thread.currentThread().contextClassLoader.getResourceAsStream(fileName)
-            ?: throw IOException("No such file in resources: $fileName")
+                ?: throw IOException("No such file in resources: $fileName")
         val page = ByteStreams.toByteArray(inputStream)
         exchange.sendResponseHeaders(200, page.size.toLong())
         val os = exchange.responseBody
@@ -72,11 +72,11 @@ class AdminServer {
             server = if (useHttps) {
                 val httpsServer = HttpsServer.create(InetSocketAddress(Utils.localHost, freePort), 0)
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(
-                    httpsServer,
-                    Utils.getRequiredOption(OptionConstants.ADMIN_SSL_TRUSTSTORE_LOCATION),
-                    Utils.getRequiredOption(OptionConstants.ADMIN_SSL_KEYSTORE_LOCATION),
-                    Utils.getRequiredOption(OptionConstants.ADMIN_SSL_TRUSTSTORE_PASSWORD),
-                    Utils.getRequiredOption(OptionConstants.ADMIN_SSL_KEYSTORE_PASSWORD)
+                        httpsServer,
+                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_TRUSTSTORE_LOCATION),
+                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_KEYSTORE_LOCATION),
+                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_TRUSTSTORE_PASSWORD),
+                        Utils.getRequiredOption(OptionConstants.ADMIN_SSL_KEYSTORE_PASSWORD)
                 )
                 httpsServer
             } else {
@@ -117,8 +117,8 @@ class AdminServer {
             server?.executor = Executors.newFixedThreadPool(3)
             server?.start()
             log.info(
-                "Jaffa RPC console started at {}",
-                (if (useHttps) "https://" else "http://") + server?.address?.hostName + ":" + server?.address?.port + "/admin"
+                    "Jaffa RPC console started at {}",
+                    (if (useHttps) "https://" else "http://") + server?.address?.hostName + ":" + server?.address?.port + "/admin"
             )
         } catch (httpServerStartupException: IOException) {
             log.error("Exception during admin HTTP server startup", httpServerStartupException)
@@ -149,7 +149,7 @@ class AdminServer {
         private val responses: Queue<ResponseMetric> = QueueUtils.synchronizedQueue(CircularFifoQueue(1000))
 
         private val requestLatency: Gauge = Gauge.build()
-            .name("requests_latency_seconds").help("Request latency in ms.").register()
+                .name("requests_latency_seconds").help("Request latency in ms.").register()
 
         @kotlin.jvm.JvmStatic
         fun addMetric(command: Command) {

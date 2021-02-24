@@ -20,32 +20,32 @@ class ZooKeeperConnection {
         if (zkConfig == null) {
             val zkClientConfig = ZKClientConfig()
             zkClientConfig.setProperty(
-                "zookeeper.clientCnxnSocket",
-                System.getProperty(
-                    OptionConstants.ZOOKEEPER_CLIENT_CONTEXT,
-                    "org.apache.zookeeper.ClientCnxnSocketNetty"
-                )
+                    "zookeeper.clientCnxnSocket",
+                    System.getProperty(
+                            OptionConstants.ZOOKEEPER_CLIENT_CONTEXT,
+                            "org.apache.zookeeper.ClientCnxnSocketNetty"
+                    )
             )
             zkClientConfig.setProperty(
-                "zookeeper.client.secure",
-                System.getProperty(OptionConstants.ZOOKEEPER_CLIENT_SECURE, false.toString())
+                    "zookeeper.client.secure",
+                    System.getProperty(OptionConstants.ZOOKEEPER_CLIENT_SECURE, false.toString())
             )
             if (System.getProperty(OptionConstants.ZOOKEEPER_CLIENT_SECURE, false.toString()).toBoolean()) {
                 zkClientConfig.setProperty(
-                    "zookeeper.ssl.keyStore.location",
-                    Utils.getRequiredOption(OptionConstants.ZOOKEEPER_SSL_KEYSTORE_LOCATION)
+                        "zookeeper.ssl.keyStore.location",
+                        Utils.getRequiredOption(OptionConstants.ZOOKEEPER_SSL_KEYSTORE_LOCATION)
                 )
                 zkClientConfig.setProperty(
-                    "zookeeper.ssl.keyStore.password",
-                    Utils.getRequiredOption(OptionConstants.ZOOKEEPER_SSL_KEYSTORE_PASSWORD)
+                        "zookeeper.ssl.keyStore.password",
+                        Utils.getRequiredOption(OptionConstants.ZOOKEEPER_SSL_KEYSTORE_PASSWORD)
                 )
                 zkClientConfig.setProperty(
-                    "zookeeper.ssl.trustStore.location",
-                    Utils.getRequiredOption(OptionConstants.ZOOKEEPER_SSL_TRUSTSTORE_LOCATION)
+                        "zookeeper.ssl.trustStore.location",
+                        Utils.getRequiredOption(OptionConstants.ZOOKEEPER_SSL_TRUSTSTORE_LOCATION)
                 )
                 zkClientConfig.setProperty(
-                    "zookeeper.ssl.trustStore.password",
-                    Utils.getRequiredOption(OptionConstants.ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD)
+                        "zookeeper.ssl.trustStore.password",
+                        Utils.getRequiredOption(OptionConstants.ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD)
                 )
             }
             zkConfig = zkClientConfig

@@ -11,14 +11,14 @@ class JaffaRpcExecutionTimeoutException : RuntimeException("RPC execution timeou
 
 class JaffaRpcNoRouteException : RuntimeException {
     constructor(
-        service: String?,
-        moduleId: String?
+            service: String?,
+            moduleId: String?
     ) : super(MESSAGE_PREFIX + service + if (moduleId != null) " and module.id $moduleId" else "")
 
     constructor(service: String?) : super(MESSAGE_PREFIX + service)
     constructor(
-        service: String?,
-        protocol: Protocol
+            service: String?,
+            protocol: Protocol
     ) : super(MESSAGE_PREFIX + service + " and protocol " + protocol.shortName)
 
     companion object {

@@ -25,17 +25,17 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
             server = if (System.getProperty(OptionConstants.USE_HTTPS, false.toString()).toBoolean()) {
                 val httpsServer = HttpsServer.create(Utils.httpCallbackBindAddress, 0)
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(
-                    httpsServer,
-                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
-                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
-                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
-                    Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_PASSWORD)
+                        httpsServer,
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_LOCATION),
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_LOCATION),
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD),
+                        Utils.getRequiredOption(OptionConstants.HTTP_SSL_SERVER_KEYSTORE_PASSWORD)
                 )
                 httpsServer
             } else {
                 HttpServer.create(Utils.httpCallbackBindAddress, 0)
             }.also { it.createContext("/response", HttpRequestHandler()) }
-                .also { it.executor = Executors.newFixedThreadPool(3) }.also { it.start() }
+                    .also { it.executor = Executors.newFixedThreadPool(3) }.also { it.start() }
         } catch (httpServerStartupException: Exception) {
             log.error("Error during HTTP request receiver startup:", httpServerStartupException)
             throw JaffaRpcSystemException(httpServerStartupException)
@@ -55,8 +55,8 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
         override fun handle(request: HttpExchange?) {
             try {
                 val callbackContainer = Serializer.current.deserialize(
-                    ByteStreams.toByteArray(request?.requestBody),
-                    CallbackContainer::class.java
+                        ByteStreams.toByteArray(request?.requestBody),
+                        CallbackContainer::class.java
                 )
                 callbackContainer?.let { RequestInvocationHelper.processCallbackContainer(it) }
                 val response = "OK"

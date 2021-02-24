@@ -27,16 +27,16 @@ class RabbitMQAsyncResponseReceiver : Runnable, Closeable {
             connection = JaffaService.connectionFactory?.createConnection()
             clientChannel = connection?.createChannel(false)
             clientChannel?.queueBind(
-                RabbitMQRequestSender.CLIENT_ASYNC_NAME,
-                RabbitMQRequestSender.EXCHANGE_NAME,
-                RabbitMQRequestSender.CLIENT_ASYNC_NAME
+                    RabbitMQRequestSender.CLIENT_ASYNC_NAME,
+                    RabbitMQRequestSender.EXCHANGE_NAME,
+                    RabbitMQRequestSender.CLIENT_ASYNC_NAME
             )
             val consumer: Consumer = object : DefaultConsumer(clientChannel) {
                 override fun handleDelivery(
-                    consumerTag: String,
-                    envelope: Envelope,
-                    properties: AMQP.BasicProperties,
-                    body: ByteArray
+                        consumerTag: String,
+                        envelope: Envelope,
+                        properties: AMQP.BasicProperties,
+                        body: ByteArray
                 ) {
                     if (properties.headers == null) return
                     val type = properties.headers["communication-type"]
@@ -44,8 +44,8 @@ class RabbitMQAsyncResponseReceiver : Runnable, Closeable {
                     try {
                         val callbackContainer = Serializer.current.deserialize(body, CallbackContainer::class.java)
                         if (callbackContainer?.let { RequestInvocationHelper.processCallbackContainer(it) } == true) clientChannel?.basicAck(
-                            envelope.deliveryTag,
-                            false
+                                envelope.deliveryTag,
+                                false
                         )
                     } catch (ioException: IOException) {
                         log.error("General RabbitMQ exception", ioException)

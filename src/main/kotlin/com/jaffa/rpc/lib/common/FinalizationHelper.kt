@@ -19,26 +19,26 @@ object FinalizationHelper {
     var context: ApplicationContext? = null
     private val finalizerThread = Runnable {
         eventsToConsume.values
-            .stream()
-            .filter { x: Command -> x.asyncExpireTime < System.currentTimeMillis() }
-            .forEach { command: Command ->
-                try {
-                    if (eventsToConsume.remove(command.callbackKey) != null) {
-                        val start = System.nanoTime()
-                        log.debug("Finalization request {}", command.rqUid)
-                        val callbackClass = Class.forName(command.callbackClass)
-                        val method = callbackClass.getMethod("onError", String::class.java, Throwable::class.java)
-                        method.invoke(
-                            context?.getBean(callbackClass),
-                            command.callbackKey,
-                            JaffaRpcExecutionTimeoutException()
-                        )
-                        log.debug("Finalization request {} took {}ns", command.rqUid, System.nanoTime() - start)
+                .stream()
+                .filter { x: Command -> x.asyncExpireTime < System.currentTimeMillis() }
+                .forEach { command: Command ->
+                    try {
+                        if (eventsToConsume.remove(command.callbackKey) != null) {
+                            val start = System.nanoTime()
+                            log.debug("Finalization request {}", command.rqUid)
+                            val callbackClass = Class.forName(command.callbackClass)
+                            val method = callbackClass.getMethod("onError", String::class.java, Throwable::class.java)
+                            method.invoke(
+                                    context?.getBean(callbackClass),
+                                    command.callbackKey,
+                                    JaffaRpcExecutionTimeoutException()
+                            )
+                            log.debug("Finalization request {} took {}ns", command.rqUid, System.nanoTime() - start)
+                        }
+                    } catch (e: Exception) {
+                        log.error("Error during finalization command: {}", command)
                     }
-                } catch (e: Exception) {
-                    log.error("Error during finalization command: {}", command)
                 }
-            }
     }
 
     fun startFinalizer(context: ApplicationContext?) {

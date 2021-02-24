@@ -93,14 +93,14 @@ open class JaffaService {
         val protocol = Utils.rpcProtocol
         if (protocol == Protocol.KAFKA) {
             val zooKeeperClient = ZooKeeperClient(
-                Utils.getRequiredOption(OptionConstants.ZOOKEEPER_CONNECTION),
-                200000,
-                15000,
-                10,
-                Time.SYSTEM,
-                UUID.randomUUID().toString(),
-                UUID.randomUUID().toString(),
-                null, Option.apply(ZooKeeperConnection.zkConfig)
+                    Utils.getRequiredOption(OptionConstants.ZOOKEEPER_CONNECTION),
+                    200000,
+                    15000,
+                    10,
+                    Time.SYSTEM,
+                    UUID.randomUUID().toString(),
+                    UUID.randomUUID().toString(),
+                    null, Option.apply(ZooKeeperConnection.zkConfig)
             )
             zkClient = KafkaZkClient(zooKeeperClient, false, Time.SYSTEM)
             adminZkClient = AdminZkClient(zkClient)
@@ -153,31 +153,31 @@ open class JaffaService {
             for (server in serverEndpoints?.endpoints!!) {
                 require(server.isAnnotationPresent(ApiServer::class.java)) {
                     String.format(
-                        "Class %s is not annotated as ApiServer!",
-                        server.name
+                            "Class %s is not annotated as ApiServer!",
+                            server.name
                     )
                 }
                 require(server.interfaces.isNotEmpty()) {
                     String.format(
-                        "Class %s does not implement Api interface!",
-                        server.name
+                            "Class %s does not implement Api interface!",
+                            server.name
                     )
                 }
                 val serverInterface = server.interfaces[0]
                 require(serverInterface.isAnnotationPresent(Api::class.java)) {
                     String.format(
-                        "Class %s does not implement Api interface!",
-                        server.name
+                            "Class %s does not implement Api interface!",
+                            server.name
                     )
                 }
                 try {
                     server.getConstructor()
                 } catch (e: NoSuchMethodException) {
                     throw IllegalArgumentException(
-                        String.format(
-                            "Class %s does not have default constructor!",
-                            server.name
-                        )
+                            String.format(
+                                    "Class %s does not have default constructor!",
+                                    server.name
+                            )
                     )
                 }
                 apiImpls.add(serverInterface)
@@ -185,7 +185,7 @@ open class JaffaService {
         } else {
             if (clientEndpoints != null) {
                 for (client in clientEndpoints.stream().map { obj: ClientEndpoint -> obj.endpoint }
-                    .collect(Collectors.toList())) {
+                        .collect(Collectors.toList())) {
                     require(client.isAnnotationPresent(ApiClient::class.java)) { "Class " + client.name + " does has ApiClient annotation!" }
                     apiImpls.add(Class.forName(Utils.getServiceInterfaceNameFromClient(client.name)))
                 }
@@ -202,9 +202,9 @@ open class JaffaService {
             if (!zkClient!!.topicExists(topic))
                 adminZkClient!!.createTopic(topic, brokersCount, 1, Properties(), RackAwareMode.`Disabled$`.`MODULE$`)
             else check(
-                Integer.valueOf(
-                    zkClient!!.getTopicPartitionCount(topic).get().toString() + ""
-                ) == brokersCount
+                    Integer.valueOf(
+                            zkClient!!.getTopicPartitionCount(topic).get().toString() + ""
+                    ) == brokersCount
             ) { "Topic $topic has wrong config" }
         })
         return topicsCreated
@@ -308,7 +308,7 @@ open class JaffaService {
             registerServices()
             FinalizationHelper.startFinalizer(context)
             log.info(
-                """
+                    """
                     .---.                                             
                     |   |                                               
                     '---'                                               
@@ -413,13 +413,13 @@ open class JaffaService {
                     val sslProps: MutableMap<String, String?> = HashMap()
                     sslProps["security.protocol"] = "SSL"
                     sslProps["ssl.truststore.location"] =
-                        Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)
+                            Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)
                     sslProps["ssl.truststore.password"] =
-                        Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD)
+                            Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD)
                     sslProps["ssl.keystore.location"] =
-                        Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_LOCATION)
+                            Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_LOCATION)
                     sslProps["ssl.keystore.password"] =
-                        Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_PASSWORD)
+                            Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_PASSWORD)
                     sslProps["ssl.key.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEY_PASSWORD)
                     consumerProps.putAll(sslProps)
                     producerProps.putAll(sslProps)

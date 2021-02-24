@@ -78,7 +78,7 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                                             command.sourceModuleId,
                                             command.sourceModuleId + "-client-sync",
                                             props,
-                                            Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let { RequestInvocationHelper.invoke(it) }))
+                                            Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command.let { RequestInvocationHelper.invoke(it) }))
                                     )
                                 }
                                 serverChannel?.basicAck(envelope.deliveryTag, false)

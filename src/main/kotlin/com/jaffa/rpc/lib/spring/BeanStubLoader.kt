@@ -35,7 +35,7 @@ open class BeanStubLoader : BeanDefinitionRegistryPostProcessor {
         val cl = BeanStubLoader::class.java.classLoader
         val annotated: MutableSet<Class<*>> = HashSet()
         for (client in clientEndpoints.values.stream().map { obj: ClientEndpoint -> obj.endpoint }
-            .collect(Collectors.toList())) {
+                .collect(Collectors.toList())) {
             val isClient = client.isAnnotationPresent(ApiClient::class.java)
             log.info("Client endpoint: {} isClient: {}", client.name, isClient)
             require(isClient) { "Class " + client.name + " is not annotated as ApiClient!" }
@@ -43,11 +43,11 @@ open class BeanStubLoader : BeanDefinitionRegistryPostProcessor {
         }
         annotated.stream().filter { obj: Class<*> -> obj.isInterface }.forEach { c: Class<*> ->
             val stubClass = ByteBuddy()
-                .subclass(c)
-                .method(ElementMatchers.any<Any>())
-                .intercept(StubMethod.INSTANCE)
-                .make().load(cl, ClassLoadingStrategy.Default.INJECTION)
-                .loaded
+                    .subclass(c)
+                    .method(ElementMatchers.any<Any>())
+                    .intercept(StubMethod.INSTANCE)
+                    .make().load(cl, ClassLoadingStrategy.Default.INJECTION)
+                    .loaded
             val builder = BeanDefinitionBuilder.genericBeanDefinition(stubClass)
             registry.registerBeanDefinition(c.simpleName + "Stub", builder.beanDefinition)
         }

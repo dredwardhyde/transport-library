@@ -56,14 +56,14 @@ class RabbitMQRequestSender : Sender() {
         if (StringUtils.isNotBlank(moduleId)) {
             targetModuleId = moduleId
             Utils.getHostForService(
-                Utils.getServiceInterfaceNameFromClient(command?.serviceClass),
-                moduleId,
-                Protocol.RABBIT
+                    Utils.getServiceInterfaceNameFromClient(command?.serviceClass),
+                    moduleId,
+                    Protocol.RABBIT
             )
         } else {
             targetModuleId = Utils.getModuleForService(
-                Utils.getServiceInterfaceNameFromClient(command?.serviceClass),
-                Protocol.RABBIT
+                    Utils.getServiceInterfaceNameFromClient(command?.serviceClass),
+                    Protocol.RABBIT
             )
         }
         clientChannel?.basicPublish(targetModuleId, "$targetModuleId-server", null, message)
@@ -104,10 +104,10 @@ class RabbitMQRequestSender : Sender() {
                 val consumer: Consumer = object : DefaultConsumer(clientChannel) {
                     @Throws(IOException::class)
                     override fun handleDelivery(
-                        consumerTag: String,
-                        envelope: Envelope,
-                        properties: AMQP.BasicProperties,
-                        body: ByteArray
+                            consumerTag: String,
+                            envelope: Envelope,
+                            properties: AMQP.BasicProperties,
+                            body: ByteArray
                     ) {
                         if (properties.correlationId != null) {
                             val callback = requests.remove(properties.correlationId)
