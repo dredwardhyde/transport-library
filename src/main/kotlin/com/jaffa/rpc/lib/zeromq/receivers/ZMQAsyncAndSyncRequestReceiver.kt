@@ -40,20 +40,22 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     socket?.send("OK")
                     val runnable = Runnable {
                         try {
-                            val result = RequestInvocationHelper.invoke(command)
-                            val serializedResponse = Serializer.current.serialize(
-                                RequestInvocationHelper.constructCallbackContainer(
-                                    command,
-                                    result
-                                )
-                            )
                             log.debug("Async response to request {} is ready", command.callbackKey)
-                            val socketAsync = context?.createSocket(SocketType.REQ)
-                            ZeroMqRequestSender.addCurveKeysToSocket(socketAsync, command.sourceModuleId)
-                            socketAsync?.connect("tcp://" + command.callBackHost)
-                            socketAsync?.send(serializedResponse, 0)
-                            socketAsync?.recv(0)
-                            context?.destroySocket(socketAsync)
+                            context?.createSocket(SocketType.REQ)
+                                .also { ZeroMqRequestSender.addCurveKeysToSocket(it, command.sourceModuleId) }
+                                .also { it?.connect("tcp://" + command.callBackHost) }
+                                .also {
+                                    it?.send(
+                                        Serializer.current.serialize(
+                                            RequestInvocationHelper.constructCallbackContainer(
+                                                command,
+                                                RequestInvocationHelper.invoke(command)
+                                            )
+                                        ), 0
+                                    )
+                                }
+                                .also { it?.recv(0) }
+                                .also { context?.destroySocket(it) }
                         } catch (exception: Exception) {
                             log.error("Error while receiving async request", exception)
                         }
@@ -118,14 +120,11 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
     init {
         try {
-            context = ZContext(10)
-            context?.linger = 0
+            context = ZContext(10).also { it.linger = 0 }
             if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
-                auth = ZAuth(context)
-                auth?.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR))
+                auth = ZAuth(context).also { it.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR)) }
             }
-            socket = context?.createSocket(SocketType.REP)
-            CurveUtils.makeSocketSecure(socket)
+            socket = context?.createSocket(SocketType.REP).also { CurveUtils.makeSocketSecure(it) }
             socket?.bind("tcp://" + Utils.zeroMQBindAddress)
         } catch (zmqStartupException: Exception) {
             ZMQAsyncAndSyncRequestReceiver.log.error(

@@ -39,8 +39,7 @@ class AdminServer {
 
     @Throws(IOException::class)
     private fun respondWithFile(exchange: HttpExchange, fileName: String) {
-        val classloader = Thread.currentThread().contextClassLoader
-        val inputStream = classloader.getResourceAsStream(fileName)
+        val inputStream = Thread.currentThread().contextClassLoader.getResourceAsStream(fileName)
             ?: throw IOException("No such file in resources: $fileName")
         val page = ByteStreams.toByteArray(inputStream)
         exchange.sendResponseHeaders(200, page.size.toLong())
