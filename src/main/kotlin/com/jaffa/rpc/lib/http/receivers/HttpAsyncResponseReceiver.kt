@@ -54,11 +54,10 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
 
         override fun handle(request: HttpExchange?) {
             try {
-                val callbackContainer = Serializer.current.deserialize(
+                Serializer.current.deserialize(
                         ByteStreams.toByteArray(request?.requestBody),
                         CallbackContainer::class.java
-                )
-                callbackContainer?.let { RequestInvocationHelper.processCallbackContainer(it) }
+                )?.let { RequestInvocationHelper.processCallbackContainer(it) }
                 val response = "OK"
                 request?.sendResponseHeaders(200, response.toByteArray().size.toLong())
                 val os = request?.responseBody

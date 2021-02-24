@@ -27,8 +27,7 @@ object FinalizationHelper {
                             val start = System.nanoTime()
                             log.debug("Finalization request {}", command.rqUid)
                             val callbackClass = Class.forName(command.callbackClass)
-                            val method = callbackClass.getMethod("onError", String::class.java, Throwable::class.java)
-                            method.invoke(
+                            callbackClass.getMethod("onError", String::class.java, Throwable::class.java).invoke(
                                     context?.getBean(callbackClass),
                                     command.callbackKey,
                                     JaffaRpcExecutionTimeoutException()

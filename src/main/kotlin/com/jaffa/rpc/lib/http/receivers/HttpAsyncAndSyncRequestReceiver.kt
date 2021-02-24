@@ -80,8 +80,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
         @Throws(IOException::class)
         override fun handle(request: HttpExchange) {
-            val command =
-                    Serializer.current.deserialize(ByteStreams.toByteArray(request.requestBody), Command::class.java)
+            val command = Serializer.current.deserialize(ByteStreams.toByteArray(request.requestBody), Command::class.java)
             if (command?.callbackKey != null && command.callbackClass != null) {
                 val response = "OK"
                 request.sendResponseHeaders(200, response.toByteArray().size.toLong())
@@ -113,12 +112,11 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 service.execute(runnable)
             } else {
                 try {
-                    val response =
-                            Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let {
-                                RequestInvocationHelper.invoke(
-                                        it
-                                )
-                            }))
+                    val response = Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let {
+                        RequestInvocationHelper.invoke(
+                                it
+                        )
+                    }))
                     response?.size?.toLong()?.let { request.sendResponseHeaders(200, it) }
                     val os = request.responseBody
                     os.write(response)
@@ -142,15 +140,13 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
         fun initClient() {
             if (System.getProperty(OptionConstants.USE_HTTPS, false.toString()).toBoolean()) {
                 val sslContext: SSLContext = try {
-                    val keyPassphrase =
-                            Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_PASSWORD).toCharArray()
+                    val keyPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_PASSWORD).toCharArray()
                     val ks = KeyStore.getInstance("JKS")
                     ks.load(
                             FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_LOCATION)),
                             keyPassphrase
                     )
-                    val trustPassphrase =
-                            Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD).toCharArray()
+                    val trustPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD).toCharArray()
                     val tks = KeyStore.getInstance("JKS")
                     tks.load(
                             FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION)),
@@ -162,11 +158,9 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     log.error("Error occurred while creating HttpClient", e)
                     throw JaffaRpcSystemException(e)
                 }
-                val sslConnectionSocketFactory =
-                        SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.getDefaultHostnameVerifier())
-                val socketFactoryRegistry =
-                        RegistryBuilder.create<ConnectionSocketFactory>().register("https", sslConnectionSocketFactory)
-                                .build()
+                val sslConnectionSocketFactory = SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.getDefaultHostnameVerifier())
+                val socketFactoryRegistry = RegistryBuilder.create<ConnectionSocketFactory>().register("https", sslConnectionSocketFactory)
+                        .build()
                 val connectionManager = PoolingHttpClientConnectionManager(socketFactoryRegistry)
                 connectionManager.maxTotal = 200
                 client = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
