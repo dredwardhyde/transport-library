@@ -182,6 +182,7 @@ open class JaffaService {
     @PostConstruct
     open fun init() {
         try {
+            require(moduleId != null) { "moduleId can not be null!" }
             OptionConstants.setModuleId(moduleId)
             Utils.loadExternalProperties(moduleId)
             loadInternalProperties()

@@ -7,6 +7,11 @@ class JavaSerializer : ObjectSerializer {
 
     private val log = LoggerFactory.getLogger(JavaSerializer::class.java)
 
+    companion object {
+        const val ERROR_DESERIALIZATION_MESSAGE = "Exception while object Java deserialization";
+        const val ERROR_SERIALIZATION_MESSAGE = "Exception while object Java serialization";
+    }
+
     override fun serialize(obj: Any?): ByteArray? {
         try {
             ByteArrayOutputStream().use { bos ->
@@ -16,7 +21,7 @@ class JavaSerializer : ObjectSerializer {
                 return bos.toByteArray()
             }
         } catch (ioException: IOException) {
-            log.error("Exception while object Java serialization", ioException)
+            log.error(ERROR_SERIALIZATION_MESSAGE, ioException)
         }
         return null
     }
@@ -30,9 +35,9 @@ class JavaSerializer : ObjectSerializer {
         try {
             ObjectInputStream(bis).use { `in` -> return `in`.readObject() }
         } catch (exception: IOException) {
-            log.error("Exception while object Java deserialization", exception)
+            log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
         } catch (exception: ClassNotFoundException) {
-            log.error("Exception while object Java deserialization", exception)
+            log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
         }
         return null
     }
@@ -42,11 +47,11 @@ class JavaSerializer : ObjectSerializer {
         try {
             ObjectInputStream(bis).use { `in` -> return `in`.readObject() as T }
         } catch (exception: IOException) {
-            log.error("Exception while object Java deserialization", exception)
+            log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
         } catch (exception: ClassNotFoundException) {
-            log.error("Exception while object Java deserialization", exception)
+            log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
         } catch (exception: ClassCastException) {
-            log.error("Exception while object Java deserialization", exception)
+            log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
         }
         return null
     }

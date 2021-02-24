@@ -14,20 +14,24 @@ object MessageConverterHelper {
     @Throws(ClassNotFoundException::class)
     fun fromGRPCCommandRequest(request: CommandRequest): Command {
         val command = Command()
-        command.callBackHost = request.callBackHost
-        command.callbackClass = request.callbackClass
-        command.asyncExpireTime = request.asyncExpireTime
-        command.methodName = request.methodName
-        command.callbackKey = request.callbackKey
-        command.localRequestTime = request.localRequestTime
-        command.requestTime = request.requestTime
-        command.rqUid = request.rqUid
-        command.sourceModuleId = request.sourceModuleId
-        command.serviceClass = request.serviceClass
+        with(command){
+            callBackHost = request.callBackHost
+            callbackClass = request.callbackClass
+            asyncExpireTime = request.asyncExpireTime
+            methodName = request.methodName
+            callbackKey = request.callbackKey
+            localRequestTime = request.localRequestTime
+            requestTime = request.requestTime
+            rqUid = request.rqUid
+            sourceModuleId = request.sourceModuleId
+            serviceClass = request.serviceClass
+        }
         if (StringUtils.isNotBlank(request.token) && StringUtils.isNotBlank(request.user)) {
             val securityTicket = SecurityTicket()
-            securityTicket.token = request.token
-            securityTicket.user = request.user
+            with(securityTicket){
+                token = request.token
+                user = request.user
+            }
             command.ticket = securityTicket
         }
         if (request.methodArgsList != null && !request.methodArgsList.isEmpty()) {
@@ -67,21 +71,25 @@ object MessageConverterHelper {
 
     fun fromGRPCCallbackRequest(callbackRequest: CallbackRequest): CallbackContainer {
         val callbackContainer = CallbackContainer()
-        callbackContainer.key = callbackRequest.key
-        callbackContainer.listener = callbackRequest.listener
-        callbackContainer.resultClass = callbackRequest.resultClass
-        if (callbackRequest.result != null && !callbackRequest.result.isEmpty) {
-            callbackContainer.result = Serializer.current?.deserializeWithClass(callbackRequest.result.toByteArray())
+        with(callbackContainer){
+            key = callbackRequest.key
+            listener = callbackRequest.listener
+            resultClass = callbackRequest.resultClass
+            if (callbackRequest.result != null && !callbackRequest.result.isEmpty) {
+                result = Serializer.current?.deserializeWithClass(callbackRequest.result.toByteArray())
+            }
         }
         return callbackContainer
     }
 
     fun toGRPCCallbackRequest(callbackContainer: CallbackContainer?): CallbackRequest {
         val callbackRequest = CallbackRequest.newBuilder()
-        callbackRequest.key = callbackContainer?.key
-        callbackRequest.listener = callbackContainer?.listener
-        callbackRequest.resultClass = callbackContainer?.resultClass
-        callbackRequest.result = ByteString.copyFrom(Serializer.current?.serializeWithClass(callbackContainer?.result))
+        with(callbackRequest){
+            key = callbackContainer?.key
+            listener = callbackContainer?.listener
+            resultClass = callbackContainer?.resultClass
+            result = ByteString.copyFrom(Serializer.current?.serializeWithClass(callbackContainer?.result))
+        }
         return callbackRequest.build()
     }
 
