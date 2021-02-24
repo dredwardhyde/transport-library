@@ -69,7 +69,7 @@ class AdminServer {
     fun init() {
         try {
             val useHttps = System.getProperty(OptionConstants.ADMIN_USE_HTTPS, false.toString()).toBoolean()
-            prometheusServer = HTTPServer(1337)
+            prometheusServer = HTTPServer(13001)
             server = if (useHttps) {
                 val httpsServer = HttpsServer.create(InetSocketAddress(Utils.localHost, freePort), 0)
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,
