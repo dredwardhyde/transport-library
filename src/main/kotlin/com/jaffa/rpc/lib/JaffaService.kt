@@ -76,13 +76,13 @@ open class JaffaService {
     private val moduleId: String? = null
     private fun registerServices() {
         val apiImpls: MutableMap<Class<*>, Class<*>> = HashMap()
-        for (server in serverEndpoints?.endpoints!!) {
-            log.info("Server endpoint: {}", server.name)
-            apiImpls[server] = server.interfaces[0]
+        serverEndpoints?.endpoints?.forEach { it ->
+            log.info("Server endpoint: {}", it.name)
+            apiImpls[it] = it.interfaces[0]
         }
-        for ((key, value) in apiImpls) {
-            RequestInvocationHelper.wrappedServices[value] = context?.getBean(key) as Any
-            Utils.rpcProtocol?.let { Utils.registerService(value.name, it) }
+        apiImpls.forEach { entry ->
+            RequestInvocationHelper.wrappedServices[entry.value] = context?.getBean(entry.key) as Any
+            Utils.rpcProtocol?.let { Utils.registerService(entry.value.name, it) }
         }
         RequestInvocationHelper.context = context
     }
@@ -304,9 +304,7 @@ open class JaffaService {
         if (Utils.conn != null) {
             try {
                 if (!Utils.isZkTestMode) {
-                    for (service in Utils.services) {
-                        Utils.deleteAllRegistrations(service)
-                    }
+                    Utils.services.forEach{ Utils.deleteAllRegistrations(it)}
                 }
                 Utils.conn?.close()
                 Utils.conn = null

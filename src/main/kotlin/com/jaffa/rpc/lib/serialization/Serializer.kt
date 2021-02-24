@@ -5,7 +5,7 @@ import com.jaffa.rpc.lib.common.OptionConstants
 object Serializer {
     var isKryo = true
 
-    var current: ObjectSerializer? = null
+    lateinit var current: ObjectSerializer
 
     @kotlin.jvm.JvmStatic
     fun init() {

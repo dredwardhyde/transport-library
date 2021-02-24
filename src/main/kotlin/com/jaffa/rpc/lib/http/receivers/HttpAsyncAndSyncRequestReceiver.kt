@@ -73,7 +73,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
         @Throws(IOException::class)
         override fun handle(request: HttpExchange) {
-            val command = Serializer.current?.deserialize(ByteStreams.toByteArray(request.requestBody), Command::class.java)
+            val command = Serializer.current.deserialize(ByteStreams.toByteArray(request.requestBody), Command::class.java)
             if (command?.callbackKey != null && command.callbackClass != null) {
                 val response = "OK"
                 request.sendResponseHeaders(200, response.toByteArray().size.toLong())
@@ -84,7 +84,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 val runnable = Runnable {
                     try {
                         val result = RequestInvocationHelper.invoke(command)
-                        val serializedResponse = Serializer.current?.serialize(RequestInvocationHelper.constructCallbackContainer(command, result))
+                        val serializedResponse = Serializer.current.serialize(RequestInvocationHelper.constructCallbackContainer(command, result))
                         val httpPost = HttpPost(command.callBackHost + "/response")
                         val postParams: HttpEntity = ByteArrayEntity(serializedResponse)
                         httpPost.entity = postParams
@@ -102,7 +102,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
             } else {
                 try {
                     val result = command?.let { RequestInvocationHelper.invoke(it) }
-                    val response = Serializer.current?.serializeWithClass(RequestInvocationHelper.getResult(result))
+                    val response = Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(result))
                     response?.size?.toLong()?.let { request.sendResponseHeaders(200, it) }
                     val os = request.responseBody
                     os.write(response)

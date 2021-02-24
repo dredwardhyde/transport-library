@@ -39,7 +39,7 @@ object MessageConverterHelper {
             command.methodArgs = methodArgs
             val argsObjects = arrayOfNulls<Any>(methodArgs.size)
             for (i in methodArgs.indices) {
-                if (request.getArgs(i) == ByteString.EMPTY) argsObjects[i] = null else argsObjects[i] = Serializer.current?.deserialize(request.getArgs(i).toByteArray(), Class.forName(methodArgs[i]))
+                if (request.getArgs(i) == ByteString.EMPTY) argsObjects[i] = null else argsObjects[i] = Serializer.current.deserialize(request.getArgs(i).toByteArray(), Class.forName(methodArgs[i]))
             }
             command.args = argsObjects
         }
@@ -52,19 +52,21 @@ object MessageConverterHelper {
         commandRequest.setAsyncExpireTime(command.asyncExpireTime)
                 .setAsyncExpireTime(command.asyncExpireTime)
                 .setRequestTime(command.requestTime).localRequestTime = command.localRequestTime
-        if (StringUtils.isNotBlank(command.callbackClass)) commandRequest.callbackClass = command.callbackClass
-        if (StringUtils.isNotBlank(command.callBackHost)) commandRequest.callBackHost = command.callBackHost
-        if (StringUtils.isNotBlank(command.callbackKey)) commandRequest.callbackKey = command.callbackKey
-        if (StringUtils.isNotBlank(command.methodName)) commandRequest.methodName = command.methodName
-        if (StringUtils.isNotBlank(command.rqUid)) commandRequest.rqUid = command.rqUid
-        if (StringUtils.isNotBlank(command.serviceClass)) commandRequest.serviceClass = command.serviceClass
-        if (StringUtils.isNotBlank(command.sourceModuleId)) commandRequest.sourceModuleId = command.sourceModuleId
+        with(commandRequest){
+            if (StringUtils.isNotBlank(command.callbackClass)) callbackClass = command.callbackClass
+            if (StringUtils.isNotBlank(command.callBackHost)) callBackHost = command.callBackHost
+            if (StringUtils.isNotBlank(command.callbackKey)) callbackKey = command.callbackKey
+            if (StringUtils.isNotBlank(command.methodName)) methodName = command.methodName
+            if (StringUtils.isNotBlank(command.rqUid)) rqUid = command.rqUid
+            if (StringUtils.isNotBlank(command.serviceClass)) serviceClass = command.serviceClass
+            if (StringUtils.isNotBlank(command.sourceModuleId)) sourceModuleId = command.sourceModuleId
+        }
         if (command.ticket != null) {
             commandRequest.setUser(command.ticket?.user).token = command.ticket?.token
         }
         for (i in command.methodArgs.indices) {
             commandRequest = commandRequest.addMethodArgs(command.methodArgs[i])
-            if (command.args[i] != null) commandRequest.addArgs(ByteString.copyFrom(Serializer.current!!.serialize(command.args[i]))) else commandRequest.addArgs(ByteString.EMPTY)
+            if (command.args[i] != null) commandRequest.addArgs(ByteString.copyFrom(Serializer.current.serialize(command.args[i]))) else commandRequest.addArgs(ByteString.EMPTY)
         }
         return commandRequest.build()
     }
@@ -76,7 +78,7 @@ object MessageConverterHelper {
             listener = callbackRequest.listener
             resultClass = callbackRequest.resultClass
             if (callbackRequest.result != null && !callbackRequest.result.isEmpty) {
-                result = Serializer.current?.deserializeWithClass(callbackRequest.result.toByteArray())
+                result = Serializer.current.deserializeWithClass(callbackRequest.result.toByteArray())
             }
         }
         return callbackContainer
@@ -88,17 +90,17 @@ object MessageConverterHelper {
             key = callbackContainer?.key
             listener = callbackContainer?.listener
             resultClass = callbackContainer?.resultClass
-            result = ByteString.copyFrom(Serializer.current?.serializeWithClass(callbackContainer?.result))
+            result = ByteString.copyFrom(Serializer.current.serializeWithClass(callbackContainer?.result))
         }
         return callbackRequest.build()
     }
 
     fun toGRPCCommandResponse(response: Any?): CommandResponse {
-        val responseMarshalled = ByteString.copyFrom(Serializer.current?.serializeWithClass(response))
+        val responseMarshalled = ByteString.copyFrom(Serializer.current.serializeWithClass(response))
         return CommandResponse.newBuilder().setResponse(responseMarshalled).build()
     }
 
     fun fromGRPCCommandResponse(commandResponse: CommandResponse): Any? {
-        return Serializer.current?.deserializeWithClass(commandResponse.response.toByteArray())
+        return Serializer.current.deserializeWithClass(commandResponse.response.toByteArray())
     }
 }

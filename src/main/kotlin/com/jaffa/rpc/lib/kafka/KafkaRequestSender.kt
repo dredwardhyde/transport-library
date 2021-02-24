@@ -24,9 +24,8 @@ class KafkaRequestSender : Sender() {
 
     private val producer: KafkaProducer<String, ByteArray?> = KafkaProducer(JaffaService.producerProps)
     private fun seekTopicsForQuery(cons: KafkaConsumer<String, ByteArray>, query: Map<TopicPartition, Long>) {
-        for ((key, value) in cons.offsetsForTimes(query)) {
-            if (Objects.isNull(value)) continue
-            cons.seek(key, value.offset())
+        cons.offsetsForTimes(query).forEach{entry ->
+            entry.value?.let { cons.seek(entry.key, entry.value.offset()) }
         }
     }
 

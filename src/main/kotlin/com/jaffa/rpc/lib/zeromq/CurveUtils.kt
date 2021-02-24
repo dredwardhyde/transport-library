@@ -60,9 +60,9 @@ object CurveUtils {
     fun readClientKeys() {
         for ((key, value) in System.getProperties()) {
             val name = key.toString()
-            if (!name.startsWith(OptionConstants.ZMQ_CLIENT_KEY!!)) continue
+            if (!name.startsWith(OptionConstants.ZMQ_CLIENT_KEY)) continue
             val path = value.toString()
-            val moduleId = name.replace(OptionConstants.ZMQ_CLIENT_KEY!!, "")
+            val moduleId = name.replace(OptionConstants.ZMQ_CLIENT_KEY, "")
             moduleIdWithClientKeys[moduleId] = getPublicKeyFromPath(path)
         }
     }

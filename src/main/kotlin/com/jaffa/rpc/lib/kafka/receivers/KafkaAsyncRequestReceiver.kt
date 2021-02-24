@@ -39,9 +39,9 @@ class KafkaAsyncRequestReceiver(private val countDownLatch: CountDownLatch?) : K
                 }
                 for (record in records) {
                     try {
-                        val command = Serializer.current?.deserialize(record.value(), Command::class.java)
+                        val command = Serializer.current.deserialize(record.value(), Command::class.java)
                         val result = command?.let { RequestInvocationHelper.invoke(it) }
-                        val serializedResponse = Serializer.current?.serialize(command?.let { RequestInvocationHelper.constructCallbackContainer(it, result) })
+                        val serializedResponse = Serializer.current.serialize(command?.let { RequestInvocationHelper.constructCallbackContainer(it, result) })
                         val resultPackage = ProducerRecord(Utils.getServiceInterfaceNameFromClient(command?.serviceClass) + "-" + command?.sourceModuleId + "-client-async", UUID.randomUUID().toString(), serializedResponse)
                         producer.send(resultPackage).get()
                         val commitData: MutableMap<TopicPartition, OffsetAndMetadata> = HashMap()

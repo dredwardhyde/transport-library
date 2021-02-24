@@ -12,15 +12,15 @@ abstract class Sender {
     protected abstract fun executeSync(message: ByteArray?): ByteArray?
     protected abstract fun executeAsync(message: ByteArray?)
     open fun executeSync(command: Command): Any? {
-        val out = Serializer.current?.serialize(command)
+        val out = Serializer.current.serialize(command)
         val response = executeSync(out)
         if (Objects.isNull(response)) {
             throw JaffaRpcExecutionTimeoutException()
         }
-        return Serializer.current?.deserializeWithClass(response)
+        return Serializer.current.deserializeWithClass(response)
     }
 
     open fun executeAsync(command: Command) {
-        executeAsync(Serializer.current?.serialize(command))
+        executeAsync(Serializer.current.serialize(command))
     }
 }

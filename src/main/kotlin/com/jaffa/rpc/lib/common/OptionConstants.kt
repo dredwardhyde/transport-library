@@ -6,63 +6,63 @@ object OptionConstants {
 
     @kotlin.jvm.JvmField
     var MODULE_ID: String? = null
-    var ZK_TEST_MODE: String? = null
-    var PROTOCOL: String? = null
-    var SERIALIZER: String? = null
-    var ZOOKEEPER_CONNECTION: String? = null
-    var ZOOKEEPER_CLIENT_SECURE: String? = null
-    var ZOOKEEPER_CLIENT_CONTEXT: String? = null
-    var ZOOKEEPER_SSL_KEYSTORE_LOCATION: String? = null
-    var ZOOKEEPER_SSL_KEYSTORE_PASSWORD: String? = null
-    var ZOOKEEPER_SSL_TRUSTSTORE_LOCATION: String? = null
-    var ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD: String? = null
-    var ADMIN_SSL_KEYSTORE_LOCATION: String? = null
-    var ADMIN_SSL_KEYSTORE_PASSWORD: String? = null
-    var ADMIN_SSL_TRUSTSTORE_LOCATION: String? = null
-    var ADMIN_SSL_TRUSTSTORE_PASSWORD: String? = null
-    var ADMIN_USE_HTTPS: String? = null
-    var PROTOCOL_OPTION_PREFIX: String? = null
-    var SERVICE_PORT_OPTION_SUFFIX: String? = null
-    var CALLBACK_PORT_OPTION_SUFFIX: String? = null
-    var USE_HTTPS: String? = null
-    var HTTP_SSL_SERVER_KEYSTORE_LOCATION: String? = null
-    var HTTP_SSL_SERVER_KEYSTORE_PASSWORD: String? = null
-    var HTTP_SSL_SERVER_TRUSTSTORE_LOCATION: String? = null
-    var HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD: String? = null
-    var HTTP_SSL_CLIENT_KEYSTORE_LOCATION: String? = null
-    var HTTP_SSL_CLIENT_KEYSTORE_PASSWORD: String? = null
-    var HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION: String? = null
-    var HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD: String? = null
-    var KAFKA_BOOTSTRAP_SERVERS: String? = null
-    var KAFKA_USE_SSL: String? = null
-    var KAFKA_SSL_TRUSTSTORE_LOCATION: String? = null
-    var KAFKA_SSL_TRUSTSTORE_PASSWORD: String? = null
-    var KAFKA_SSL_KEYSTORE_LOCATION: String? = null
-    var KAFKA_SSL_KEYSTORE_PASSWORD: String? = null
-    var KAFKA_SSL_KEY_PASSWORD: String? = null
-    var ZMQ_CURVE_ENABLED: String? = null
-    var ZMQ_CLIENT_DIR: String? = null
-    var ZMQ_SERVER_KEYS: String? = null
-    var ZMQ_CLIENT_KEY: String? = null
+    lateinit var ZK_TEST_MODE: String
+    lateinit var PROTOCOL: String
+    lateinit var SERIALIZER: String
+    lateinit var ZOOKEEPER_CONNECTION: String
+    lateinit var ZOOKEEPER_CLIENT_SECURE: String
+    lateinit var ZOOKEEPER_CLIENT_CONTEXT: String
+    lateinit var ZOOKEEPER_SSL_KEYSTORE_LOCATION: String
+    lateinit var ZOOKEEPER_SSL_KEYSTORE_PASSWORD: String
+    lateinit var ZOOKEEPER_SSL_TRUSTSTORE_LOCATION: String
+    lateinit var ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD: String
+    lateinit var ADMIN_SSL_KEYSTORE_LOCATION: String
+    lateinit var ADMIN_SSL_KEYSTORE_PASSWORD: String
+    lateinit var ADMIN_SSL_TRUSTSTORE_LOCATION: String
+    lateinit var ADMIN_SSL_TRUSTSTORE_PASSWORD: String
+    lateinit var ADMIN_USE_HTTPS: String
+    lateinit var PROTOCOL_OPTION_PREFIX: String
+    lateinit var SERVICE_PORT_OPTION_SUFFIX: String
+    lateinit var CALLBACK_PORT_OPTION_SUFFIX: String
+    lateinit var USE_HTTPS: String
+    lateinit var HTTP_SSL_SERVER_KEYSTORE_LOCATION: String
+    lateinit var HTTP_SSL_SERVER_KEYSTORE_PASSWORD: String
+    lateinit var HTTP_SSL_SERVER_TRUSTSTORE_LOCATION: String
+    lateinit var HTTP_SSL_SERVER_TRUSTSTORE_PASSWORD: String
+    lateinit var HTTP_SSL_CLIENT_KEYSTORE_LOCATION: String
+    lateinit var HTTP_SSL_CLIENT_KEYSTORE_PASSWORD: String
+    lateinit var HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION: String
+    lateinit var HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD: String
+    lateinit var KAFKA_BOOTSTRAP_SERVERS: String
+    lateinit var KAFKA_USE_SSL: String
+    lateinit var KAFKA_SSL_TRUSTSTORE_LOCATION: String
+    lateinit var KAFKA_SSL_TRUSTSTORE_PASSWORD: String
+    lateinit var KAFKA_SSL_KEYSTORE_LOCATION: String
+    lateinit var KAFKA_SSL_KEYSTORE_PASSWORD: String
+    lateinit var KAFKA_SSL_KEY_PASSWORD: String
+    lateinit var ZMQ_CURVE_ENABLED: String
+    lateinit var ZMQ_CLIENT_DIR: String
+    lateinit var ZMQ_SERVER_KEYS: String
+    lateinit var ZMQ_CLIENT_KEY: String
 
     @kotlin.jvm.JvmField
     var RABBIT_LOGIN: String? = null
-    var RABBIT_HOST: String? = null
-    var RABBIT_PORT: String? = null
+    lateinit var RABBIT_HOST: String
+    lateinit var RABBIT_PORT: String
 
     @kotlin.jvm.JvmField
     var RABBIT_PASSWORD: String? = null
-    var RABBIT_USE_SSL: String? = null
-    var RABBIT_SSL_KEYSTORE_LOCATION: String? = null
-    var RABBIT_SSL_KEYSTORE_PASSWORD: String? = null
-    var RABBIT_SSL_TRUSTSTORE_LOCATION: String? = null
-    var RABBIT_SSL_TRUSTSTORE_PASSWORD: String? = null
-    var GRPC_USE_SSL: String? = null
-    var GRPC_SSL_SERVER_KEY_LOCATION: String? = null
-    var GRPC_SSL_SERVER_STORE_LOCATION: String? = null
-    var GRPC_SSL_CLIENT_KEY_LOCATION: String? = null
-    var GRPC_SSL_CLIENT_KEYSTORE_LOCATION: String? = null
-    var GRPC_SSL_CLIENT_TRUSTSTORE_LOCATION: String? = null
+    lateinit var RABBIT_USE_SSL: String
+    lateinit var RABBIT_SSL_KEYSTORE_LOCATION: String
+    lateinit var RABBIT_SSL_KEYSTORE_PASSWORD: String
+    lateinit var RABBIT_SSL_TRUSTSTORE_LOCATION: String
+    lateinit var RABBIT_SSL_TRUSTSTORE_PASSWORD: String
+    lateinit var GRPC_USE_SSL: String
+    lateinit var GRPC_SSL_SERVER_KEY_LOCATION: String
+    lateinit var GRPC_SSL_SERVER_STORE_LOCATION: String
+    lateinit var GRPC_SSL_CLIENT_KEY_LOCATION: String
+    lateinit var GRPC_SSL_CLIENT_KEYSTORE_LOCATION: String
+    lateinit var GRPC_SSL_CLIENT_TRUSTSTORE_LOCATION: String
 
     @kotlin.jvm.JvmStatic
     fun setModuleId(moduleId: String?) {

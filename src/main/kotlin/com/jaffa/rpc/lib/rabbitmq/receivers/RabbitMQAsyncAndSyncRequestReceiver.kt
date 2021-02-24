@@ -45,13 +45,13 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                         body: ByteArray) {
                     requestService.execute {
                         try {
-                            val command = Serializer.current?.deserialize(body, Command::class.java)
+                            val command = Serializer.current.deserialize(body, Command::class.java)
                             if (command?.callbackKey != null && command.callbackClass != null) {
                                 val runnable = Runnable {
                                     try {
                                         val result = RequestInvocationHelper.invoke(command)
                                         val callbackContainer = RequestInvocationHelper.constructCallbackContainer(command, result)
-                                        val response = Serializer.current?.serialize(callbackContainer)
+                                        val response = Serializer.current.serialize(callbackContainer)
                                         val props = AMQP.BasicProperties.Builder().headers(asyncHeaders).build()
                                         clientChannel?.basicPublish(command.sourceModuleId, command.sourceModuleId + "-client-async", props, response)
                                         serverChannel?.basicAck(envelope.deliveryTag, false)
@@ -62,7 +62,7 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                                 responseService.execute(runnable)
                             } else {
                                 val result = command?.let { RequestInvocationHelper.invoke(it) }
-                                val response = Serializer.current?.serializeWithClass(RequestInvocationHelper.getResult(result))
+                                val response = Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(result))
                                 val props = AMQP.BasicProperties.Builder().correlationId(command?.rqUid).build()
                                 if (command != null) {
                                     clientChannel?.basicPublish(command.sourceModuleId, command.sourceModuleId + "-client-sync", props, response)

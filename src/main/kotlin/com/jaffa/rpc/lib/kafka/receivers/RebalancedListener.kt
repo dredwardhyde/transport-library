@@ -22,9 +22,8 @@ class RebalancedListener(val consumer: org.apache.kafka.clients.consumer.Consume
         val threeMinAgo = Instant.ofEpochMilli(System.currentTimeMillis()).minus(3, ChronoUnit.MINUTES).toEpochMilli()
         val query: MutableMap<TopicPartition, Long> = HashMap()
         partitions.forEach(Consumer { x: TopicPartition -> query[x] = threeMinAgo })
-        for ((key, value) in consumer!!.offsetsForTimes(query)) {
-            if (Objects.isNull(value)) continue
-            consumer.seek(key, value.offset())
+        consumer?.offsetsForTimes(query)?.forEach { entry ->
+            entry.value?.let { consumer.seek(entry.key, entry.value.offset()) }
         }
         countDownLatch!!.countDown()
         log.debug(">>>>>> Partitions assigned took {} ns, latch {}", System.nanoTime() - startRebalanced, countDownLatch.count)

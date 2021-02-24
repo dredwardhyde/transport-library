@@ -31,7 +31,7 @@ class ZMQAsyncResponseReceiver : Runnable, Closeable {
                     ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(context, socket, ZMQAsyncResponseReceiver::class.java)
                     break
                 }
-                val callbackContainer = Serializer.current?.deserialize(bytes, CallbackContainer::class.java)
+                val callbackContainer = Serializer.current.deserialize(bytes, CallbackContainer::class.java)
                 RequestInvocationHelper.processCallbackContainer(callbackContainer)
             } catch (recvTerminationException: ZMQException) {
                 ZMQAsyncAndSyncRequestReceiver.checkZMQExceptionAndThrow(recvTerminationException)

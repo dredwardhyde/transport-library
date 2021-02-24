@@ -231,9 +231,7 @@ object Utils {
     @kotlin.jvm.JvmStatic
     @Throws(KeeperException::class, InterruptedException::class, ParseException::class, UnknownHostException::class)
     fun deleteAllRegistrations(service: String?) {
-        for (protocol in Protocol.values()) {
-            delete(service, protocol)
-        }
+        Protocol.values().forEach { delete(service, it) }
     }
 
     @kotlin.jvm.JvmStatic
@@ -312,9 +310,7 @@ internal class ShutdownHook : Thread() {
         try {
             if (Utils.conn != null) {
                 if (!Utils.isZkTestMode) {
-                    for (service in Utils.services) {
-                        Utils.deleteAllRegistrations(service)
-                    }
+                    Utils.services.forEach{Utils.deleteAllRegistrations(it)}
                 }
                 Utils.conn?.close()
             }

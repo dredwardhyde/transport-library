@@ -31,13 +31,13 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     destroySocketAndContext(context, socket, ZMQAsyncAndSyncRequestReceiver::class.java)
                     break
                 }
-                val command = Serializer.current?.deserialize(bytes, Command::class.java)
+                val command = Serializer.current.deserialize(bytes, Command::class.java)
                 if (command?.callbackKey != null && command.callbackClass != null) {
                     socket?.send("OK")
                     val runnable = Runnable {
                         try {
                             val result = RequestInvocationHelper.invoke(command)
-                            val serializedResponse = Serializer.current?.serialize(RequestInvocationHelper.constructCallbackContainer(command, result))
+                            val serializedResponse = Serializer.current.serialize(RequestInvocationHelper.constructCallbackContainer(command, result))
                             log.debug("Async response to request {} is ready", command.callbackKey)
                             val socketAsync = context?.createSocket(SocketType.REQ)
                             ZeroMqRequestSender.addCurveKeysToSocket(socketAsync, command.sourceModuleId)
@@ -52,7 +52,7 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     service.execute(runnable)
                 } else {
                     val result = command?.let { RequestInvocationHelper.invoke(it) }
-                    val serializedResponse = Serializer.current?.serializeWithClass(RequestInvocationHelper.getResult(result))
+                    val serializedResponse = Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(result))
                     socket?.send(serializedResponse)
                 }
             } catch (recvTerminationException: ZMQException) {
