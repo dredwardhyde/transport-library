@@ -159,9 +159,9 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     throw JaffaRpcSystemException(e)
                 }
                 val sslConnectionSocketFactory = SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.getDefaultHostnameVerifier())
-                val socketFactoryRegistry = RegistryBuilder.create<ConnectionSocketFactory>().register("https", sslConnectionSocketFactory)
-                        .build()
-                val connectionManager = PoolingHttpClientConnectionManager(socketFactoryRegistry)
+                val connectionManager = PoolingHttpClientConnectionManager(RegistryBuilder.create<ConnectionSocketFactory>()
+                    .register("https", sslConnectionSocketFactory)
+                    .build())
                 connectionManager.maxTotal = 200
                 client = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
                         .setConnectionManager(connectionManager).build()

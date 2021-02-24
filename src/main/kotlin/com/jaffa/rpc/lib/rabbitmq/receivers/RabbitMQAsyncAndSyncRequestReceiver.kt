@@ -58,11 +58,10 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                             if (command?.callbackKey != null && command.callbackClass != null) {
                                 val runnable = Runnable {
                                     try {
-                                        val props = AMQP.BasicProperties.Builder().headers(asyncHeaders).build()
                                         clientChannel?.basicPublish(
                                                 command.sourceModuleId,
                                                 command.sourceModuleId + "-client-async",
-                                                props,
+                                                AMQP.BasicProperties.Builder().headers(asyncHeaders).build(),
                                                 Serializer.current.serialize(RequestInvocationHelper.constructCallbackContainer(command, RequestInvocationHelper.invoke(command)))
                                         )
                                         serverChannel?.basicAck(envelope.deliveryTag, false)
@@ -72,12 +71,11 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                                 }
                                 responseService.execute(runnable)
                             } else {
-                                val props = AMQP.BasicProperties.Builder().correlationId(command?.rqUid).build()
                                 if (command != null) {
                                     clientChannel?.basicPublish(
                                             command.sourceModuleId,
                                             command.sourceModuleId + "-client-sync",
-                                            props,
+                                            AMQP.BasicProperties.Builder().correlationId(command.rqUid).build(),
                                             Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command.let { RequestInvocationHelper.invoke(it) }))
                                     )
                                 }

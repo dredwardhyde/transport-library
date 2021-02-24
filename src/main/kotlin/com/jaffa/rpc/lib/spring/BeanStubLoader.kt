@@ -32,7 +32,6 @@ open class BeanStubLoader : BeanDefinitionRegistryPostProcessor {
             log.info("No client endpoints were defined")
         }
         if (clientEndpoints == null) return
-        val cl = BeanStubLoader::class.java.classLoader
         val annotated: MutableSet<Class<*>> = HashSet()
         for (client in clientEndpoints.values.stream().map { obj: ClientEndpoint -> obj.endpoint }
                 .collect(Collectors.toList())) {
@@ -46,10 +45,9 @@ open class BeanStubLoader : BeanDefinitionRegistryPostProcessor {
                     .subclass(c)
                     .method(ElementMatchers.any<Any>())
                     .intercept(StubMethod.INSTANCE)
-                    .make().load(cl, ClassLoadingStrategy.Default.INJECTION)
+                    .make().load(BeanStubLoader::class.java.classLoader, ClassLoadingStrategy.Default.INJECTION)
                     .loaded
-            val builder = BeanDefinitionBuilder.genericBeanDefinition(stubClass)
-            registry.registerBeanDefinition(c.simpleName + "Stub", builder.beanDefinition)
+            registry.registerBeanDefinition(c.simpleName + "Stub", BeanDefinitionBuilder.genericBeanDefinition(stubClass).beanDefinition)
         }
     }
 
