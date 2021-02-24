@@ -61,7 +61,7 @@ class AdminServer {
 
     @get:Throws(IOException::class)
     private val freePort: Int
-        private get() {
+        get() {
             ServerSocket(0).use { socket -> return socket.localPort }
         }
 
@@ -69,7 +69,8 @@ class AdminServer {
     fun init() {
         try {
             val useHttps = System.getProperty(OptionConstants.ADMIN_USE_HTTPS, false.toString()).toBoolean()
-            prometheusServer = HTTPServer(13001)
+            prometheusServer = HTTPServer(freePort)
+            log.info("Prometheus metrics are published on port {}", prometheusServer?.port)
             server = if (useHttps) {
                 val httpsServer = HttpsServer.create(InetSocketAddress(Utils.localHost, freePort), 0)
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(httpsServer,
