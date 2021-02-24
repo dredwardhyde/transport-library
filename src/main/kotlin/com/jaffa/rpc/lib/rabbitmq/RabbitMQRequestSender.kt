@@ -39,7 +39,7 @@ class RabbitMQRequestSender : Sender() {
                     return result
                 }
             }
-            requests.remove(command!!.rqUid)
+            requests.remove(command?.rqUid)
         } catch (jaffaRpcNoRouteException: JaffaRpcNoRouteException) {
             throw jaffaRpcNoRouteException
         } catch (exception: Exception) {

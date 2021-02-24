@@ -25,7 +25,7 @@ class RebalancedListener(val consumer: org.apache.kafka.clients.consumer.Consume
         consumer?.offsetsForTimes(query)?.forEach { entry ->
             entry.value?.let { consumer.seek(entry.key, entry.value.offset()) }
         }
-        countDownLatch!!.countDown()
-        log.debug(">>>>>> Partitions assigned took {} ns, latch {}", System.nanoTime() - startRebalanced, countDownLatch.count)
+        countDownLatch?.countDown()
+        log.debug(">>>>>> Partitions assigned took {} ns, latch {}", System.nanoTime() - startRebalanced, countDownLatch?.count)
     }
 }

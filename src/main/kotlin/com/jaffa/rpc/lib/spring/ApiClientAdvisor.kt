@@ -76,8 +76,8 @@ class ApiClientAdvisor : AbstractPointcutAdvisor() {
             command.serviceClass = client.name
             val ticketProvideClass: Class<out TicketProvider>? = JaffaService.clientsAndTicketProviders[client]
             if (ticketProvideClass != null) {
-                val ticketProvider = context!!.getBean(ticketProvideClass)
-                command.ticket = ticketProvider.ticket
+                val ticketProvider = context?.getBean(ticketProvideClass)
+                command.ticket = ticketProvider?.ticket
             }
             command.methodName = invocation.method.name
             command.args = invocation.arguments

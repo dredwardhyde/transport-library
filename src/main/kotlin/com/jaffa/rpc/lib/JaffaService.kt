@@ -175,7 +175,9 @@ open class JaffaService {
     @Throws(ClassNotFoundException::class)
     private fun createKafkaTopics(type: String): Set<String> {
         val topicsCreated = getTopicNames(type)
-        topicsCreated.forEach(Consumer { topic: String -> if (!zkClient!!.topicExists(topic)) adminZkClient!!.createTopic(topic, brokersCount, 1, Properties(), RackAwareMode.`Disabled$`.`MODULE$`) else check(Integer.valueOf(zkClient!!.getTopicPartitionCount(topic).get().toString() + "") == brokersCount) { "Topic $topic has wrong config" } })
+        topicsCreated.forEach(Consumer { topic: String -> if (!zkClient!!.topicExists(topic))
+            adminZkClient!!.createTopic(topic, brokersCount, 1, Properties(), RackAwareMode.`Disabled$`.`MODULE$`)
+        else check(Integer.valueOf(zkClient!!.getTopicPartitionCount(topic).get().toString() + "") == brokersCount) { "Topic $topic has wrong config" } })
         return topicsCreated
     }
 
