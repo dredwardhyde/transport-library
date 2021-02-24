@@ -32,12 +32,10 @@ class KafkaAsyncResponseReceiver(private val countDownLatch: CountDownLatch?) : 
                 }
                 for (record in records) {
                     try {
-                        val callbackContainer =
-                            Serializer.current.deserialize(record.value(), CallbackContainer::class.java)
-                        callbackContainer?.let { RequestInvocationHelper.processCallbackContainer(it) }
+                        Serializer.current.deserialize(record.value(), CallbackContainer::class.java)?.let { RequestInvocationHelper.processCallbackContainer(it) }
                         val commitData: MutableMap<TopicPartition, OffsetAndMetadata> = HashMap()
                         commitData[TopicPartition(record.topic(), record.partition())] =
-                            OffsetAndMetadata(record.offset())
+                                OffsetAndMetadata(record.offset())
                         consumer.commitSync(commitData)
                     } catch (executionException: Exception) {
                         log.error("Error during receiving callback", executionException)

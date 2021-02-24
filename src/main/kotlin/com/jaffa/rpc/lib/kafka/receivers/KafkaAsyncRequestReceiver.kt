@@ -40,23 +40,20 @@ class KafkaAsyncRequestReceiver(private val countDownLatch: CountDownLatch?) : K
                 for (record in records) {
                     try {
                         val command = Serializer.current.deserialize(record.value(), Command::class.java)
-                        val result = command?.let { RequestInvocationHelper.invoke(it) }
-                        val serializedResponse = Serializer.current.serialize(command?.let {
-                            RequestInvocationHelper.constructCallbackContainer(
-                                it,
-                                result
-                            )
-                        })
                         producer.send(
-                            ProducerRecord(
-                                Utils.getServiceInterfaceNameFromClient(command?.serviceClass) + "-" + command?.sourceModuleId + "-client-async",
-                                UUID.randomUUID().toString(),
-                                serializedResponse
-                            )
+                                ProducerRecord(
+                                        Utils.getServiceInterfaceNameFromClient(command?.serviceClass) + "-" + command?.sourceModuleId + "-client-async",
+                                        UUID.randomUUID().toString(),
+                                        Serializer.current.serialize(command?.let {
+                                            RequestInvocationHelper.constructCallbackContainer(
+                                                    it, RequestInvocationHelper.invoke(command)
+                                            )
+                                        })
+                                )
                         ).get()
                         val commitData: MutableMap<TopicPartition, OffsetAndMetadata> = HashMap()
                         commitData[TopicPartition(record.topic(), record.partition())] =
-                            OffsetAndMetadata(record.offset())
+                                OffsetAndMetadata(record.offset())
                         consumer.commitSync(commitData)
                     } catch (systemException: InterruptedException) {
                         log.error("General Kafka exception", systemException)

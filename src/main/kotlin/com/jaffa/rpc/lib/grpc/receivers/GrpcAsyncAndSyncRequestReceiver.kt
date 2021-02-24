@@ -33,7 +33,7 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
         try {
             val serverBuilder = NettyServerBuilder.forPort(Utils.servicePort).also { addSecurityContext(it) }
             server = serverBuilder.executor(requestService).addService(CommandServiceImpl()).build().also { it.start() }
-                .also { it.awaitTermination() }
+                    .also { it.awaitTermination() }
         } catch (grpcStartupException: Exception) {
             log.error("Error during gRPC request receiver startup:", grpcStartupException)
             throw JaffaRpcSystemException(grpcStartupException)
@@ -60,33 +60,32 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
             try {
                 val command = MessageConverterHelper.fromGRPCCommandRequest(request)
                 if (StringUtils.isNotBlank(command.callbackKey) && StringUtils.isNotBlank(command.callbackClass)) {
-                    val runnable = Runnable {
+                    asyncService.execute {
                         try {
-                            val callbackResponse = MessageConverterHelper.toGRPCCallbackRequest(
-                                RequestInvocationHelper.constructCallbackContainer(
-                                    command,
-                                    RequestInvocationHelper.invoke(command)
-                                )
-                            )
                             CallbackServiceGrpc.newBlockingStub(
-                                getManagedChannel(
-                                    Utils.getHostAndPort(
-                                        command.callBackHost,
-                                        ":"
+                                    getManagedChannel(
+                                            Utils.getHostAndPort(
+                                                    command.callBackHost,
+                                                    ":"
+                                            )
                                     )
-                                )
-                            ).also { it.execute(callbackResponse) }
+                            ).also {
+                                it.execute(MessageConverterHelper.toGRPCCallbackRequest(
+                                        RequestInvocationHelper.constructCallbackContainer(
+                                                command,
+                                                RequestInvocationHelper.invoke(command)
+                                        )
+                                ))
+                            }
                         } catch (exception: Exception) {
                             log.error("Error while receiving async request", exception)
                         }
                     }
-                    asyncService.execute(runnable)
                     responseObserver?.onNext(CommandResponse.newBuilder().setResponse(ByteString.EMPTY).build())
                 } else {
-                    val result = RequestInvocationHelper.invoke(command)
-                    val commandResponse =
-                        MessageConverterHelper.toGRPCCommandResponse(RequestInvocationHelper.getResult(result))
-                    responseObserver?.onNext(commandResponse)
+                    responseObserver?.onNext(MessageConverterHelper
+                            .toGRPCCommandResponse(RequestInvocationHelper
+                                    .getResult(RequestInvocationHelper.invoke(command))))
                 }
                 responseObserver?.onCompleted()
             } catch (exception: Exception) {
@@ -109,12 +108,12 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
             return try {
                 if (System.getProperty(OptionConstants.GRPC_USE_SSL, "false").toBoolean()) {
                     serverBuilder.sslContext(
-                        GrpcSslContexts.configure(
-                            SslContextBuilder.forServer(
-                                File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_SERVER_STORE_LOCATION)),
-                                File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_SERVER_KEY_LOCATION))
-                            )
-                        ).build()
+                            GrpcSslContexts.configure(
+                                    SslContextBuilder.forServer(
+                                            File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_SERVER_STORE_LOCATION)),
+                                            File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_SERVER_KEY_LOCATION))
+                                    )
+                            ).build()
                     )
                 } else {
                     serverBuilder
@@ -129,14 +128,14 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
             return try {
                 if (System.getProperty(OptionConstants.GRPC_USE_SSL, "false").toBoolean()) {
                     channelBuilder.sslContext(
-                        GrpcSslContexts.configure(
-                            SslContextBuilder.forClient().keyManager(
-                                File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_KEYSTORE_LOCATION)),
-                                File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_KEY_LOCATION))
+                            GrpcSslContexts.configure(
+                                    SslContextBuilder.forClient().keyManager(
+                                            File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_KEYSTORE_LOCATION)),
+                                            File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_KEY_LOCATION))
+                                    )
                             )
-                        )
-                            .trustManager(File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_TRUSTSTORE_LOCATION)))
-                            .build()
+                                    .trustManager(File(Utils.getRequiredOption(OptionConstants.GRPC_SSL_CLIENT_TRUSTSTORE_LOCATION)))
+                                    .build()
                     ).useTransportSecurity()
                 } else {
                     channelBuilder.usePlaintext()

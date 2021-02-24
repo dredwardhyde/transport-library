@@ -41,16 +41,16 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
             serverChannel = connection?.createChannel(false)
             clientChannel = connection?.createChannel(false)
             serverChannel?.queueBind(
-                RabbitMQRequestSender.SERVER,
-                RabbitMQRequestSender.EXCHANGE_NAME,
-                RabbitMQRequestSender.SERVER
+                    RabbitMQRequestSender.SERVER,
+                    RabbitMQRequestSender.EXCHANGE_NAME,
+                    RabbitMQRequestSender.SERVER
             )
             val consumer: Consumer = object : DefaultConsumer(serverChannel) {
                 override fun handleDelivery(
-                    consumerTag: String,
-                    envelope: Envelope,
-                    properties: AMQP.BasicProperties,
-                    body: ByteArray
+                        consumerTag: String,
+                        envelope: Envelope,
+                        properties: AMQP.BasicProperties,
+                        body: ByteArray
                 ) {
                     requestService.execute {
                         try {
@@ -58,16 +58,12 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                             if (command?.callbackKey != null && command.callbackClass != null) {
                                 val runnable = Runnable {
                                     try {
-                                        val result = RequestInvocationHelper.invoke(command)
-                                        val callbackContainer =
-                                            RequestInvocationHelper.constructCallbackContainer(command, result)
-                                        val response = Serializer.current.serialize(callbackContainer)
                                         val props = AMQP.BasicProperties.Builder().headers(asyncHeaders).build()
                                         clientChannel?.basicPublish(
-                                            command.sourceModuleId,
-                                            command.sourceModuleId + "-client-async",
-                                            props,
-                                            response
+                                                command.sourceModuleId,
+                                                command.sourceModuleId + "-client-async",
+                                                props,
+                                                Serializer.current.serialize(RequestInvocationHelper.constructCallbackContainer(command, RequestInvocationHelper.invoke(command)))
                                         )
                                         serverChannel?.basicAck(envelope.deliveryTag, false)
                                     } catch (e: Exception) {
@@ -76,16 +72,13 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                                 }
                                 responseService.execute(runnable)
                             } else {
-                                val result = command?.let { RequestInvocationHelper.invoke(it) }
-                                val response =
-                                    Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(result))
                                 val props = AMQP.BasicProperties.Builder().correlationId(command?.rqUid).build()
                                 if (command != null) {
                                     clientChannel?.basicPublish(
-                                        command.sourceModuleId,
-                                        command.sourceModuleId + "-client-sync",
-                                        props,
-                                        response
+                                            command.sourceModuleId,
+                                            command.sourceModuleId + "-client-sync",
+                                            props,
+                                            Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let { RequestInvocationHelper.invoke(it) }))
                                     )
                                 }
                                 serverChannel?.basicAck(envelope.deliveryTag, false)

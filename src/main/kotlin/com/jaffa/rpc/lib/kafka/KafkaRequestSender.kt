@@ -88,8 +88,7 @@ class KafkaRequestSender : Sender() {
         val start = System.currentTimeMillis()
         val requestTopic = command?.serviceClass?.let { RequestUtils.getTopicForService(it, moduleId, true) }
         try {
-            val resultPackage = ProducerRecord(requestTopic, UUID.randomUUID().toString(), message)
-            producer.send(resultPackage).get()
+            producer.send(ProducerRecord(requestTopic, UUID.randomUUID().toString(), message)).get()
             producer.close()
         } catch (e: Exception) {
             log.error("Error in sending sync request", e)
@@ -104,8 +103,7 @@ class KafkaRequestSender : Sender() {
         val start = System.currentTimeMillis()
         val requestTopic = command?.serviceClass?.let { RequestUtils.getTopicForService(it, moduleId, false) }
         try {
-            val resultPackage = ProducerRecord(requestTopic, UUID.randomUUID().toString(), message)
-            producer.send(resultPackage).get()
+            producer.send(ProducerRecord(requestTopic, UUID.randomUUID().toString(), message)).get()
             producer.close()
         } catch (e: Exception) {
             log.error("Error while sending async Kafka request", e)

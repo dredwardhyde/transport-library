@@ -40,7 +40,7 @@ object MessageConverterHelper {
             val argsObjects = arrayOfNulls<Any>(methodArgs.size)
             for (i in methodArgs.indices) {
                 if (request.getArgs(i) == ByteString.EMPTY) argsObjects[i] = null else argsObjects[i] =
-                    Serializer.current.deserialize(request.getArgs(i).toByteArray(), Class.forName(methodArgs[i]))
+                        Serializer.current.deserialize(request.getArgs(i).toByteArray(), Class.forName(methodArgs[i]))
             }
             command.args = argsObjects
         }
@@ -51,8 +51,8 @@ object MessageConverterHelper {
     fun toGRPCCommandRequest(command: Command): CommandRequest {
         var commandRequest = CommandRequest.newBuilder()
         commandRequest.setAsyncExpireTime(command.asyncExpireTime)
-            .setAsyncExpireTime(command.asyncExpireTime)
-            .setRequestTime(command.requestTime).localRequestTime = command.localRequestTime
+                .setAsyncExpireTime(command.asyncExpireTime)
+                .setRequestTime(command.requestTime).localRequestTime = command.localRequestTime
         with(commandRequest) {
             if (StringUtils.isNotBlank(command.callbackClass)) callbackClass = command.callbackClass
             if (StringUtils.isNotBlank(command.callBackHost)) callBackHost = command.callBackHost
@@ -96,8 +96,7 @@ object MessageConverterHelper {
     }
 
     fun toGRPCCommandResponse(response: Any?): CommandResponse {
-        val responseMarshalled = ByteString.copyFrom(Serializer.current.serializeWithClass(response))
-        return CommandResponse.newBuilder().setResponse(responseMarshalled).build()
+        return CommandResponse.newBuilder().setResponse(ByteString.copyFrom(Serializer.current.serializeWithClass(response))).build()
     }
 
     fun fromGRPCCommandResponse(commandResponse: CommandResponse): Any? {
