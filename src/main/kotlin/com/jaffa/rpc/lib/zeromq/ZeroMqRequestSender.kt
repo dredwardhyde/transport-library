@@ -17,14 +17,16 @@ class ZeroMqRequestSender : Sender() {
     override fun executeSync(message: ByteArray?): ByteArray? {
         val start = System.currentTimeMillis()
         var response: ByteArray?
+        val hostAndModuleId = Utils.getHostForService(command?.serviceClass, moduleId, Protocol.ZMQ)
         context.createSocket(SocketType.REQ).use { socket ->
-            val hostAndModuleId = Utils.getHostForService(command?.serviceClass, moduleId, Protocol.ZMQ)
-            addCurveKeysToSocket(socket, hostAndModuleId.right)
-            socket.linger = 0
-            socket.connect("tcp://" + hostAndModuleId.left)
-            socket.send(message, 0)
-            socket.receiveTimeOut = (if (timeout == -1L) 1000 * 60 * 60 else timeout).toInt()
-            response = socket.recv(0)
+            with(socket){
+                addCurveKeysToSocket(this, hostAndModuleId.right)
+                linger = 0
+                connect("tcp://" + hostAndModuleId.left)
+                send(message, 0)
+                receiveTimeOut = (if (timeout == -1L) 1000 * 60 * 60 else timeout).toInt()
+                response = recv(0)
+            }
         }
         log.debug(">>>>>> Executed sync request {} in {} ms", command?.rqUid, System.currentTimeMillis() - start)
         return response
@@ -32,13 +34,15 @@ class ZeroMqRequestSender : Sender() {
 
     override fun executeAsync(message: ByteArray?) {
         val start = System.currentTimeMillis()
+        val hostAndModuleId = Utils.getHostForService(command?.serviceClass, moduleId, Protocol.ZMQ)
         context.createSocket(SocketType.REQ).use { socket ->
-            val hostAndModuleId = Utils.getHostForService(command?.serviceClass, moduleId, Protocol.ZMQ)
-            addCurveKeysToSocket(socket, hostAndModuleId.right)
-            socket.linger = 0
-            socket.connect("tcp://" + hostAndModuleId.left)
-            socket.send(message, 0)
-            socket.recv(0)
+            with(socket){
+                addCurveKeysToSocket(this, hostAndModuleId.right)
+                linger = 0
+                connect("tcp://" + hostAndModuleId.left)
+                send(message, 0)
+                recv(0)
+            }
         }
         log.debug(">>>>>> Executed async request {} in {} ms", command?.rqUid, System.currentTimeMillis() - start)
     }
@@ -49,11 +53,13 @@ class ZeroMqRequestSender : Sender() {
         @kotlin.jvm.JvmStatic
         fun addCurveKeysToSocket(socket: ZMQ.Socket?, moduleId: String?) {
             if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
-                socket?.curvePublicKey = CurveUtils.serverPublicKey?.toByteArray()
-                socket?.curveSecretKey = CurveUtils.serverSecretKey?.toByteArray()
                 val clientPublicKey = CurveUtils.getClientPublicKey(moduleId)
-                        ?: throw JaffaRpcExecutionException("No Curve client key was provided for module.id $moduleId")
-                socket?.curveServerKey = clientPublicKey.toByteArray(Charsets.UTF_8)
+                    ?: throw JaffaRpcExecutionException("No Curve client key was provided for module.id $moduleId")
+                with(socket){
+                    this?.curvePublicKey = CurveUtils.serverPublicKey?.toByteArray()
+                    this?.curveSecretKey = CurveUtils.serverSecretKey?.toByteArray()
+                    this?.curveServerKey = clientPublicKey.toByteArray(Charsets.UTF_8)
+                }
             }
         }
     }

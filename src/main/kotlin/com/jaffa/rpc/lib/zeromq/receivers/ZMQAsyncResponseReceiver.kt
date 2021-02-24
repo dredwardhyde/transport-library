@@ -69,12 +69,14 @@ class ZMQAsyncResponseReceiver : Runnable, Closeable {
             val contextToClose = ZContext(1)
             try {
                 contextToClose.createSocket(SocketType.REQ).use { socketClose ->
-                    ZeroMqRequestSender.addCurveKeysToSocket(socketClose, OptionConstants.MODULE_ID)
-                    socketClose.linger = 0
-                    socketClose.connect("tcp://$address")
-                    socketClose.send(byteArrayOf(7), 0)
-                    socketClose.receiveTimeOut = 1
-                    socketClose.recv(0)
+                    with(socketClose){
+                        ZeroMqRequestSender.addCurveKeysToSocket(this, OptionConstants.MODULE_ID)
+                        linger = 0
+                        connect("tcp://$address")
+                        send(byteArrayOf(7), 0)
+                        receiveTimeOut = 1
+                        recv(0)
+                    }
                 }
             } catch (e: Throwable) {
                 log.error("Error while sending kill message", e)
