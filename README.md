@@ -42,15 +42,16 @@
     - More efficient
     - **Only stacktraces will be returned in response**
 - **User could specify custom OTT provider (see example below)**
-- **Prometheus metrics published on port 13001**
+- **Publishing Prometheus metrics**
 ## Latency
 
 Only **relative** latency could be estimated, because hardware and software varies greatly.   
 **X axis** - sliding time window  
 **Y axis** - response time in ms  
-Dashboard URL is logged at startup like this:
+Dashboard URL and Prometheus port is logged at startup like this:
 ```
-2020-05-01 20:19:00 INFO  AdminServer:112 - Jaffa RPC console started at http://host.docker.internal:62842/admin
+2021-02-24 09:21:27 INFO  [main] AdminServer:73 - Prometheus metrics are published on port 39279
+2021-02-24 09:21:27 INFO  [main] AdminServer:119 - Jaffa RPC console started at https://172.17.0.1:40095/admin
 ```
 #### Synchronous RPC  
 #### HTTP  
