@@ -63,13 +63,14 @@ class HttpRequestSender : Sender() {
 
     public override fun executeAsync(message: ByteArray?) {
         try {
-            val httpResponse = HttpAsyncAndSyncRequestReceiver.client.execute(HttpPost(
+            val httpPost = HttpPost(
                 Utils.getHostForService(
                     command?.serviceClass,
                     moduleId,
                     Protocol.HTTP
                 ).left.toString() + "/request"
-            ).also { it.entity = ByteArrayEntity(message) })
+            ).also { it.entity = ByteArrayEntity(message) }
+            val httpResponse = HttpAsyncAndSyncRequestReceiver.client.execute(httpPost)
             val response = httpResponse.statusLine.statusCode
             httpResponse.close()
             if (response != 200) {
