@@ -41,6 +41,7 @@ class KafkaRequestSender : Sender() {
         } while (consumer == null)
         val clientTopicName = requestTopic.replace("-server", "-client")
         val threeMinAgo = Instant.ofEpochMilli(requestTime).minus(3, ChronoUnit.MINUTES).toEpochMilli()
+        val finalConsumer: KafkaConsumer<String, ByteArray> = consumer
         val startRebalance = System.nanoTime()
         val query: MutableMap<TopicPartition, Long> = HashMap()
         if (JaffaService.brokersCount == 1) {
@@ -55,7 +56,7 @@ class KafkaRequestSender : Sender() {
 
                 override fun onPartitionsAssigned(partitions: Collection<TopicPartition>) {
                     partitions.forEach(Consumer { x: TopicPartition -> query[x] = threeMinAgo })
-                    seekTopicsForQuery(consumer, query)
+                    seekTopicsForQuery(finalConsumer, query)
                     log.debug(">>>>>> Partitions assigned took {} ns", System.nanoTime() - startRebalance)
                 }
             })
@@ -126,9 +127,9 @@ class KafkaRequestSender : Sender() {
                 val sslProps: MutableMap<String, String?> = HashMap()
                 sslProps["security.protocol"] = "SSL"
                 sslProps["ssl.truststore.location"] =
-                        Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)
+                    Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)
                 sslProps["ssl.truststore.password"] =
-                        Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD)
+                    Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD)
                 sslProps["ssl.keystore.location"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_LOCATION)
                 sslProps["ssl.keystore.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_PASSWORD)
                 sslProps["ssl.key.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEY_PASSWORD)
