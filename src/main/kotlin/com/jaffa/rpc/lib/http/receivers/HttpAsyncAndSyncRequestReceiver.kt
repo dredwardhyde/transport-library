@@ -152,23 +152,18 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                             FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION)),
                             trustPassphrase
                     )
-                    SSLContexts.custom().loadKeyMaterial(ks, keyPassphrase)
-                            .loadTrustMaterial(tks, TrustSelfSignedStrategy.INSTANCE).build()
+                    SSLContexts.custom().loadKeyMaterial(ks, keyPassphrase).loadTrustMaterial(tks, TrustSelfSignedStrategy.INSTANCE).build()
                 } catch (e: Exception) {
                     log.error("Error occurred while creating HttpClient", e)
                     throw JaffaRpcSystemException(e)
                 }
                 val sslConnectionSocketFactory = SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.getDefaultHostnameVerifier())
-                val connectionManager = PoolingHttpClientConnectionManager(RegistryBuilder.create<ConnectionSocketFactory>()
-                    .register("https", sslConnectionSocketFactory)
-                    .build())
-                connectionManager.maxTotal = 200
                 client = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
-                        .setConnectionManager(connectionManager).build()
+                        .setConnectionManager(PoolingHttpClientConnectionManager(RegistryBuilder.create<ConnectionSocketFactory>()
+                            .register("https", sslConnectionSocketFactory)
+                            .build()).also { it.maxTotal = 200 }).build()
             } else {
-                val connManager = PoolingHttpClientConnectionManager()
-                connManager.maxTotal = 200
-                client = HttpClients.custom().setConnectionManager(connManager).build()
+                client = HttpClients.custom().setConnectionManager(PoolingHttpClientConnectionManager().also { it.maxTotal = 200 }).build()
             }
         }
 
@@ -193,9 +188,8 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     KeyStore.getInstance("JKS").also { it.load(FileInputStream(keyStoreLocation), keyPassphrase) },
                     keyPassphrase
             )
-            val trustPassphrase = trustStorePassword.toCharArray()
             val tmf = TrustManagerFactory.getInstance("SunX509")
-            tmf.init(KeyStore.getInstance("JKS").also { it.load(FileInputStream(trustStoreLocation), trustPassphrase) })
+            tmf.init(KeyStore.getInstance("JKS").also { it.load(FileInputStream(trustStoreLocation), trustStorePassword.toCharArray()) })
             val c = SSLContext.getInstance("TLSv1.2")
             c.init(kmf.keyManagers, tmf.trustManagers, null)
             httpsServer.httpsConfigurator = object : HttpsConfigurator(c) {
