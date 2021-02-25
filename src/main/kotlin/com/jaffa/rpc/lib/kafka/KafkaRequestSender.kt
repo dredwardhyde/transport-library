@@ -41,7 +41,6 @@ class KafkaRequestSender : Sender() {
         } while (consumer == null)
         val clientTopicName = requestTopic.replace("-server", "-client")
         val threeMinAgo = Instant.ofEpochMilli(requestTime).minus(3, ChronoUnit.MINUTES).toEpochMilli()
-        val finalConsumer: KafkaConsumer<String, ByteArray> = consumer
         val startRebalance = System.nanoTime()
         val query: MutableMap<TopicPartition, Long> = HashMap()
         if (JaffaService.brokersCount == 1) {
@@ -56,7 +55,7 @@ class KafkaRequestSender : Sender() {
 
                 override fun onPartitionsAssigned(partitions: Collection<TopicPartition>) {
                     partitions.forEach(Consumer { x: TopicPartition -> query[x] = threeMinAgo })
-                    seekTopicsForQuery(finalConsumer, query)
+                    seekTopicsForQuery(consumer, query)
                     log.debug(">>>>>> Partitions assigned took {} ns", System.nanoTime() - startRebalance)
                 }
             })

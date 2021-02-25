@@ -130,13 +130,13 @@ class RabbitMQRequestSender : Sender() {
 
         fun close() {
             try {
-                if (clientChannel != null) clientChannel?.close()
+                clientChannel?.close()
             } catch (ignore: IOException) {
                 // No-op
             } catch (ignore: TimeoutException) {
                 // No-op
             }
-            if (connection != null) connection?.close()
+            connection?.close()
         }
     }
 }
