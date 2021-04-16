@@ -317,7 +317,7 @@
                 </executions>
                 <configuration>
                     <argLine>
-                        @{jaCoCoArgLine} -Xmx1024m -Djdk.tls.acknowledgeCloseNotify=true
+                        @{jaCoCoArgLine} -Xmx1024m -Djdk.tls.acknowledgeCloseNotify=true -Djava.net.preferIPv4Stack=true
                     </argLine>
                     <reuseForks>false</reuseForks>
                     <reportFormat>plain</reportFormat>
