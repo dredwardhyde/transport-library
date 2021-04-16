@@ -15,8 +15,11 @@ import java.io.Closeable
 import java.util.concurrent.Executors
 
 class GrpcAsyncResponseReceiver : Runnable, Closeable {
+
     private val log = LoggerFactory.getLogger(GrpcAsyncResponseReceiver::class.java)
+
     private var server: Server? = null
+
     override fun run() {
         try {
             server = GrpcAsyncAndSyncRequestReceiver.addSecurityContext(NettyServerBuilder.forPort(Utils.callbackPort))
@@ -36,6 +39,7 @@ class GrpcAsyncResponseReceiver : Runnable, Closeable {
     }
 
     private class CallbackServiceImpl : CallbackServiceImplBase() {
+
         private val log = LoggerFactory.getLogger(CallbackServiceImpl::class.java)
 
         override fun execute(request: CallbackRequest, responseObserver: StreamObserver<CallbackResponse>) {

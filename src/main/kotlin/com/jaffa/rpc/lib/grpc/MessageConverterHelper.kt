@@ -11,6 +11,7 @@ import com.jaffa.rpc.lib.serialization.Serializer
 import org.apache.commons.lang3.StringUtils
 
 object MessageConverterHelper {
+
     @Throws(ClassNotFoundException::class)
     fun fromGRPCCommandRequest(request: CommandRequest): Command {
         val command = Command()
@@ -36,12 +37,14 @@ object MessageConverterHelper {
         }
         if (request.methodArgsList != null && !request.methodArgsList.isEmpty()) {
             val methodArgs = request.methodArgsList.toTypedArray()
-            command.methodArgs = methodArgs
             val argsObjects = arrayOfNulls<Any>(methodArgs.size)
             for (i in methodArgs.indices) {
-                if (request.getArgs(i) == ByteString.EMPTY) argsObjects[i] = null else argsObjects[i] =
-                        Serializer.current.deserialize(request.getArgs(i).toByteArray(), Class.forName(methodArgs[i]))
+                if (request.getArgs(i) == ByteString.EMPTY)
+                    argsObjects[i] = null
+                else
+                    argsObjects[i] = Serializer.current.deserialize(request.getArgs(i).toByteArray(), Class.forName(methodArgs[i]))
             }
+            command.methodArgs = methodArgs
             command.args = argsObjects
         }
         return command
@@ -53,6 +56,7 @@ object MessageConverterHelper {
         commandRequest.setAsyncExpireTime(command.asyncExpireTime)
                 .setAsyncExpireTime(command.asyncExpireTime)
                 .setRequestTime(command.requestTime).localRequestTime = command.localRequestTime
+        command.ticket?.let { commandRequest.setUser(it.user).token = it.token }
         with(commandRequest) {
             if (StringUtils.isNotBlank(command.callbackClass)) callbackClass = command.callbackClass
             if (StringUtils.isNotBlank(command.callBackHost)) callBackHost = command.callBackHost
@@ -62,11 +66,12 @@ object MessageConverterHelper {
             if (StringUtils.isNotBlank(command.serviceClass)) serviceClass = command.serviceClass
             if (StringUtils.isNotBlank(command.sourceModuleId)) sourceModuleId = command.sourceModuleId
         }
-        command.ticket?.let { commandRequest.setUser(it.user).token = it.token }
         for (i in command.methodArgs.indices) {
             commandRequest = commandRequest.addMethodArgs(command.methodArgs[i])
-            if (command.args[i] != null) commandRequest.addArgs(ByteString.copyFrom(Serializer.current.serialize(command.args[i])))
-            else commandRequest.addArgs(ByteString.EMPTY)
+            if (command.args[i] != null)
+                commandRequest.addArgs(ByteString.copyFrom(Serializer.current.serialize(command.args[i])))
+            else
+                commandRequest.addArgs(ByteString.EMPTY)
         }
         return commandRequest.build()
     }

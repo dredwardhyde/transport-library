@@ -25,9 +25,11 @@ import java.util.function.Consumer
 import kotlin.collections.HashMap
 
 class KafkaRequestSender : Sender() {
+
     private val log = LoggerFactory.getLogger(KafkaRequestSender::class.java)
 
     private val producer: KafkaProducer<String, ByteArray?> = KafkaProducer(JaffaService.producerProps)
+
     private fun seekTopicsForQuery(cons: KafkaConsumer<String, ByteArray>, query: Map<TopicPartition, Long>) {
         cons.offsetsForTimes(query).forEach { entry ->
             entry.value?.let { cons.seek(entry.key, entry.value.offset()) }
@@ -112,6 +114,7 @@ class KafkaRequestSender : Sender() {
     }
 
     companion object {
+
         private val consumers = ConcurrentLinkedQueue<KafkaConsumer<String, ByteArray>>()
 
         @kotlin.jvm.JvmStatic
@@ -125,10 +128,8 @@ class KafkaRequestSender : Sender() {
             if (System.getProperty(OptionConstants.KAFKA_USE_SSL, false.toString()).toBoolean()) {
                 val sslProps: MutableMap<String, String?> = HashMap()
                 sslProps["security.protocol"] = "SSL"
-                sslProps["ssl.truststore.location"] =
-                    Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)
-                sslProps["ssl.truststore.password"] =
-                    Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD)
+                sslProps["ssl.truststore.location"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)
+                sslProps["ssl.truststore.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD)
                 sslProps["ssl.keystore.location"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_LOCATION)
                 sslProps["ssl.keystore.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_PASSWORD)
                 sslProps["ssl.key.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEY_PASSWORD)

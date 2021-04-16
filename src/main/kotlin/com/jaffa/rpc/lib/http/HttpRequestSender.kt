@@ -23,18 +23,14 @@ class HttpRequestSender : Sender() {
     public override fun executeSync(message: ByteArray?): ByteArray? {
         return try {
             val totalTimeout = (if (timeout == -1L) 1000 * 60 * 60 else timeout).toInt()
-            val httpPost = HttpPost(
-                    Utils.getHostForService(
-                            command?.serviceClass,
-                            moduleId,
-                            Protocol.HTTP
-                    ).left.toString() + "/request"
-            ).also {
-                it.config = RequestConfig.custom()
-                        .setConnectTimeout(totalTimeout)
-                        .setConnectionRequestTimeout(totalTimeout)
-                        .setSocketTimeout(totalTimeout).build()
-            }.also { it.entity = ByteArrayEntity(message) }
+            val httpPost = HttpPost(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.HTTP).left.toString() + "/request")
+                    .also {
+                        it.config = RequestConfig.custom()
+                                .setConnectTimeout(totalTimeout)
+                                .setConnectionRequestTimeout(totalTimeout)
+                                .setSocketTimeout(totalTimeout).build()
+                    }
+                    .also { it.entity = ByteArrayEntity(message) }
             val httpResponse: CloseableHttpResponse = try {
                 HttpAsyncAndSyncRequestReceiver.client.execute(httpPost)
             } catch (e: ConnectTimeoutException) {
@@ -47,8 +43,7 @@ class HttpRequestSender : Sender() {
                 httpResponse.close()
                 throw JaffaRpcExecutionException("Response for RPC request " + command?.rqUid + " returned status " + response)
             }
-            val responseBody = httpResponse.entity.content
-            val byteArray = ByteStreams.toByteArray(responseBody)
+            val byteArray = ByteStreams.toByteArray(httpResponse.entity.content)
             httpResponse.close()
             byteArray
         } catch (exception: JaffaRpcNoRouteException) {
@@ -63,13 +58,8 @@ class HttpRequestSender : Sender() {
 
     public override fun executeAsync(message: ByteArray?) {
         try {
-            val httpPost = HttpPost(
-                Utils.getHostForService(
-                    command?.serviceClass,
-                    moduleId,
-                    Protocol.HTTP
-                ).left.toString() + "/request"
-            ).also { it.entity = ByteArrayEntity(message) }
+            val httpPost = HttpPost(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.HTTP).left.toString() + "/request")
+                    .also { it.entity = ByteArrayEntity(message) }
             val httpResponse = HttpAsyncAndSyncRequestReceiver.client.execute(httpPost)
             val response = httpResponse.statusLine.statusCode
             httpResponse.close()

@@ -29,10 +29,12 @@ import java.util.function.Consumer
 class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
     var server: Server? = null
+
     override fun run() {
         try {
             val serverBuilder = NettyServerBuilder.forPort(Utils.servicePort).also { addSecurityContext(it) }
-            server = serverBuilder.executor(requestService).addService(CommandServiceImpl()).build().also { it.start() }
+            server = serverBuilder.executor(requestService).addService(CommandServiceImpl()).build()
+                    .also { it.start() }
                     .also { it.awaitTermination() }
         } catch (grpcStartupException: Exception) {
             log.error("Error during gRPC request receiver startup:", grpcStartupException)
@@ -62,21 +64,15 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 if (StringUtils.isNotBlank(command.callbackKey) && StringUtils.isNotBlank(command.callbackClass)) {
                     asyncService.execute {
                         try {
-                            CallbackServiceGrpc.newBlockingStub(
-                                    getManagedChannel(
-                                            Utils.getHostAndPort(
-                                                    command.callBackHost,
-                                                    ":"
-                                            )
-                                    )
-                            ).also {
-                                it.execute(MessageConverterHelper.toGRPCCallbackRequest(
-                                        RequestInvocationHelper.constructCallbackContainer(
-                                                command,
-                                                RequestInvocationHelper.invoke(command)
-                                        )
-                                ))
-                            }
+                            CallbackServiceGrpc.newBlockingStub(getManagedChannel(Utils.getHostAndPort(command.callBackHost, ":")))
+                                    .also {
+                                        it.execute(MessageConverterHelper.toGRPCCallbackRequest(
+                                                RequestInvocationHelper.constructCallbackContainer(
+                                                        command,
+                                                        RequestInvocationHelper.invoke(command)
+                                                )
+                                        ))
+                                    }
                         } catch (exception: Exception) {
                             log.error("Error while receiving async request", exception)
                         }
@@ -95,10 +91,15 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
     }
 
     companion object {
+
         private val asyncService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+
         private val requestService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+
         private val cache: MutableMap<Pair<String?, Int?>?, ManagedChannel> = ConcurrentHashMap()
+
         private val log = LoggerFactory.getLogger(GrpcAsyncAndSyncRequestReceiver::class.java)
+
         fun shutDownChannels() {
             cache.values.forEach(Consumer { x: ManagedChannel -> if (!x.isShutdown) x.shutdownNow() })
             log.info("All gRPC async reply channels were terminated")

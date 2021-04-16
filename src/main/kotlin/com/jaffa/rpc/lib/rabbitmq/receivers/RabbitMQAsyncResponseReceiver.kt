@@ -18,26 +18,20 @@ import java.io.IOException
 import java.util.concurrent.TimeoutException
 
 class RabbitMQAsyncResponseReceiver : Runnable, Closeable {
+
     private val log = LoggerFactory.getLogger(RabbitMQAsyncResponseReceiver::class.java)
 
     private var connection: Connection? = null
+
     private var clientChannel: Channel? = null
+
     override fun run() {
         try {
             connection = JaffaService.connectionFactory?.createConnection()
             clientChannel = connection?.createChannel(false)
-            clientChannel?.queueBind(
-                    RabbitMQRequestSender.CLIENT_ASYNC_NAME,
-                    RabbitMQRequestSender.EXCHANGE_NAME,
-                    RabbitMQRequestSender.CLIENT_ASYNC_NAME
-            )
+            clientChannel?.queueBind(RabbitMQRequestSender.CLIENT_ASYNC_NAME, RabbitMQRequestSender.EXCHANGE_NAME, RabbitMQRequestSender.CLIENT_ASYNC_NAME)
             val consumer: Consumer = object : DefaultConsumer(clientChannel) {
-                override fun handleDelivery(
-                        consumerTag: String,
-                        envelope: Envelope,
-                        properties: AMQP.BasicProperties,
-                        body: ByteArray
-                ) {
+                override fun handleDelivery(consumerTag: String, envelope: Envelope, properties: AMQP.BasicProperties, body: ByteArray) {
                     if (properties.headers == null) return
                     val type = properties.headers["communication-type"]
                     if (type == null || "async" != type.toString()) return

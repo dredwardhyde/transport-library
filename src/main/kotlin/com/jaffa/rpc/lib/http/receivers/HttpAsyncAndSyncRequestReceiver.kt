@@ -40,7 +40,9 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManagerFactory
 
 class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
+
     private var server: HttpServer? = null
+
     override fun run() {
         try {
             server = if (System.getProperty(OptionConstants.USE_HTTPS, false.toString()).toBoolean()) {
@@ -55,8 +57,10 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 httpsServer
             } else {
                 HttpServer.create(Utils.httpBindAddress, 0)
-            }.also { it.createContext("/request", HttpRequestHandler()) }
-                    .also { it.executor = Executors.newFixedThreadPool(9) }.also { it.start() }
+            }
+                    .also { it.createContext("/request", HttpRequestHandler()) }
+                    .also { it.executor = Executors.newFixedThreadPool(9) }
+                    .also { it.start() }
         } catch (httpServerStartupException: Exception) {
             log.error("Error during HTTP request receiver startup:", httpServerStartupException)
             throw JaffaRpcSystemException(httpServerStartupException)
@@ -90,16 +94,11 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 request.close()
                 val runnable = Runnable {
                     try {
-                        val httpResponse = client.execute(HttpPost(command.callBackHost + "/response").also {
-                            it.entity = ByteArrayEntity(
-                                    Serializer.current.serialize(
-                                            RequestInvocationHelper.constructCallbackContainer(
-                                                    command,
-                                                    RequestInvocationHelper.invoke(command)
-                                            )
-                                    )
-                            )
-                        })
+                        val httpResponse = client.execute(HttpPost(command.callBackHost + "/response")
+                                .also {
+                                    it.entity = ByteArrayEntity(Serializer.current.serialize(RequestInvocationHelper
+                                            .constructCallbackContainer(command, RequestInvocationHelper.invoke(command))))
+                                })
                         val callBackResponse = httpResponse.statusLine.statusCode
                         httpResponse.close()
                         if (callBackResponse != 200) {
@@ -112,11 +111,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 service.execute(runnable)
             } else {
                 try {
-                    val response = Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let {
-                        RequestInvocationHelper.invoke(
-                                it
-                        )
-                    }))
+                    val response = Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let { RequestInvocationHelper.invoke(it) }))
                     response?.size?.toLong()?.let { request.sendResponseHeaders(200, it) }
                     val os = request.responseBody
                     os.write(response)
@@ -130,6 +125,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
     }
 
     companion object {
+
         private val service = Executors.newFixedThreadPool(3)
 
         private val log = LoggerFactory.getLogger(HttpAsyncAndSyncRequestReceiver::class.java)
@@ -142,16 +138,10 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 val sslContext: SSLContext = try {
                     val keyPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_PASSWORD).toCharArray()
                     val ks = KeyStore.getInstance("JKS")
-                    ks.load(
-                            FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_LOCATION)),
-                            keyPassphrase
-                    )
+                    ks.load(FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_KEYSTORE_LOCATION)), keyPassphrase)
                     val trustPassphrase = Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_PASSWORD).toCharArray()
                     val tks = KeyStore.getInstance("JKS")
-                    tks.load(
-                            FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION)),
-                            trustPassphrase
-                    )
+                    tks.load(FileInputStream(Utils.getRequiredOption(OptionConstants.HTTP_SSL_CLIENT_TRUSTSTORE_LOCATION)), trustPassphrase)
                     SSLContexts.custom().loadKeyMaterial(ks, keyPassphrase).loadTrustMaterial(tks, TrustSelfSignedStrategy.INSTANCE).build()
                 } catch (e: Exception) {
                     log.error("Error occurred while creating HttpClient", e)
@@ -160,8 +150,8 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 val sslConnectionSocketFactory = SSLConnectionSocketFactory(sslContext, SSLConnectionSocketFactory.getDefaultHostnameVerifier())
                 client = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory)
                         .setConnectionManager(PoolingHttpClientConnectionManager(RegistryBuilder.create<ConnectionSocketFactory>()
-                            .register("https", sslConnectionSocketFactory)
-                            .build()).also { it.maxTotal = 200 }).build()
+                                .register("https", sslConnectionSocketFactory)
+                                .build()).also { it.maxTotal = 200 }).build()
             } else {
                 client = HttpClients.custom().setConnectionManager(PoolingHttpClientConnectionManager().also { it.maxTotal = 200 }).build()
             }
@@ -184,10 +174,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
         ) {
             val keyPassphrase = keyStorePassword.toCharArray()
             val kmf = KeyManagerFactory.getInstance("SunX509")
-            kmf.init(
-                    KeyStore.getInstance("JKS").also { it.load(FileInputStream(keyStoreLocation), keyPassphrase) },
-                    keyPassphrase
-            )
+            kmf.init(KeyStore.getInstance("JKS").also { it.load(FileInputStream(keyStoreLocation), keyPassphrase) }, keyPassphrase)
             val tmf = TrustManagerFactory.getInstance("SunX509")
             tmf.init(KeyStore.getInstance("JKS").also { it.load(FileInputStream(trustStoreLocation), trustStorePassword.toCharArray()) })
             val c = SSLContext.getInstance("TLSv1.2")

@@ -16,6 +16,7 @@ import java.io.Closeable
 import java.util.concurrent.Executors
 
 class HttpAsyncResponseReceiver : Runnable, Closeable {
+
     private var server: HttpServer? = null
 
     private val log = LoggerFactory.getLogger(HttpAsyncAndSyncRequestReceiver::class.java)
@@ -34,8 +35,10 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
                 httpsServer
             } else {
                 HttpServer.create(Utils.httpCallbackBindAddress, 0)
-            }.also { it.createContext("/response", HttpRequestHandler()) }
-                    .also { it.executor = Executors.newFixedThreadPool(3) }.also { it.start() }
+            }
+                    .also { it.createContext("/response", HttpRequestHandler()) }
+                    .also { it.executor = Executors.newFixedThreadPool(3) }
+                    .also { it.start() }
         } catch (httpServerStartupException: Exception) {
             log.error("Error during HTTP request receiver startup:", httpServerStartupException)
             throw JaffaRpcSystemException(httpServerStartupException)
@@ -54,9 +57,7 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
 
         override fun handle(request: HttpExchange?) {
             try {
-                Serializer.current.deserialize(
-                        ByteStreams.toByteArray(request?.requestBody),
-                        CallbackContainer::class.java
+                Serializer.current.deserialize(ByteStreams.toByteArray(request?.requestBody), CallbackContainer::class.java
                 )?.let { RequestInvocationHelper.processCallbackContainer(it) }
                 val response = "OK"
                 request?.sendResponseHeaders(200, response.toByteArray().size.toLong())

@@ -15,8 +15,11 @@ object FinalizationHelper {
     private val log = LoggerFactory.getLogger(FinalizationHelper::class.java)
 
     val eventsToConsume: ConcurrentMap<String, Command> = ConcurrentHashMap()
+
     var executor: ScheduledExecutorService? = null
+
     var context: ApplicationContext? = null
+
     private val finalizerThread = Runnable {
         eventsToConsume.values
                 .stream()

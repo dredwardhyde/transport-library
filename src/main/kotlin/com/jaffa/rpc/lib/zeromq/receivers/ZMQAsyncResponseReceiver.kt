@@ -22,19 +22,18 @@ import java.net.UnknownHostException
 class ZMQAsyncResponseReceiver : Runnable, Closeable {
 
     private var context: ZContext? = null
+
     private var socket: ZMQ.Socket? = null
+
     private var auth: ZAuth? = null
+
     override fun run() {
         while (!Thread.currentThread().isInterrupted) {
             try {
                 val bytes = socket?.recv()
                 socket?.send(byteArrayOf(4))
                 if (bytes != null && bytes.size == 1 && bytes[0] == 7.toByte()) {
-                    ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(
-                            context,
-                            socket,
-                            ZMQAsyncResponseReceiver::class.java
-                    )
+                    ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(context, socket, ZMQAsyncResponseReceiver::class.java)
                     break
                 }
                 RequestInvocationHelper.processCallbackContainer(Serializer.current.deserialize(bytes, CallbackContainer::class.java))
@@ -63,6 +62,7 @@ class ZMQAsyncResponseReceiver : Runnable, Closeable {
     }
 
     companion object {
+
         private val log = LoggerFactory.getLogger(ZMQAsyncResponseReceiver::class.java)
 
         fun sendKillMessageToSocket(address: String?) {

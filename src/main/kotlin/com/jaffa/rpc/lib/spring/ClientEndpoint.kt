@@ -4,7 +4,9 @@ import com.jaffa.rpc.lib.common.OptionConstants
 import com.jaffa.rpc.lib.security.TicketProvider
 
 class ClientEndpoint {
+
     val endpoint: Class<*>
+
     val ticketProvider: Class<out TicketProvider>?
 
     constructor(endpoint: Class<*>, ticketProvider: Class<out TicketProvider>?) {

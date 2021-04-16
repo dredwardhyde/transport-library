@@ -5,11 +5,17 @@ import com.jaffa.rpc.lib.exception.JaffaRpcExecutionTimeoutException
 import com.jaffa.rpc.lib.serialization.Serializer
 
 abstract class Sender {
+
     var timeout: Long = -1
+
     var moduleId: String? = null
+
     var command: Command? = null
+
     protected abstract fun executeSync(message: ByteArray?): ByteArray?
+
     protected abstract fun executeAsync(message: ByteArray?)
+
     open fun executeSync(command: Command): Any? {
         val out = Serializer.current.serialize(command)
         val response = executeSync(out) ?: throw JaffaRpcExecutionTimeoutException()

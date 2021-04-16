@@ -84,18 +84,10 @@ class AdminServer {
             }
             server?.createContext("/") { exchange: HttpExchange ->
                 when (exchange.requestURI.path) {
-                    "/admin" -> {
-                        respondWithFile(exchange, "admin.html")
-                    }
-                    "/vis.min.css" -> {
-                        respondWithFile(exchange, "vis.min.css")
-                    }
-                    "/vis.min.js" -> {
-                        respondWithFile(exchange, "vis.min.js")
-                    }
-                    "/protocol" -> {
-                        Utils.rpcProtocol?.fullName?.let { respondWithString(exchange, it) }
-                    }
+                    "/admin" -> { respondWithFile(exchange, "admin.html") }
+                    "/vis.min.css" -> { respondWithFile(exchange, "vis.min.css") }
+                    "/vis.min.js" -> { respondWithFile(exchange, "vis.min.js") }
+                    "/protocol" -> { Utils.rpcProtocol?.fullName?.let { respondWithString(exchange, it) } }
                     "/response" -> {
                         var count = 0
                         val builder = StringBuilder()
@@ -144,6 +136,7 @@ class AdminServer {
     class ResponseMetric(val time: Long, val duration: Double)
 
     companion object {
+
         private val log = LoggerFactory.getLogger(AdminServer::class.java)
 
         private val responses: Queue<ResponseMetric> = QueueUtils.synchronizedQueue(CircularFifoQueue(1000))

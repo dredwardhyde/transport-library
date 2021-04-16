@@ -94,9 +94,8 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
         @kotlin.jvm.JvmStatic
         fun checkZMQExceptionAndThrow(recvTerminationException: Exception) {
-            if (!recvTerminationException.message?.contains("Errno 4")!!
-                    && !recvTerminationException.message?.contains("156384765")!!
-            ) {
+            if (!recvTerminationException.message?.contains("Errno 4")!! &&
+                !recvTerminationException.message?.contains("156384765")!!) {
                 log.error("General ZMQ exception", recvTerminationException)
                 throw JaffaRpcSystemException(recvTerminationException)
             }

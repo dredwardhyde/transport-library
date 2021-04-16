@@ -51,37 +51,23 @@ class GrpcRequestSender : Sender() {
     private val managedChannel: ManagedChannel
         get() {
             return cache.computeIfAbsent(
-                    Utils.getHostAndPort(
-                            Utils.getHostForService(
-                                    command?.serviceClass,
-                                    moduleId,
-                                    Protocol.GRPC
-                            ).left, ":"
-                    )
+                    Utils.getHostAndPort(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.GRPC).left, ":")
             ) { key: Pair<String?, Int?>? ->
-                GrpcAsyncAndSyncRequestReceiver.addSecurityContext(
-                        NettyChannelBuilder.forAddress(
-                                key?.left,
-                                key?.right!!
-                        )
-                ).build()
+                GrpcAsyncAndSyncRequestReceiver.addSecurityContext(NettyChannelBuilder.forAddress(key?.left, key?.right!!)).build()
             }
         }
 
     private fun processStatusException(statusRuntimeException: StatusRuntimeException) {
         when (statusRuntimeException.status.code) {
             Status.DEADLINE_EXCEEDED.code -> throw JaffaRpcExecutionTimeoutException()
-            Status.UNAVAILABLE.code -> {
-                throw JaffaRpcNoRouteException(command?.serviceClass, Protocol.GRPC)
-            }
+            Status.UNAVAILABLE.code -> { throw JaffaRpcNoRouteException(command?.serviceClass, Protocol.GRPC) }
             else -> throw JaffaRpcExecutionException(statusRuntimeException)
         }
     }
 
     override fun executeAsync(command: Command) {
         try {
-            val response = CommandServiceGrpc.newBlockingStub(managedChannel)
-                    .execute(MessageConverterHelper.toGRPCCommandRequest(command))
+            val response = CommandServiceGrpc.newBlockingStub(managedChannel).execute(MessageConverterHelper.toGRPCCommandRequest(command))
             if (response.response != ByteString.EMPTY) throw JaffaRpcExecutionException("Wrong value returned after async callback processing!")
         } catch (statusRuntimeException: StatusRuntimeException) {
             processStatusException(statusRuntimeException)

@@ -20,11 +20,15 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeoutException
 
 class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
+
     private val log = LoggerFactory.getLogger(RabbitMQAsyncAndSyncRequestReceiver::class.java)
 
     companion object {
+
         private val responseService = Executors.newFixedThreadPool(3)
+
         private val requestService = Executors.newFixedThreadPool(3)
+
         private val asyncHeaders: MutableMap<String, Any> = HashMap()
 
         init {
@@ -33,25 +37,19 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
     }
 
     private var connection: Connection? = null
+
     private var serverChannel: Channel? = null
+
     private var clientChannel: Channel? = null
+
     override fun run() {
         try {
             connection = JaffaService.connectionFactory?.createConnection()
             serverChannel = connection?.createChannel(false)
             clientChannel = connection?.createChannel(false)
-            serverChannel?.queueBind(
-                    RabbitMQRequestSender.SERVER,
-                    RabbitMQRequestSender.EXCHANGE_NAME,
-                    RabbitMQRequestSender.SERVER
-            )
+            serverChannel?.queueBind(RabbitMQRequestSender.SERVER, RabbitMQRequestSender.EXCHANGE_NAME, RabbitMQRequestSender.SERVER)
             val consumer: Consumer = object : DefaultConsumer(serverChannel) {
-                override fun handleDelivery(
-                        consumerTag: String,
-                        envelope: Envelope,
-                        properties: AMQP.BasicProperties,
-                        body: ByteArray
-                ) {
+                override fun handleDelivery(consumerTag: String, envelope: Envelope, properties: AMQP.BasicProperties, body: ByteArray) {
                     requestService.execute {
                         try {
                             val command = Serializer.current.deserialize(body, Command::class.java)

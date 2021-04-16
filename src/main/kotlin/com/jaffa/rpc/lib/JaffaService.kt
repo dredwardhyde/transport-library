@@ -60,7 +60,9 @@ open class JaffaService {
     private val log = LoggerFactory.getLogger(JaffaService::class.java)
 
     private val kafkaReceivers: MutableList<KafkaReceiver> = ArrayList()
+
     private val zmqReceivers: MutableList<Closeable> = ArrayList()
+
     private val receiverThreads: MutableList<Thread> = ArrayList()
 
     @Autowired
@@ -74,6 +76,7 @@ open class JaffaService {
 
     @Autowired
     private val moduleId: String? = null
+
     private fun registerServices() {
         val apiImpls: MutableMap<Class<*>, Class<*>> = HashMap()
         serverEndpoints?.endpoints?.forEach { it ->
@@ -152,33 +155,19 @@ open class JaffaService {
         if (type.contains("server")) {
             for (server in serverEndpoints?.endpoints!!) {
                 require(server.isAnnotationPresent(ApiServer::class.java)) {
-                    String.format(
-                            "Class %s is not annotated as ApiServer!",
-                            server.name
-                    )
+                    String.format("Class %s is not annotated as ApiServer!", server.name)
                 }
                 require(server.interfaces.isNotEmpty()) {
-                    String.format(
-                            "Class %s does not implement Api interface!",
-                            server.name
-                    )
+                    String.format("Class %s does not implement Api interface!", server.name)
                 }
                 val serverInterface = server.interfaces[0]
                 require(serverInterface.isAnnotationPresent(Api::class.java)) {
-                    String.format(
-                            "Class %s does not implement Api interface!",
-                            server.name
-                    )
+                    String.format("Class %s does not implement Api interface!", server.name)
                 }
                 try {
                     server.getConstructor()
                 } catch (e: NoSuchMethodException) {
-                    throw IllegalArgumentException(
-                            String.format(
-                                    "Class %s does not have default constructor!",
-                                    server.name
-                            )
-                    )
+                    throw IllegalArgumentException(String.format("Class %s does not have default constructor!", server.name))
                 }
                 apiImpls.add(serverInterface)
             }
@@ -201,11 +190,8 @@ open class JaffaService {
         topicsCreated.forEach(Consumer { topic: String ->
             if (!zkClient!!.topicExists(topic))
                 adminZkClient!!.createTopic(topic, brokersCount, 1, Properties(), RackAwareMode.`Disabled$`.`MODULE$`)
-            else check(
-                    Integer.valueOf(
-                            zkClient!!.getTopicPartitionCount(topic).get().toString() + ""
-                    ) == brokersCount
-            ) { "Topic $topic has wrong config" }
+            else
+                check(Integer.valueOf(zkClient!!.getTopicPartitionCount(topic).get().toString() + "") == brokersCount) { "Topic $topic has wrong config" }
         })
         return topicsCreated
     }
@@ -412,14 +398,10 @@ open class JaffaService {
                 if (System.getProperty(OptionConstants.KAFKA_USE_SSL, false.toString()).toBoolean()) {
                     val sslProps: MutableMap<String, String?> = HashMap()
                     sslProps["security.protocol"] = "SSL"
-                    sslProps["ssl.truststore.location"] =
-                            Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)
-                    sslProps["ssl.truststore.password"] =
-                            Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD)
-                    sslProps["ssl.keystore.location"] =
-                            Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_LOCATION)
-                    sslProps["ssl.keystore.password"] =
-                            Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_PASSWORD)
+                    sslProps["ssl.truststore.location"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_LOCATION)
+                    sslProps["ssl.truststore.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_TRUSTSTORE_PASSWORD)
+                    sslProps["ssl.keystore.location"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_LOCATION)
+                    sslProps["ssl.keystore.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEYSTORE_PASSWORD)
                     sslProps["ssl.key.password"] = Utils.getRequiredOption(OptionConstants.KAFKA_SSL_KEY_PASSWORD)
                     consumerProps.putAll(sslProps)
                     producerProps.putAll(sslProps)

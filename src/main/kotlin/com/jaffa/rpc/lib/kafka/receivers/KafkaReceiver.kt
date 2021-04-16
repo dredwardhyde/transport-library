@@ -12,6 +12,7 @@ abstract class KafkaReceiver : Closeable, Runnable {
     private val log = LoggerFactory.getLogger(KafkaReceiver::class.java)
 
     private val threads = ArrayList<Thread>(JaffaService.brokersCount)
+
     protected fun startThreadsAndWait(runnable: Runnable?) {
         for (i in 0 until JaffaService.brokersCount) {
             threads.add(Thread(runnable))

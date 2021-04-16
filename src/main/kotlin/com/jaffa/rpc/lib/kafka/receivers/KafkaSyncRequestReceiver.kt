@@ -19,6 +19,7 @@ import java.util.*
 import java.util.concurrent.CountDownLatch
 
 class KafkaSyncRequestReceiver(private val countDownLatch: CountDownLatch?) : KafkaReceiver(), Runnable {
+
     private val log = LoggerFactory.getLogger(KafkaAsyncResponseReceiver::class.java)
 
     override fun run() {
@@ -44,8 +45,7 @@ class KafkaSyncRequestReceiver(private val countDownLatch: CountDownLatch?) : Ka
                                 Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let { RequestInvocationHelper.invoke(it) }))
                         )).get()
                         val commitData: MutableMap<TopicPartition, OffsetAndMetadata> = HashMap()
-                        commitData[TopicPartition(record.topic(), record.partition())] =
-                                OffsetAndMetadata(record.offset())
+                        commitData[TopicPartition(record.topic(), record.partition())] = OffsetAndMetadata(record.offset())
                         consumer.commitSync(commitData)
                     } catch (executionException: Exception) {
                         log.error("Target method execution exception", executionException)

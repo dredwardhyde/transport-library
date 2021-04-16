@@ -37,6 +37,7 @@ class RabbitMQRequestSender : Sender() {
             while (!(timeout != -1L && System.currentTimeMillis() - start > timeout || System.currentTimeMillis() - start > 1000 * 60 * 60)) {
                 val result = atomicReference.get()
                 if (result != null) {
+                    requests.remove(command?.rqUid)
                     return result
                 }
             }
@@ -55,16 +56,9 @@ class RabbitMQRequestSender : Sender() {
         val targetModuleId: String?
         if (StringUtils.isNotBlank(moduleId)) {
             targetModuleId = moduleId
-            Utils.getHostForService(
-                    Utils.getServiceInterfaceNameFromClient(command?.serviceClass),
-                    moduleId,
-                    Protocol.RABBIT
-            )
+            Utils.getHostForService(Utils.getServiceInterfaceNameFromClient(command?.serviceClass), moduleId, Protocol.RABBIT)
         } else {
-            targetModuleId = Utils.getModuleForService(
-                    Utils.getServiceInterfaceNameFromClient(command?.serviceClass),
-                    Protocol.RABBIT
-            )
+            targetModuleId = Utils.getModuleForService(Utils.getServiceInterfaceNameFromClient(command?.serviceClass), Protocol.RABBIT)
         }
         clientChannel?.basicPublish(targetModuleId, "$targetModuleId-server", null, message)
     }
@@ -85,14 +79,23 @@ class RabbitMQRequestSender : Sender() {
     }
 
     companion object {
+
         private val log = LoggerFactory.getLogger(RabbitMQRequestSender::class.java)
+
         private val NAME_PREFIX = OptionConstants.MODULE_ID
+
         val EXCHANGE_NAME = NAME_PREFIX
+
         val CLIENT_SYNC_NAME = "$NAME_PREFIX-client-sync"
+
         val CLIENT_ASYNC_NAME = "$NAME_PREFIX-client-async"
+
         val SERVER = "$NAME_PREFIX-server"
+
         private val requests: MutableMap<String?, Callback> = ConcurrentHashMap()
+
         private var connection: Connection? = null
+
         private var clientChannel: Channel? = null
 
         @kotlin.jvm.JvmStatic
@@ -103,12 +106,7 @@ class RabbitMQRequestSender : Sender() {
                 clientChannel?.queueBind(CLIENT_SYNC_NAME, EXCHANGE_NAME, CLIENT_SYNC_NAME)
                 val consumer: Consumer = object : DefaultConsumer(clientChannel) {
                     @Throws(IOException::class)
-                    override fun handleDelivery(
-                            consumerTag: String,
-                            envelope: Envelope,
-                            properties: AMQP.BasicProperties,
-                            body: ByteArray
-                    ) {
+                    override fun handleDelivery(consumerTag: String, envelope: Envelope, properties: AMQP.BasicProperties, body: ByteArray) {
                         if (properties.correlationId != null) {
                             val callback = requests.remove(properties.correlationId)
                             if (callback != null) {

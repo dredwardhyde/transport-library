@@ -15,6 +15,7 @@ import java.util.*
 import java.util.concurrent.CountDownLatch
 
 class KafkaAsyncResponseReceiver(private val countDownLatch: CountDownLatch?) : KafkaReceiver(), Runnable {
+
     private val log = LoggerFactory.getLogger(KafkaAsyncResponseReceiver::class.java)
 
     override fun run() {
@@ -34,8 +35,7 @@ class KafkaAsyncResponseReceiver(private val countDownLatch: CountDownLatch?) : 
                     try {
                         Serializer.current.deserialize(record.value(), CallbackContainer::class.java)?.let { RequestInvocationHelper.processCallbackContainer(it) }
                         val commitData: MutableMap<TopicPartition, OffsetAndMetadata> = HashMap()
-                        commitData[TopicPartition(record.topic(), record.partition())] =
-                                OffsetAndMetadata(record.offset())
+                        commitData[TopicPartition(record.topic(), record.partition())] = OffsetAndMetadata(record.offset())
                         consumer.commitSync(commitData)
                     } catch (executionException: Exception) {
                         log.error("Error during receiving callback", executionException)

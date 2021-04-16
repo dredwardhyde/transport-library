@@ -22,6 +22,7 @@ import java.util.stream.Collectors
 @Configuration
 @DependsOn("serverEndpoints")
 open class BeanStubLoader : BeanDefinitionRegistryPostProcessor {
+
     private val log = LoggerFactory.getLogger(BeanStubLoader::class.java)
 
     override fun postProcessBeanDefinitionRegistry(@NonNull registry: BeanDefinitionRegistry) {
