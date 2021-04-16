@@ -20,7 +20,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
-        run: mvn clean install -Dgpg.skip -Dmaven.javadoc.skip=true -P generate-client-api -B -V
+        run: mvn clean install -Djava.net.preferIPv4Stack=true -Dgpg.skip -Dmaven.javadoc.skip=true -P generate-client-api -B -V
 #      - uses: actions/upload-artifact@v2
 #        with:
 #          name: build-jdk-8.log
@@ -42,7 +42,7 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Build with Maven
-        run: mvn clean install -Dgpg.skip -Dmaven.javadoc.skip=true -P generate-client-api -B -V
+        run: mvn clean install -Djava.net.preferIPv4Stack=true -Dgpg.skip -Dmaven.javadoc.skip=true -P generate-client-api -B -V
       - uses: codecov/codecov-action@v1
         with:
           name: codecov-umbrella
