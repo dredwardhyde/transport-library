@@ -6,6 +6,7 @@ import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException
 import com.jaffa.rpc.lib.zookeeper.Utils
 
 object RequestUtils {
+
     fun getTopicForService(service: String, moduleId: String?, sync: Boolean): String {
         val serviceInterface = Utils.getServiceInterfaceNameFromClient(service)
         var availableModuleId: String? = moduleId
@@ -20,4 +21,5 @@ object RequestUtils {
         else
             topicName
     }
+
 }

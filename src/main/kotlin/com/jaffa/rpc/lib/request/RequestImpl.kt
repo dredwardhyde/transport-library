@@ -13,10 +13,13 @@ import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 class RequestImpl<T>(private val command: Command?) : Request<T> {
+
     private val log = LoggerFactory.getLogger(FinalizationHelper::class.java)
 
     private var sender: Sender? = null
+
     private var timeout: Long = -1
+
     private var moduleId: String? = null
 
     override fun withTimeout(timeout: Long?, unit: TimeUnit?): RequestImpl<T> {

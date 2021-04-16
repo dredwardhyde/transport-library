@@ -37,10 +37,8 @@ class RabbitMQAsyncResponseReceiver : Runnable, Closeable {
                     if (type == null || "async" != type.toString()) return
                     try {
                         val callbackContainer = Serializer.current.deserialize(body, CallbackContainer::class.java)
-                        if (callbackContainer?.let { RequestInvocationHelper.processCallbackContainer(it) } == true) clientChannel?.basicAck(
-                                envelope.deliveryTag,
-                                false
-                        )
+                        if (callbackContainer?.let { RequestInvocationHelper.processCallbackContainer(it) } == true)
+                            clientChannel?.basicAck(envelope.deliveryTag, false)
                     } catch (ioException: IOException) {
                         log.error("General RabbitMQ exception", ioException)
                     } catch (callbackExecutionException: Exception) {

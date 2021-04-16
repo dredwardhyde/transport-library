@@ -10,10 +10,10 @@ object Serializer {
     @kotlin.jvm.JvmStatic
     fun init() {
         isKryo = System.getProperty(OptionConstants.SERIALIZER, "kryo") == "kryo"
-        if (isKryo) {
-            current = KryoPoolSerializer()
+        current = if (isKryo) {
+            KryoPoolSerializer()
         } else {
-            current = JavaSerializer()
+            JavaSerializer()
         }
     }
 }
