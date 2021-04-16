@@ -11,9 +11,11 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy
 @ComponentScan("com.jaffa.rpc")
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 open class JaffaRpcConfig {
+
     @Bean(destroyMethod = "close")
     @DependsOn("serverEndpoints", "moduleId")
     open fun jaffaService(): JaffaService {
         return JaffaService()
     }
+
 }
