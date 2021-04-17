@@ -48,6 +48,7 @@ class ZeroMqRequestSender : Sender() {
     }
 
     companion object {
+
         val context = ZContext(10)
 
         @kotlin.jvm.JvmStatic

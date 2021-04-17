@@ -23,8 +23,11 @@ import java.util.concurrent.Executors
 class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
     private var context: ZContext? = null
+
     private var socket: ZMQ.Socket? = null
+
     private var auth: ZAuth? = null
+
     override fun run() {
         while (!Thread.currentThread().isInterrupted) {
             try {

@@ -40,11 +40,13 @@ object Utils {
     private val log = LoggerFactory.getLogger(Utils::class.java)
 
     val services: MutableList<String> = ArrayList()
+
     val senders: MutableMap<Protocol, Class<out Sender?>> = EnumMap(Protocol::class.java)
 
     @Volatile
     @JvmStatic
     var conn: ZooKeeperConnection? = null
+
     var zk: ZooKeeper? = null
 
     @kotlin.jvm.JvmField
@@ -125,11 +127,7 @@ object Utils {
         get() = System.getProperty(OptionConstants.ZK_TEST_MODE, false.toString()).toBoolean()
 
     @Throws(ParseException::class)
-    private fun getHostsForService(
-            service: String,
-            moduleId: String?,
-            protocol: Protocol
-    ): ArrayList<MutablePair<String?, String?>> {
+    private fun getHostsForService(service: String, moduleId: String?, protocol: Protocol): ArrayList<MutablePair<String?, String?>> {
         val zkData = cache[service] ?: throw JaffaRpcNoRouteException(service)
         val jArray = JSONParser().parse(String(zkData)) as JSONArray
         return if (jArray.isEmpty()) throw JaffaRpcNoRouteException(service) else {
@@ -208,7 +206,9 @@ object Utils {
             val defaultPort = 4242
             return try {
                 System.getProperty(
-                        OptionConstants.PROTOCOL_OPTION_PREFIX + rpcProtocol?.shortName + OptionConstants.SERVICE_PORT_OPTION_SUFFIX,
+                        OptionConstants.PROTOCOL_OPTION_PREFIX +
+                                rpcProtocol?.shortName +
+                                OptionConstants.SERVICE_PORT_OPTION_SUFFIX,
                         defaultPort.toString()
                 ).toInt()
             } catch (e: NumberFormatException) {
@@ -222,7 +222,9 @@ object Utils {
             val defaultPort = 4342
             return try {
                 System.getProperty(
-                        OptionConstants.PROTOCOL_OPTION_PREFIX + rpcProtocol?.shortName + OptionConstants.CALLBACK_PORT_OPTION_SUFFIX,
+                        OptionConstants.PROTOCOL_OPTION_PREFIX +
+                                rpcProtocol?.shortName +
+                                OptionConstants.CALLBACK_PORT_OPTION_SUFFIX,
                         defaultPort.toString()
                 ).toInt()
             } catch (e: NumberFormatException) {
