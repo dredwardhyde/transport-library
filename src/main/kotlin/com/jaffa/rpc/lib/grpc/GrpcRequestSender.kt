@@ -60,7 +60,7 @@ class GrpcRequestSender : Sender() {
     private fun processStatusException(statusRuntimeException: StatusRuntimeException) {
         when (statusRuntimeException.status.code) {
             Status.DEADLINE_EXCEEDED.code -> throw JaffaRpcExecutionTimeoutException()
-            Status.UNAVAILABLE.code -> { throw JaffaRpcNoRouteException(command?.serviceClass, Protocol.GRPC) }
+            Status.UNAVAILABLE.code ->  throw JaffaRpcNoRouteException(command?.serviceClass, Protocol.GRPC)
             else -> throw JaffaRpcExecutionException(statusRuntimeException)
         }
     }

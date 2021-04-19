@@ -362,6 +362,7 @@ open class JaffaService {
     }
 
     companion object {
+
         val producerProps = Properties()
 
         val consumerProps = Properties()

@@ -7,7 +7,9 @@ import com.esotericsoftware.kryo.util.Pool
 import java.io.ByteArrayOutputStream
 
 class KryoPoolSerializer : ObjectSerializer {
+
     private val pool: Pool<Kryo>
+
     override fun serialize(obj: Any?): ByteArray? {
         val baos = ByteArrayOutputStream()
         val output = Output(baos)
