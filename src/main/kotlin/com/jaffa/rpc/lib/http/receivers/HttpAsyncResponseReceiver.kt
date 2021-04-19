@@ -61,9 +61,7 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
                 )?.let { RequestInvocationHelper.processCallbackContainer(it) }
                 val response = "OK"
                 request?.sendResponseHeaders(200, response.toByteArray().size.toLong())
-                val os = request?.responseBody
-                os?.write(response.toByteArray())
-                os?.close()
+                request?.responseBody.also { it?.write(response.toByteArray()) }.also { it?.close() }
                 request?.close()
             } catch (callbackExecutionException: Exception) {
                 log.error("HTTP callback execution exception", callbackExecutionException)

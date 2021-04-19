@@ -75,9 +75,7 @@ object RequestInvocationHelper {
 
     fun getResult(result: Any?): Any? {
         return if (result is Throwable && Serializer.isKryo) {
-            val sw = StringWriter()
-            result.printStackTrace(PrintWriter(sw))
-            ExceptionHolder(sw.toString())
+            ExceptionHolder(StringWriter().also { result.printStackTrace(PrintWriter(it)) }.toString())
         } else result
     }
 

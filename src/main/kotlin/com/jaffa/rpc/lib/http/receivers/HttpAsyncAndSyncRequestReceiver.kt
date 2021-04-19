@@ -88,9 +88,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
             if (command?.callbackKey != null && command.callbackClass != null) {
                 val response = "OK"
                 request.sendResponseHeaders(200, response.toByteArray().size.toLong())
-                val os = request.responseBody
-                os.write(response.toByteArray())
-                os.close()
+                request.responseBody.also { it.write(response.toByteArray()) }.also { it.close() }
                 request.close()
                 val runnable = Runnable {
                     try {
@@ -113,9 +111,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                 try {
                     val response = Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let { RequestInvocationHelper.invoke(it) }))
                     response?.size?.toLong()?.let { request.sendResponseHeaders(200, it) }
-                    val os = request.responseBody
-                    os.write(response)
-                    os.close()
+                    request.responseBody.also { it.write(response) }.also { it.close() }
                     request.close()
                 } catch (exception: Exception) {
                     log.error("Error while receiving sync request", exception)
