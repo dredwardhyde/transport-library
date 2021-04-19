@@ -33,19 +33,17 @@ class KryoPoolSerializer : ObjectSerializer {
     }
 
     override fun deserializeWithClass(serialized: ByteArray?): Any? {
-        val obj: Any?
         val kryo = pool.obtain()
         val input = Input(serialized)
-        obj = kryo.readClassAndObject(input)
+        val obj = kryo.readClassAndObject(input)
         pool.free(kryo)
         return obj
     }
 
     override fun <T> deserialize(serialized: ByteArray?, clazz: Class<T>?): T? {
-        val obj: T?
         val kryo = pool.obtain()
         val input = Input(serialized)
-        obj = kryo.readObject(input, clazz)
+        val obj = kryo.readObject(input, clazz)
         pool.free(kryo)
         return obj
     }

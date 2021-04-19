@@ -38,9 +38,11 @@ class RequestImpl<T>(private val command: Command?) : Request<T> {
     }
 
     private fun initSender() {
-        sender?.command = command
-        sender?.moduleId = moduleId
-        sender?.timeout = timeout
+        with(sender){
+            this?.command = command
+            this?.moduleId = moduleId
+            this?.timeout = timeout
+        }
     }
 
     override fun executeSync(): T {
@@ -59,11 +61,13 @@ class RequestImpl<T>(private val command: Command?) : Request<T> {
     override fun executeAsync(key: String?, listener: Class<out Callback<T>>?) {
         require(!(key == null || listener == null)) { OptionConstants.ILLEGAL_ARGS_MESSAGE }
         initSender()
-        command?.callbackClass = listener.name
-        command?.callbackKey = key
-        command?.requestTime = System.currentTimeMillis()
-        command?.localRequestTime = System.nanoTime()
-        command?.asyncExpireTime = System.currentTimeMillis() + if (timeout != -1L) timeout else 1000 * 60 * 60
+        with(command){
+            this?.callbackClass = listener.name
+            this?.callbackKey = key
+            this?.requestTime = System.currentTimeMillis()
+            this?.localRequestTime = System.nanoTime()
+            this?.asyncExpireTime = System.currentTimeMillis() + if (timeout != -1L) timeout else 1000 * 60 * 60
+        }
         log.debug("Async command {} added to finalization queue", command)
         FinalizationHelper.eventsToConsume[command?.callbackKey] = command
         if (command != null) {
