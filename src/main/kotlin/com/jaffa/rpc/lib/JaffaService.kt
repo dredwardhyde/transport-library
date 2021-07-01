@@ -107,7 +107,7 @@ open class JaffaService {
             )
             zkClient = KafkaZkClient(zooKeeperClient, false, Time.SYSTEM)
             adminZkClient = AdminZkClient(zkClient)
-            brokersCount = zkClient.allBrokersInCluster?.size() ?: 0
+            brokersCount = zkClient.allBrokersInCluster.size()
             log.info("Kafka brokers: {}", brokersCount)
             serverAsyncTopics = createKafkaTopics("server-async")
             clientAsyncTopics = createKafkaTopics("client-async")

@@ -89,13 +89,13 @@ object MessageConverterHelper {
         return callbackContainer
     }
 
-    fun toGRPCCallbackRequest(callbackContainer: CallbackContainer?): CallbackRequest {
+    fun toGRPCCallbackRequest(callbackContainer: CallbackContainer): CallbackRequest {
         val callbackRequest = CallbackRequest.newBuilder()
         with(callbackRequest) {
-            key = callbackContainer?.key
-            listener = callbackContainer?.listener
-            resultClass = callbackContainer?.resultClass
-            result = ByteString.copyFrom(Serializer.current.serializeWithClass(callbackContainer?.result))
+            key = callbackContainer.key
+            listener = callbackContainer.listener
+            resultClass = callbackContainer.resultClass
+            result = ByteString.copyFrom(Serializer.current.serializeWithClass(callbackContainer.result))
         }
         return callbackRequest.build()
     }

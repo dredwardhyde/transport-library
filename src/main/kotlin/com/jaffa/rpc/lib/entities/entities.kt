@@ -9,10 +9,6 @@ class CallbackContainer : Serializable {
     var listener: String? = null
     var result: Any? = null
     var resultClass: String? = null
-
-    override fun toString(): String {
-        return "CallbackContainer(key=$key, listener=$listener, result=$result, resultClass=$resultClass)"
-    }
 }
 
 class Command : Serializable {
@@ -29,21 +25,6 @@ class Command : Serializable {
     var asyncExpireTime: Long = 0
     var requestTime: Long = 0
     var localRequestTime: Long = 0
-
-    override fun toString(): String {
-        return "Command(serviceClass=$serviceClass, " +
-                "methodName=$methodName, " +
-                "methodArgs=${methodArgs.contentToString()}, " +
-                "args=${args.contentToString()}, " +
-                "callbackClass=$callbackClass, " +
-                "callbackKey=$callbackKey, " +
-                "callBackHost=$callBackHost, " +
-                "sourceModuleId=$sourceModuleId, " +
-                "rqUid=$rqUid, ticket=$ticket, " +
-                "asyncExpireTime=$asyncExpireTime, " +
-                "requestTime=$requestTime, " +
-                "localRequestTime=$localRequestTime)"
-    }
 }
 
 class ExceptionHolder(toString: String?) : Serializable {
