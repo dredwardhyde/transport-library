@@ -129,12 +129,10 @@ class RabbitMQRequestSender : Sender() {
         fun close() {
             try {
                 clientChannel.close()
-            } catch (ignore: IOException) {
-                // No-op
-            } catch (ignore: TimeoutException) {
+                connection.close()
+            } catch (ignore: Exception) {
                 // No-op
             }
-            connection.close()
         }
     }
 }

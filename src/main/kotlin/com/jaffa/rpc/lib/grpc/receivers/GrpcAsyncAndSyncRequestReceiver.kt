@@ -44,9 +44,13 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
     }
 
     override fun close() {
-        server.shutdown()
-        asyncService.shutdown()
-        requestService.shutdown()
+        try {
+            server.shutdown()
+            asyncService.shutdown()
+            requestService.shutdown()
+        }catch (e: Exception){
+            //No-op
+        }
     }
 
     class CommandServiceImpl : CommandServiceImplBase() {

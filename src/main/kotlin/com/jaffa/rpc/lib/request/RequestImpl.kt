@@ -12,11 +12,11 @@ import com.jaffa.rpc.lib.zookeeper.Utils
 import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
-class RequestImpl<T>(private val command: Command?) : Request<T> {
+class RequestImpl<T>(private val command: Command) : Request<T> {
 
     private val log = LoggerFactory.getLogger(FinalizationHelper::class.java)
 
-    private var sender: Sender? = null
+    private lateinit var sender: Sender
 
     private var timeout: Long = -1
 
@@ -38,21 +38,17 @@ class RequestImpl<T>(private val command: Command?) : Request<T> {
     }
 
     private fun initSender() {
-        with(sender){
-            this?.command = command
-            this?.moduleId = moduleId
-            this?.timeout = timeout
-        }
+        sender.command = command
+        sender.moduleId = moduleId
+        sender.timeout = timeout
     }
 
     override fun executeSync(): T {
         initSender()
-        command?.requestTime = System.currentTimeMillis()
-        command?.localRequestTime = System.nanoTime()
-        val result = command?.let { sender?.executeSync(it) }
-        if (command != null) {
-            AdminServer.addMetric(command)
-        }
+        command.requestTime = System.currentTimeMillis()
+        command.localRequestTime = System.nanoTime()
+        val result = command.let { sender.executeSync(it) }
+        AdminServer.addMetric(command)
         if (result is ExceptionHolder) throw JaffaRpcExecutionException(result.stackTrace)
         if (result is Throwable) throw JaffaRpcExecutionException(result)
         return result as T
@@ -62,25 +58,27 @@ class RequestImpl<T>(private val command: Command?) : Request<T> {
         require(!(key == null || listener == null)) { OptionConstants.ILLEGAL_ARGS_MESSAGE }
         initSender()
         with(command){
-            this?.callbackClass = listener.name
-            this?.callbackKey = key
-            this?.requestTime = System.currentTimeMillis()
-            this?.localRequestTime = System.nanoTime()
-            this?.asyncExpireTime = System.currentTimeMillis() + if (timeout != -1L) timeout else 1000 * 60 * 60
+            this.callbackClass = listener.name
+            this.callbackKey = key
+            this.requestTime = System.currentTimeMillis()
+            this.localRequestTime = System.nanoTime()
+            this.asyncExpireTime = System.currentTimeMillis() + if (timeout != -1L) timeout else 1000 * 60 * 60
         }
         log.debug("Async command {} added to finalization queue", command)
-        FinalizationHelper.eventsToConsume[command?.callbackKey] = command
-        if (command != null) {
-            sender?.executeAsync(command)
-        }
+        FinalizationHelper.eventsToConsume[command.callbackKey] = command
+        sender.executeAsync(command)
     }
 
     init {
-        sender = try {
+        try {
             Utils.currentSenderClass.getDeclaredConstructor().newInstance()
         } catch (e: Exception) {
             e.printStackTrace()
             throw JaffaRpcSystemException("Can not initialize sender!")
+        }.also {
+            if (it != null) {
+                sender = it
+            }
         }
     }
 }

@@ -43,9 +43,9 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                         try {
                             context.createSocket(SocketType.REQ)
                                     .also { ZeroMqRequestSender.addCurveKeysToSocket(it, command.sourceModuleId) }
-                                    .also { it?.connect("tcp://" + command.callBackHost) }
+                                    .also { it.connect("tcp://" + command.callBackHost) }
                                     .also {
-                                        it?.send(
+                                        it.send(
                                                 Serializer.current.serialize(
                                                         RequestInvocationHelper.constructCallbackContainer(
                                                                 command,
@@ -55,7 +55,7 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                                         )
                                     }
                                     .also { log.debug("Async response to request {} is ready", command.callbackKey) }
-                                    .also { it?.recv(0) }
+                                    .also { it.recv(0) }
                                     .also { context.destroySocket(it) }
                         } catch (exception: Exception) {
                             log.error("Error while receiving async request", exception)
@@ -105,10 +105,10 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
         }
 
         @kotlin.jvm.JvmStatic
-        fun destroySocketAndContext(context: ZContext?, socket: ZMQ.Socket?, source: Class<*>) {
-            context?.destroySocket(socket)
+        fun destroySocketAndContext(context: ZContext, socket: ZMQ.Socket?, source: Class<*>) {
+            context.destroySocket(socket)
             log.info("{} socket destroyed", source.simpleName)
-            context?.destroy()
+            context.destroy()
             log.info("{} context destroyed", source.simpleName)
         }
     }

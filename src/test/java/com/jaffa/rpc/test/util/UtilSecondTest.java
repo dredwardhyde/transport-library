@@ -1,6 +1,7 @@
 package com.jaffa.rpc.test.util;
 
 import com.jaffa.rpc.lib.common.OptionConstants;
+import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.request.RequestImpl;
 import com.jaffa.rpc.test.callbacks.ServiceCallback;
@@ -19,13 +20,13 @@ public class UtilSecondTest {
     public void stage1() {
         OptionConstants.setModuleId("test.server");
         try {
-            new RequestImpl<>(null);
+            new RequestImpl<>(new Command());
             Assertions.fail();
         } catch (JaffaRpcSystemException e) {
             //No-op
         }
         System.setProperty("jaffa.rpc.test.server.protocol", "http");
-        RequestImpl<Void> request = new RequestImpl<>(null);
+        RequestImpl<Void> request = new RequestImpl<>(new Command());
         try {
             request.executeAsync(null, ServiceCallback.class);
             Assertions.fail();

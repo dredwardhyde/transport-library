@@ -335,7 +335,7 @@ open class JaffaService {
             try {
                 a.close()
             } catch (e: Exception) {
-                log.error("Unable to shut down ZeroMQ receivers", e)
+                log.error("Unable to shut down receivers", e)
             }
         })
         log.info("ZMQ receivers were terminated")
