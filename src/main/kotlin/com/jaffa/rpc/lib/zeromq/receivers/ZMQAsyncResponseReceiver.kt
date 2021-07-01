@@ -21,17 +21,17 @@ import java.net.UnknownHostException
 
 class ZMQAsyncResponseReceiver : Runnable, Closeable {
 
-    private var context: ZContext? = null
+    private var context: ZContext
 
-    private var socket: ZMQ.Socket? = null
+    private var socket: ZMQ.Socket
 
-    private var auth: ZAuth? = null
+    private lateinit var auth: ZAuth
 
     override fun run() {
         while (!Thread.currentThread().isInterrupted) {
             try {
-                val bytes = socket?.recv()
-                socket?.send(byteArrayOf(4))
+                val bytes = socket.recv()
+                socket.send(byteArrayOf(4))
                 if (bytes != null && bytes.size == 1 && bytes[0] == 7.toByte()) {
                     ZMQAsyncAndSyncRequestReceiver.destroySocketAndContext(context, socket, ZMQAsyncResponseReceiver::class.java)
                     break
@@ -53,7 +53,7 @@ class ZMQAsyncResponseReceiver : Runnable, Closeable {
         sendKillMessageToSocket(Utils.zeroMQCallbackBindAddress)
         if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
             try {
-                auth?.close()
+                auth.close()
             } catch (ioException: IOException) {
                 log.error("Error while closing ZeroMQ context", ioException)
             }
@@ -89,13 +89,13 @@ class ZMQAsyncResponseReceiver : Runnable, Closeable {
     init {
         try {
             context = ZContext(10)
-            context?.linger = 0
+            context.linger = 0
             if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
                 auth = ZAuth(context).also { it.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR)) }
             }
-            socket = context?.createSocket(SocketType.REP)
+            socket = context.createSocket(SocketType.REP)
             CurveUtils.makeSocketSecure(socket)
-            socket?.bind("tcp://" + Utils.zeroMQCallbackBindAddress)
+            socket.bind("tcp://" + Utils.zeroMQCallbackBindAddress)
         } catch (zmqStartupException: UnknownHostException) {
             log.error("Error during ZeroMQ response receiver startup:", zmqStartupException)
             throw JaffaRpcSystemException(zmqStartupException)

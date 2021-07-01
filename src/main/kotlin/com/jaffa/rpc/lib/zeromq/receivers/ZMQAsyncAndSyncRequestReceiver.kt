@@ -22,26 +22,26 @@ import java.util.concurrent.Executors
 
 class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
-    private var context: ZContext? = null
+    private var context: ZContext
 
-    private var socket: ZMQ.Socket? = null
+    private var socket: ZMQ.Socket
 
-    private var auth: ZAuth? = null
+    private lateinit var auth: ZAuth
 
     override fun run() {
         while (!Thread.currentThread().isInterrupted) {
             try {
-                val bytes = socket?.recv()
+                val bytes = socket.recv()
                 if (bytes != null && bytes.size == 1 && bytes[0] == 7.toByte()) {
                     destroySocketAndContext(context, socket, ZMQAsyncAndSyncRequestReceiver::class.java)
                     break
                 }
                 val command = Serializer.current.deserialize(bytes, Command::class.java)
                 if (command?.callbackKey != null && command.callbackClass != null) {
-                    socket?.send("OK")
+                    socket.send("OK")
                     service.execute {
                         try {
-                            context?.createSocket(SocketType.REQ)
+                            context.createSocket(SocketType.REQ)
                                     .also { ZeroMqRequestSender.addCurveKeysToSocket(it, command.sourceModuleId) }
                                     .also { it?.connect("tcp://" + command.callBackHost) }
                                     .also {
@@ -56,13 +56,13 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                                     }
                                     .also { log.debug("Async response to request {} is ready", command.callbackKey) }
                                     .also { it?.recv(0) }
-                                    .also { context?.destroySocket(it) }
+                                    .also { context.destroySocket(it) }
                         } catch (exception: Exception) {
                             log.error("Error while receiving async request", exception)
                         }
                     }
                 } else {
-                    socket?.send(Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let { RequestInvocationHelper.invoke(it) })))
+                    socket.send(Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command?.let { RequestInvocationHelper.invoke(it) })))
                 }
             } catch (recvTerminationException: ZMQException) {
                 checkZMQExceptionAndThrow(recvTerminationException)
@@ -80,7 +80,7 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
         ZMQAsyncResponseReceiver.sendKillMessageToSocket(Utils.zeroMQBindAddress)
         if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
             try {
-                auth?.close()
+                auth.close()
             } catch (ioException: IOException) {
                 log.error("Error while closing ZeroMQ context", ioException)
             }
@@ -119,7 +119,7 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
             if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
                 auth = ZAuth(context).also { it.configureCurve(Utils.getRequiredOption(OptionConstants.ZMQ_CLIENT_DIR)) }
             }
-            socket = context?.createSocket(SocketType.REP)
+            socket = context.createSocket(SocketType.REP)
                     .also { CurveUtils.makeSocketSecure(it) }
                     .also { it?.bind("tcp://" + Utils.zeroMQBindAddress) }
         } catch (zmqStartupException: Exception) {

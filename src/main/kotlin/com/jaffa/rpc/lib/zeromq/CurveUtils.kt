@@ -31,12 +31,12 @@ object CurveUtils {
     }
 
     @kotlin.jvm.JvmStatic
-    fun makeSocketSecure(socket: ZMQ.Socket?) {
+    fun makeSocketSecure(socket: ZMQ.Socket) {
         if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
-            socket?.setZAPDomain("global".toByteArray())
-            socket?.curveServer = true
-            socket?.curvePublicKey = serverPublicKey?.toByteArray()
-            socket?.curveSecretKey = serverSecretKey?.toByteArray()
+            socket.setZAPDomain("global".toByteArray())
+            socket.curveServer = true
+            socket.curvePublicKey = serverPublicKey?.toByteArray()
+            socket.curveSecretKey = serverSecretKey?.toByteArray()
         }
     }
 
