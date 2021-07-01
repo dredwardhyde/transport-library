@@ -193,7 +193,7 @@ object Utils {
         }
     }
 
-    val rpcProtocol: Protocol?
+    val rpcProtocol: Protocol
         get() = Protocol.getByName(getRequiredOption(OptionConstants.PROTOCOL))
 
     @kotlin.jvm.JvmStatic
@@ -214,7 +214,7 @@ object Utils {
             return try {
                 System.getProperty(
                         OptionConstants.PROTOCOL_OPTION_PREFIX +
-                                rpcProtocol?.shortName +
+                                rpcProtocol.shortName +
                                 OptionConstants.SERVICE_PORT_OPTION_SUFFIX,
                         defaultPort.toString()
                 ).toInt()
@@ -230,7 +230,7 @@ object Utils {
             return try {
                 System.getProperty(
                         OptionConstants.PROTOCOL_OPTION_PREFIX +
-                                rpcProtocol?.shortName +
+                                rpcProtocol.shortName +
                                 OptionConstants.CALLBACK_PORT_OPTION_SUFFIX,
                         defaultPort.toString()
                 ).toInt()

@@ -1,5 +1,6 @@
 package com.jaffa.rpc.lib.entities
 
+import com.jaffa.rpc.lib.exception.JaffaRpcSystemException
 import com.jaffa.rpc.lib.security.SecurityTicket
 import java.io.Serializable
 import java.util.*
@@ -41,8 +42,9 @@ enum class Protocol(val shortName: String, val fullName: String) : Serializable 
     RABBIT("rabbit", "RabbitMQ");
 
     companion object {
-        fun getByName(name: String): Protocol? {
-            return Arrays.stream(values()).filter { x: Protocol -> x.shortName == name }.findFirst().orElse(null)
+        fun getByName(name: String): Protocol {
+            return Arrays.stream(values()).filter { x: Protocol -> x.shortName == name }
+                    .findFirst().orElseThrow{JaffaRpcSystemException(JaffaRpcSystemException.NO_PROTOCOL_DEFINED)}
         }
     }
 }
