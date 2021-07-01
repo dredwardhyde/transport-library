@@ -52,14 +52,14 @@ class ZeroMqRequestSender : Sender() {
         val context = ZContext(10)
 
         @kotlin.jvm.JvmStatic
-        fun addCurveKeysToSocket(socket: ZMQ.Socket?, moduleId: String?) {
+        fun addCurveKeysToSocket(socket: ZMQ.Socket, moduleId: String?) {
             if (System.getProperty(OptionConstants.ZMQ_CURVE_ENABLED, false.toString()).toBoolean()) {
                 val clientPublicKey = CurveUtils.getClientPublicKey(moduleId)
                     ?: throw JaffaRpcExecutionException("No Curve client key was provided for module.id $moduleId")
                 with(socket){
-                    this?.curvePublicKey = CurveUtils.serverPublicKey?.toByteArray()
-                    this?.curveSecretKey = CurveUtils.serverSecretKey?.toByteArray()
-                    this?.curveServerKey = clientPublicKey.toByteArray(Charsets.UTF_8)
+                    this.curvePublicKey = CurveUtils.serverPublicKey?.toByteArray()
+                    this.curveSecretKey = CurveUtils.serverSecretKey?.toByteArray()
+                    this.curveServerKey = clientPublicKey.toByteArray(Charsets.UTF_8)
                 }
             }
         }

@@ -18,7 +18,7 @@ object FinalizationHelper {
 
     private var executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
 
-    var context: ApplicationContext? = null
+    lateinit var context: ApplicationContext
 
     private val finalizerThread = Runnable {
         eventsToConsume.values
@@ -31,7 +31,7 @@ object FinalizationHelper {
                             log.debug("Finalization request {}", command.rqUid)
                             val callbackClass = Class.forName(command.callbackClass)
                             callbackClass.getMethod("onError", String::class.java, Throwable::class.java).invoke(
-                                    context?.getBean(callbackClass),
+                                    context.getBean(callbackClass),
                                     command.callbackKey,
                                     JaffaRpcExecutionTimeoutException()
                             )
@@ -43,8 +43,8 @@ object FinalizationHelper {
                 }
     }
 
-    fun startFinalizer(context: ApplicationContext?) {
-        FinalizationHelper.context = context
+    fun startFinalizer(context: ApplicationContext) {
+        this.context = context
         executor.scheduleAtFixedRate(finalizerThread, 0, 5, TimeUnit.MILLISECONDS)
         log.info("Finalizer thread started")
     }

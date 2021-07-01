@@ -121,7 +121,7 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
             }
             socket = context.createSocket(SocketType.REP)
                     .also { CurveUtils.makeSocketSecure(it) }
-                    .also { it?.bind("tcp://" + Utils.zeroMQBindAddress) }
+                    .also { it.bind("tcp://" + Utils.zeroMQBindAddress) }
         } catch (zmqStartupException: Exception) {
             log.error("Error during ZeroMQ request receiver startup:", zmqStartupException)
             throw JaffaRpcSystemException(zmqStartupException)

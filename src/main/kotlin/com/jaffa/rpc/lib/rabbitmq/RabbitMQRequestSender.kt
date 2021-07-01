@@ -44,7 +44,6 @@ class RabbitMQRequestSender : Sender() {
         } catch (jaffaRpcNoRouteException: JaffaRpcNoRouteException) {
             throw jaffaRpcNoRouteException
         } catch (exception: Exception) {
-            log.error("Error while sending sync RabbitMQ request", exception)
             throw JaffaRpcExecutionException(exception)
         }
         return null
@@ -68,7 +67,6 @@ class RabbitMQRequestSender : Sender() {
         } catch (jaffaRpcNoRouteException: JaffaRpcNoRouteException) {
             throw jaffaRpcNoRouteException
         } catch (e: Exception) {
-            log.error("Error while sending async RabbitMQ request", e)
             throw JaffaRpcExecutionException(e)
         }
     }
