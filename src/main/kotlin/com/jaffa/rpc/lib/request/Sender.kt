@@ -10,7 +10,7 @@ abstract class Sender {
 
     var moduleId: String? = null
 
-    var command: Command? = null
+    lateinit var command: Command
 
     protected abstract fun executeSync(message: ByteArray?): ByteArray?
 

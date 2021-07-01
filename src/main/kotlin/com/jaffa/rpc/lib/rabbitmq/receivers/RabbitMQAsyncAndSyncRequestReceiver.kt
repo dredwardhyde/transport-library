@@ -14,10 +14,8 @@ import com.rabbitmq.client.Envelope
 import org.slf4j.LoggerFactory
 import org.springframework.amqp.rabbit.connection.Connection
 import java.io.Closeable
-import java.io.IOException
 import java.util.*
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeoutException
 
 class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
@@ -97,12 +95,10 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
         try {
             serverChannel.close()
             clientChannel.close()
-        } catch (ignore: IOException) {
-            // No-op
-        } catch (ignore: TimeoutException) {
+            connection.close()
+        } catch (ignore: Exception) {
             // No-op
         }
-        connection.close()
         responseService.shutdownNow()
         requestService.shutdownNow()
     }

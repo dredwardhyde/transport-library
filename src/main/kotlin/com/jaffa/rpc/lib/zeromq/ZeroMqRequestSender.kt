@@ -17,7 +17,7 @@ class ZeroMqRequestSender : Sender() {
     override fun executeSync(message: ByteArray?): ByteArray? {
         val start = System.currentTimeMillis()
         var response: ByteArray?
-        val hostAndModuleId = Utils.getHostForService(command?.serviceClass, moduleId, Protocol.ZMQ)
+        val hostAndModuleId = Utils.getHostForService(command.serviceClass, moduleId, Protocol.ZMQ)
         context.createSocket(SocketType.REQ).use { socket ->
             with(socket){
                 addCurveKeysToSocket(this, hostAndModuleId.right)
@@ -28,13 +28,13 @@ class ZeroMqRequestSender : Sender() {
                 response = recv(0)
             }
         }
-        log.debug(">>>>>> Executed sync request {} in {} ms", command?.rqUid, System.currentTimeMillis() - start)
+        log.debug(">>>>>> Executed sync request {} in {} ms", command.rqUid, System.currentTimeMillis() - start)
         return response
     }
 
     override fun executeAsync(message: ByteArray?) {
         val start = System.currentTimeMillis()
-        val hostAndModuleId = Utils.getHostForService(command?.serviceClass, moduleId, Protocol.ZMQ)
+        val hostAndModuleId = Utils.getHostForService(command.serviceClass, moduleId, Protocol.ZMQ)
         context.createSocket(SocketType.REQ).use { socket ->
             with(socket){
                 addCurveKeysToSocket(this, hostAndModuleId.right)
@@ -44,7 +44,7 @@ class ZeroMqRequestSender : Sender() {
                 recv(0)
             }
         }
-        log.debug(">>>>>> Executed async request {} in {} ms", command?.rqUid, System.currentTimeMillis() - start)
+        log.debug(">>>>>> Executed async request {} in {} ms", command.rqUid, System.currentTimeMillis() - start)
     }
 
     companion object {

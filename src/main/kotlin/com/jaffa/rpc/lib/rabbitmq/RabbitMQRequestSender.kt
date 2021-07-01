@@ -26,7 +26,7 @@ class RabbitMQRequestSender : Sender() {
     public override fun executeSync(message: ByteArray?): ByteArray? {
         try {
             val atomicReference = AtomicReference<ByteArray>()
-            requests[command?.rqUid] = object : Callback {
+            requests[command.rqUid] = object : Callback {
                 override fun call(body: ByteArray?) {
                     atomicReference.set(body)
                 }
@@ -36,11 +36,11 @@ class RabbitMQRequestSender : Sender() {
             while (!(timeout != -1L && System.currentTimeMillis() - start > timeout || System.currentTimeMillis() - start > 1000 * 60 * 60)) {
                 val result = atomicReference.get()
                 if (result != null) {
-                    requests.remove(command?.rqUid)
+                    requests.remove(command.rqUid)
                     return result
                 }
             }
-            requests.remove(command?.rqUid)
+            requests.remove(command.rqUid)
         } catch (jaffaRpcNoRouteException: JaffaRpcNoRouteException) {
             throw jaffaRpcNoRouteException
         } catch (exception: Exception) {
@@ -55,9 +55,9 @@ class RabbitMQRequestSender : Sender() {
         val targetModuleId: String?
         if (StringUtils.isNotBlank(moduleId)) {
             targetModuleId = moduleId
-            Utils.getHostForService(Utils.getServiceInterfaceNameFromClient(command?.serviceClass), moduleId, Protocol.RABBIT)
+            Utils.getHostForService(Utils.getServiceInterfaceNameFromClient(command.serviceClass), moduleId, Protocol.RABBIT)
         } else {
-            targetModuleId = Utils.getModuleForService(Utils.getServiceInterfaceNameFromClient(command?.serviceClass), Protocol.RABBIT)
+            targetModuleId = Utils.getModuleForService(Utils.getServiceInterfaceNameFromClient(command.serviceClass), Protocol.RABBIT)
         }
         clientChannel.basicPublish(targetModuleId, "$targetModuleId-server", null, message)
     }

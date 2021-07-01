@@ -23,7 +23,7 @@ class HttpRequestSender : Sender() {
     public override fun executeSync(message: ByteArray?): ByteArray? {
         return try {
             val totalTimeout = (if (timeout == -1L) 1000 * 60 * 60 else timeout).toInt()
-            val httpPost = HttpPost(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.HTTP).left.toString() + "/request")
+            val httpPost = HttpPost(Utils.getHostForService(command.serviceClass, moduleId, Protocol.HTTP).left.toString() + "/request")
                     .also {
                         it.config = RequestConfig.custom()
                                 .setConnectTimeout(totalTimeout)
@@ -41,7 +41,7 @@ class HttpRequestSender : Sender() {
             val response = httpResponse.statusLine.statusCode
             if (response != 200) {
                 httpResponse.close()
-                throw JaffaRpcExecutionException("Response for RPC request " + command?.rqUid + " returned status " + response)
+                throw JaffaRpcExecutionException("Response for RPC request " + command.rqUid + " returned status " + response)
             }
             val byteArray = ByteStreams.toByteArray(httpResponse.entity.content)
             httpResponse.close()
@@ -58,13 +58,13 @@ class HttpRequestSender : Sender() {
 
     public override fun executeAsync(message: ByteArray?) {
         try {
-            val httpPost = HttpPost(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.HTTP).left.toString() + "/request")
+            val httpPost = HttpPost(Utils.getHostForService(command.serviceClass, moduleId, Protocol.HTTP).left.toString() + "/request")
                     .also { it.entity = ByteArrayEntity(message) }
             val httpResponse = HttpAsyncAndSyncRequestReceiver.client.execute(httpPost)
             val response = httpResponse.statusLine.statusCode
             httpResponse.close()
             if (response != 200) {
-                throw JaffaRpcExecutionException("Response for RPC request " + command?.rqUid + " returned status " + response)
+                throw JaffaRpcExecutionException("Response for RPC request " + command.rqUid + " returned status " + response)
             }
         } catch (exception: JaffaRpcNoRouteException) {
             throw exception

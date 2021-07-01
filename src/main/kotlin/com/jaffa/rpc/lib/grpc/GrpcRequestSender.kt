@@ -51,7 +51,7 @@ class GrpcRequestSender : Sender() {
     private val managedChannel: ManagedChannel
         get() {
             return cache.computeIfAbsent(
-                    Utils.getHostAndPort(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.GRPC).left!!, ":")
+                    Utils.getHostAndPort(Utils.getHostForService(command.serviceClass, moduleId, Protocol.GRPC).left!!, ":")
             ) { key: Pair<String, Int> ->
                 GrpcAsyncAndSyncRequestReceiver.addSecurityContext(NettyChannelBuilder.forAddress(key.left, key.right)).build()
             }
@@ -60,7 +60,7 @@ class GrpcRequestSender : Sender() {
     private fun processStatusException(statusRuntimeException: StatusRuntimeException) {
         when (statusRuntimeException.status.code) {
             Status.DEADLINE_EXCEEDED.code -> throw JaffaRpcExecutionTimeoutException()
-            Status.UNAVAILABLE.code ->  throw JaffaRpcNoRouteException(command?.serviceClass, Protocol.GRPC)
+            Status.UNAVAILABLE.code ->  throw JaffaRpcNoRouteException(command.serviceClass, Protocol.GRPC)
             else -> throw JaffaRpcExecutionException(statusRuntimeException)
         }
     }

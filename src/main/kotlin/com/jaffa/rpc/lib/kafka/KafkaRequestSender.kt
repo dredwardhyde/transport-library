@@ -68,7 +68,7 @@ class KafkaRequestSender : Sender() {
         while (!(timeout != -1L && System.currentTimeMillis() - start > timeout || System.currentTimeMillis() - start > 1000 * 60 * 60)) {
             val records = consumer.poll(Duration.ofMillis(10))
             for (record in records) {
-                if (record.key() == command?.rqUid) {
+                if (record.key() == command.rqUid) {
                     try {
                         val commits: MutableMap<TopicPartition, OffsetAndMetadata> = HashMap()
                         commits[TopicPartition(record.topic(), record.partition())] = OffsetAndMetadata(record.offset())
@@ -87,7 +87,7 @@ class KafkaRequestSender : Sender() {
 
     public override fun executeSync(message: ByteArray?): ByteArray? {
         val start = System.currentTimeMillis()
-        val requestTopic = command?.serviceClass?.let { RequestUtils.getTopicForService(it, moduleId, true) }
+        val requestTopic = command.serviceClass?.let { RequestUtils.getTopicForService(it, moduleId, true) }
         try {
             producer.send(ProducerRecord(requestTopic, UUID.randomUUID().toString(), message)).get()
             producer.close()
@@ -96,13 +96,13 @@ class KafkaRequestSender : Sender() {
             throw JaffaRpcExecutionException(e)
         }
         val result = requestTopic?.let { waitForSyncAnswer(it, System.currentTimeMillis()) }
-        log.debug(">>>>>> Executed sync request {} in {} ms", command?.rqUid, System.currentTimeMillis() - start)
+        log.debug(">>>>>> Executed sync request {} in {} ms", command.rqUid, System.currentTimeMillis() - start)
         return result
     }
 
     public override fun executeAsync(message: ByteArray?) {
         val start = System.currentTimeMillis()
-        val requestTopic = command?.serviceClass?.let { RequestUtils.getTopicForService(it, moduleId, false) }
+        val requestTopic = command.serviceClass?.let { RequestUtils.getTopicForService(it, moduleId, false) }
         try {
             producer.send(ProducerRecord(requestTopic, UUID.randomUUID().toString(), message)).get()
             producer.close()
@@ -110,7 +110,7 @@ class KafkaRequestSender : Sender() {
             log.error("Error while sending async Kafka request", e)
             throw JaffaRpcExecutionException(e)
         }
-        log.debug(">>>>>> Executed async request {} in {} ms", command?.rqUid, System.currentTimeMillis() - start)
+        log.debug(">>>>>> Executed async request {} in {} ms", command.rqUid, System.currentTimeMillis() - start)
     }
 
     companion object {
