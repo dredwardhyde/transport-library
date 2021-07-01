@@ -18,11 +18,6 @@ import org.springframework.stereotype.Component
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.net.ServerSocket
-import java.security.KeyManagementException
-import java.security.KeyStoreException
-import java.security.NoSuchAlgorithmException
-import java.security.UnrecoverableKeyException
-import java.security.cert.CertificateException
 import java.util.*
 import java.util.concurrent.Executors
 import javax.annotation.PostConstruct
@@ -32,9 +27,9 @@ import javax.annotation.PreDestroy
 @DependsOn("jaffaService")
 class AdminServer {
 
-    private var server: HttpServer? = null
+    private lateinit var server: HttpServer
 
-    private var prometheusServer: HTTPServer? = null
+    private lateinit var prometheusServer: HTTPServer
 
     @Throws(IOException::class)
     private fun respondWithFile(exchange: HttpExchange, fileName: String) {
@@ -68,7 +63,7 @@ class AdminServer {
         try {
             val useHttps = System.getProperty(OptionConstants.ADMIN_USE_HTTPS, false.toString()).toBoolean()
             prometheusServer = HTTPServer(freePort)
-            log.info("Prometheus metrics are published on port {}", prometheusServer?.port)
+            log.info("Prometheus metrics are published on port {}", prometheusServer.port)
             server = if (useHttps) {
                 val httpsServer = HttpsServer.create(InetSocketAddress(Utils.localHost, freePort), 0)
                 HttpAsyncAndSyncRequestReceiver.initSSLForHttpsServer(
@@ -82,7 +77,7 @@ class AdminServer {
             } else {
                 HttpServer.create(InetSocketAddress(Utils.localHost, freePort), 0)
             }
-            server?.createContext("/") { exchange: HttpExchange ->
+            server.createContext("/") { exchange: HttpExchange ->
                 when (exchange.requestURI.path) {
                     "/admin" -> { respondWithFile(exchange, "admin.html") }
                     "/vis.min.css" -> { respondWithFile(exchange, "vis.min.css") }
@@ -106,31 +101,21 @@ class AdminServer {
                     }
                 }
             }
-            server?.executor = Executors.newFixedThreadPool(3)
-            server?.start()
+            server.executor = Executors.newFixedThreadPool(3)
+            server.start()
             log.info(
                     "Jaffa RPC console started at {}",
-                    (if (useHttps) "https://" else "http://") + server?.address?.hostName + ":" + server?.address?.port + "/admin"
+                    (if (useHttps) "https://" else "http://") + server.address.hostName + ":" + server.address.port + "/admin"
             )
-        } catch (httpServerStartupException: IOException) {
-            log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
-        } catch (httpServerStartupException: KeyStoreException) {
-            log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
-        } catch (httpServerStartupException: NoSuchAlgorithmException) {
-            log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
-        } catch (httpServerStartupException: CertificateException) {
-            log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
-        } catch (httpServerStartupException: UnrecoverableKeyException) {
-            log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
-        } catch (httpServerStartupException: KeyManagementException) {
+        } catch (httpServerStartupException: Exception) {
             log.error(SERVER_STARTUP_ERROR_MESSAGE, httpServerStartupException)
         }
     }
 
     @PreDestroy
     fun destroy() {
-        server?.stop(2)
-        prometheusServer?.stop()
+        server.stop(2)
+        prometheusServer.stop()
     }
 
     class ResponseMetric(val time: Long, val duration: Double)
