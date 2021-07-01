@@ -139,11 +139,41 @@ public class GrpcSecondTest {
             //No-op
         }
         GrpcAsyncAndSyncRequestReceiver.CommandServiceImpl commandService = new GrpcAsyncAndSyncRequestReceiver.CommandServiceImpl();
-        commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), null);
+        commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), new StreamObserver<CommandResponse>() {
+            @Override
+            public void onNext(CommandResponse commandResponse) {
+                // No-op
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                // No-op
+            }
+
+            @Override
+            public void onCompleted() {
+                // No-op
+            }
+        });
         command.setMethodArgs(new String[]{"xxx"});
         command.setArgs(new String[]{"xxx"});
         Serializer.init();
-        commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), null);
+        commandService.execute(MessageConverterHelper.toGRPCCommandRequest(command), new StreamObserver<CommandResponse>() {
+            @Override
+            public void onNext(CommandResponse commandResponse) {
+                // No-op
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                // No-op
+            }
+
+            @Override
+            public void onCompleted() {
+                // No-op
+            }
+        });
         command.setCallbackKey("xxx");
         command.setCallbackClass("xxx");
         command.setMethodArgs(new String[]{});

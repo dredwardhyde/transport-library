@@ -10,6 +10,7 @@ import com.jaffa.rpc.lib.http.receivers.HttpAsyncResponseReceiver;
 import com.jaffa.rpc.lib.serialization.Serializer;
 import com.jaffa.rpc.lib.zookeeper.Utils;
 import com.jaffa.rpc.test.ZooKeeperExtension;
+import com.sun.net.httpserver.HttpExchange;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,8 +77,5 @@ public class HttpSecondTest {
         } catch (JaffaRpcSystemException jaffaRpcSystemException) {
             //No-op
         }
-
-        HttpAsyncResponseReceiver.HttpRequestHandler httpRequestHandler = new HttpAsyncResponseReceiver.HttpRequestHandler();
-        httpRequestHandler.handle(null);
     }
 }
