@@ -72,13 +72,13 @@ public class GrpcSecondTest {
         try {
             grpcRequestSender.executeSync(new Command());
             fail();
-        } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             //No-op
         }
         try {
             grpcRequestSender.executeAsync(new Command());
             fail();
-        } catch (JaffaRpcExecutionException jaffaRpcExecutionException) {
+        } catch (JaffaRpcNoRouteException jaffaRpcNoRouteException) {
             //No-op
         }
         Utils.registerService("xxx", Protocol.GRPC);
