@@ -47,7 +47,6 @@ class RabbitMQAsyncResponseReceiver : Runnable, Closeable {
             }
             clientChannel.basicConsume(RabbitMQRequestSender.CLIENT_ASYNC_NAME, false, consumer)
         } catch (ioException: Exception) {
-            log.error("Error during RabbitMQ response receiver startup:", ioException)
             throw JaffaRpcSystemException(ioException)
         }
     }

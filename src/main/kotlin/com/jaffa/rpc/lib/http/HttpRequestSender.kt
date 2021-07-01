@@ -51,7 +51,6 @@ class HttpRequestSender : Sender() {
         } catch (exception: JaffaRpcExecutionTimeoutException) {
             throw exception
         } catch (e: Exception) {
-            log.error("Error while sending sync HTTP request", e)
             throw JaffaRpcExecutionException(e)
         }
     }
@@ -71,7 +70,6 @@ class HttpRequestSender : Sender() {
         } catch (exception: JaffaRpcExecutionTimeoutException) {
             throw exception
         } catch (e: Exception) {
-            log.error("Error while sending async HTTP request", e)
             throw JaffaRpcExecutionException(e)
         }
     }

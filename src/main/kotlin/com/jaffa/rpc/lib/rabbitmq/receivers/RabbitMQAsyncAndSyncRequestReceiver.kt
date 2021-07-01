@@ -85,7 +85,6 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
             }
             serverChannel.basicConsume(RabbitMQRequestSender.SERVER, false, consumer)
         } catch (amqpException: Exception) {
-            log.error("Error during RabbitMQ request receiver startup:", amqpException)
             throw JaffaRpcSystemException(amqpException)
         }
         log.info("{} terminated", this.javaClass.simpleName)

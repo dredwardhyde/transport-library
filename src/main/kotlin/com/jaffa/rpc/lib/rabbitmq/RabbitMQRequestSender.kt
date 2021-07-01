@@ -115,10 +115,8 @@ class RabbitMQRequestSender : Sender() {
                 }
                 clientChannel.basicConsume(CLIENT_SYNC_NAME, false, consumer)
             } catch (ioException: AmqpException) {
-                log.error("Error during RabbitMQ response receiver startup:", ioException)
                 throw JaffaRpcSystemException(ioException)
             } catch (ioException: IOException) {
-                log.error("Error during RabbitMQ response receiver startup:", ioException)
                 throw JaffaRpcSystemException(ioException)
             }
         }
