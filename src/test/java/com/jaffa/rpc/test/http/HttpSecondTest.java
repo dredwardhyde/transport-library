@@ -1,19 +1,24 @@
 package com.jaffa.rpc.test.http;
 
 import com.jaffa.rpc.lib.common.OptionConstants;
+import com.jaffa.rpc.lib.entities.Command;
 import com.jaffa.rpc.lib.exception.JaffaRpcNoRouteException;
 import com.jaffa.rpc.lib.exception.JaffaRpcSystemException;
 import com.jaffa.rpc.lib.http.HttpRequestSender;
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncAndSyncRequestReceiver;
 import com.jaffa.rpc.lib.http.receivers.HttpAsyncResponseReceiver;
 import com.jaffa.rpc.lib.serialization.Serializer;
+import com.jaffa.rpc.lib.zookeeper.Utils;
+import com.jaffa.rpc.test.ZooKeeperExtension;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
 @SuppressWarnings({"squid:S5786"})
+@ExtendWith({ZooKeeperExtension.class})
 public class HttpSecondTest {
 
     static {
@@ -33,6 +38,7 @@ public class HttpSecondTest {
     public void stage1() {
         OptionConstants.setModuleId("test.server");
         Serializer.init();
+        Utils.connect("localhost:2181");
         HttpAsyncAndSyncRequestReceiver httpAsyncAndSyncRequestReceiver = new HttpAsyncAndSyncRequestReceiver();
         try {
             HttpAsyncAndSyncRequestReceiver.initClient();
@@ -46,7 +52,11 @@ public class HttpSecondTest {
         } catch (JaffaRpcSystemException jaffaRpcSystemException) {
             //No-op
         }
+        Command command = new Command();
+        command.setRqUid("xxx");
+        command.setServiceClass("xxx");
         HttpRequestSender httpRequestSender = new HttpRequestSender();
+        httpRequestSender.setCommand(command);
         try {
             httpRequestSender.executeAsync(new byte[]{});
             fail();

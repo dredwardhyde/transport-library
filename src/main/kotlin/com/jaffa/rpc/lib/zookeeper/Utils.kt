@@ -51,7 +51,14 @@ object Utils {
 
     @kotlin.jvm.JvmField
     val cache = Caffeine.newBuilder().maximumSize(100).expireAfterWrite(10, TimeUnit.MINUTES)
-            .build { k: String? -> zk.getData(k, true, null) }
+            .build { k: String? ->
+                try {
+                    zk.getData(k, true, null)
+                } catch (e: Exception) {
+                    //No-op
+                    null
+                }
+            }
 
     @kotlin.jvm.JvmStatic
     fun loadExternalProperties(moduleId: String?) {
