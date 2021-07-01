@@ -38,5 +38,9 @@ public class ZooKeeperTest {
         } catch (JaffaRpcSystemException e) {
             Assertions.assertEquals("Couldn't instantiate xxx", e.getCause().getMessage());
         }
+        System.getProperty(OptionConstants.ZOOKEEPER_SSL_KEYSTORE_LOCATION);
+        System.getProperty(OptionConstants.ZOOKEEPER_SSL_KEYSTORE_PASSWORD);
+        System.getProperty(OptionConstants.ZOOKEEPER_SSL_TRUSTSTORE_LOCATION);
+        System.getProperty(OptionConstants.ZOOKEEPER_SSL_TRUSTSTORE_PASSWORD);
     }
 }

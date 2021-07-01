@@ -38,7 +38,7 @@ class ApiClientAdvisor : AbstractPointcutAdvisor() {
 
     @Autowired
     @Transient
-    private val context: ApplicationContext? = null
+    private lateinit var context: ApplicationContext
 
     private fun setMetadata(command: Command) {
         try {
@@ -46,7 +46,6 @@ class ApiClientAdvisor : AbstractPointcutAdvisor() {
             if (Utils.rpcProtocol == Protocol.HTTP) command.callBackHost = Utils.httpCallbackStringAddress
             if (Utils.rpcProtocol == Protocol.GRPC) command.callBackHost = Utils.zeroMQCallbackBindAddress
         } catch (e: UnknownHostException) {
-            log.error("Error during metadata setting", e)
             throw JaffaRpcSystemException(e)
         }
         command.sourceModuleId = OptionConstants.MODULE_ID
@@ -77,7 +76,7 @@ class ApiClientAdvisor : AbstractPointcutAdvisor() {
             command.serviceClass = client.name
             val ticketProvideClass: Class<out TicketProvider>? = JaffaService.clientsAndTicketProviders[client]
             if (ticketProvideClass != null) {
-                val ticketProvider = context?.getBean(ticketProvideClass)
+                val ticketProvider = context.getBean(ticketProvideClass)
                 command.ticket = ticketProvider?.ticket
             }
             command.methodName = invocation.method.name

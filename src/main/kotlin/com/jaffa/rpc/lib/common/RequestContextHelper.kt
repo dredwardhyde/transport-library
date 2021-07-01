@@ -5,10 +5,11 @@ import com.jaffa.rpc.lib.security.SecurityTicket
 
 object RequestContextHelper {
 
-    val sourceModuleId = ThreadLocal<String>()
+    private val sourceModuleId = ThreadLocal<String>()
 
     private val securityTicketThreadLocal = ThreadLocal<SecurityTicket>()
 
+    @kotlin.jvm.JvmStatic
     fun getSourceModuleId(): String {
         return sourceModuleId.get()
     }

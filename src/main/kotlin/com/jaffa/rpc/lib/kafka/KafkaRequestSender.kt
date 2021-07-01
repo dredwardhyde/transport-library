@@ -58,7 +58,7 @@ class KafkaRequestSender : Sender() {
                 override fun onPartitionsAssigned(partitions: Collection<TopicPartition>) {
                     partitions.forEach(Consumer { x: TopicPartition -> query[x] = threeMinAgo })
                     seekTopicsForQuery(consumer, query)
-                    log.debug(">>>>>> Partitions assigned took {} ns", System.nanoTime() - startRebalance)
+                    log.debug(">>>>>> Partitions assignment took {} ns", System.nanoTime() - startRebalance)
                 }
             })
         }

@@ -27,6 +27,6 @@ class RebalancedListener(
         partitions.forEach(Consumer { x: TopicPartition -> query[x] = threeMinAgo })
         consumer?.offsetsForTimes(query)?.forEach { entry -> entry.value?.let { consumer.seek(entry.key, entry.value.offset()) } }
         countDownLatch?.countDown()
-        log.debug(">>>>>> Partitions assigned took {} ns, latch {}", System.nanoTime() - startRebalanced, countDownLatch?.count)
+        log.debug(">>>>>> Partitions assignment took {} ns, latch {}", System.nanoTime() - startRebalanced, countDownLatch?.count)
     }
 }

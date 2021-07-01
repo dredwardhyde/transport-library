@@ -187,7 +187,6 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
                             setSSLParameters(c.defaultSSLParameters)
                         }
                     } catch (ex: Exception) {
-                        log.error("Failed to create Jaffa HTTPS server", ex)
                         throw JaffaRpcSystemException(ex)
                     }
                 }

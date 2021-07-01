@@ -20,6 +20,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public void lol4(String message) {
         Assertions.assertNotNull(RequestContextHelper.getTicket());
+        Assertions.assertNotNull(RequestContextHelper.getSourceModuleId());
         Assertions.assertEquals("user1", RequestContextHelper.getTicket().getUser());
         try {
             Thread.sleep(11_000);
