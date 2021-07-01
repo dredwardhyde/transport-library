@@ -51,7 +51,7 @@ public class RabbitMQSecondTest {
         try {
             rabbitMQRequestSender.executeAsync(new byte[]{});
             fail();
-        } catch (JaffaRpcNoRouteException JaffaRpcNoRouteException) {
+        } catch (JaffaRpcExecutionException JaffaRpcNoRouteException) {
             //No-op
         }
         try {
