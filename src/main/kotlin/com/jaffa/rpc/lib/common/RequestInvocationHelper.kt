@@ -101,15 +101,15 @@ object RequestInvocationHelper {
             IllegalAccessException::class,
             InvocationTargetException::class
     )
-    fun processCallbackContainer(callbackContainer: CallbackContainer?): Boolean {
-        val key = callbackContainer?.key
-        val command: Command? = FinalizationHelper.eventsToConsume.remove(callbackContainer?.key)
+    fun processCallbackContainer(callbackContainer: CallbackContainer): Boolean {
+        val key = callbackContainer.key
+        val command: Command? = FinalizationHelper.eventsToConsume.remove(callbackContainer.key)
         return if (command != null) {
-            val callbackClass = Class.forName(callbackContainer?.listener)
+            val callbackClass = Class.forName(callbackContainer.listener)
             val callBackBean = context.getBean(callbackClass)
             val onErrorMethod = callbackClass.getMethod("onError", String::class.java, Throwable::class.java)
-            val result = callbackContainer?.result
-            val resultClazz = Class.forName(callbackContainer?.resultClass)
+            val result = callbackContainer.result
+            val resultClazz = Class.forName(callbackContainer.resultClass)
             if (result is ExceptionHolder) {
                 onErrorMethod.invoke(callBackBean, key, JaffaRpcExecutionException(result.stackTrace))
             } else if (result is Throwable) {
@@ -127,7 +127,7 @@ object RequestInvocationHelper {
             AdminServer.addMetric(command)
             true
         } else {
-            log.warn("Response {} already expired", callbackContainer?.key)
+            log.warn("Response {} already expired", callbackContainer.key)
             false
         }
     }

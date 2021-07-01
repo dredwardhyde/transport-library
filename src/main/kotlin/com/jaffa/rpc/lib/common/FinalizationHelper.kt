@@ -16,7 +16,7 @@ object FinalizationHelper {
 
     val eventsToConsume: ConcurrentMap<String, Command> = ConcurrentHashMap()
 
-    lateinit var executor: ScheduledExecutorService
+    private var executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
 
     var context: ApplicationContext? = null
 
@@ -45,7 +45,6 @@ object FinalizationHelper {
 
     fun startFinalizer(context: ApplicationContext?) {
         FinalizationHelper.context = context
-        executor = Executors.newSingleThreadScheduledExecutor()
         executor.scheduleAtFixedRate(finalizerThread, 0, 5, TimeUnit.MILLISECONDS)
         log.info("Finalizer thread started")
     }

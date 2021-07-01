@@ -54,21 +54,21 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
     }
 
     class CommandServiceImpl : CommandServiceImplBase() {
-        private fun getManagedChannel(hostAndPort: Pair<String?, Int?>?): ManagedChannel {
-            return cache.computeIfAbsent(hostAndPort) { key: Pair<String?, Int?>? ->
-                var channelBuilder = key?.right?.let { NettyChannelBuilder.forAddress(key.left, it) }
-                channelBuilder = channelBuilder?.let { addSecurityContext(it) }
-                channelBuilder!!.build()
+        private fun getManagedChannel(hostAndPort: Pair<String, Int>): ManagedChannel {
+            return cache.computeIfAbsent(hostAndPort) { key: Pair<String, Int> ->
+                var channelBuilder = key.right.let { NettyChannelBuilder.forAddress(key.left, it) }
+                channelBuilder = channelBuilder.let { addSecurityContext(it) }
+                channelBuilder.build()
             }
         }
 
-        override fun execute(request: CommandRequest, responseObserver: StreamObserver<CommandResponse>?) {
+        override fun execute(request: CommandRequest, responseObserver: StreamObserver<CommandResponse>) {
             try {
                 val command = MessageConverterHelper.fromGRPCCommandRequest(request)
-                if (StringUtils.isNotBlank(command.callbackKey) && StringUtils.isNotBlank(command.callbackClass)) {
+                if (StringUtils.isNotBlank(command.callbackKey) && StringUtils.isNotBlank(command.callbackClass) && StringUtils.isNotBlank(command.callBackHost)) {
                     asyncService.execute {
                         try {
-                            CallbackServiceGrpc.newBlockingStub(getManagedChannel(Utils.getHostAndPort(command.callBackHost, ":")))
+                            CallbackServiceGrpc.newBlockingStub(getManagedChannel(Utils.getHostAndPort(command.callBackHost!!, ":")))
                                     .also {
                                         it.execute(MessageConverterHelper.toGRPCCallbackRequest(
                                                 RequestInvocationHelper.constructCallbackContainer(
@@ -81,13 +81,13 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
                             log.error("Error while receiving async request", exception)
                         }
                     }
-                    responseObserver?.onNext(CommandResponse.newBuilder().setResponse(ByteString.EMPTY).build())
+                    responseObserver.onNext(CommandResponse.newBuilder().setResponse(ByteString.EMPTY).build())
                 } else {
-                    responseObserver?.onNext(MessageConverterHelper
+                    responseObserver.onNext(MessageConverterHelper
                             .toGRPCCommandResponse(RequestInvocationHelper
                                     .getResult(RequestInvocationHelper.invoke(command))))
                 }
-                responseObserver?.onCompleted()
+                responseObserver.onCompleted()
             } catch (exception: Exception) {
                 log.error("Error while receiving request ", exception)
             }
@@ -100,7 +100,7 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
         private val requestService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
 
-        private val cache: MutableMap<Pair<String?, Int?>?, ManagedChannel> = ConcurrentHashMap()
+        private val cache: MutableMap<Pair<String, Int>, ManagedChannel> = ConcurrentHashMap()
 
         private val log = LoggerFactory.getLogger(GrpcAsyncAndSyncRequestReceiver::class.java)
 

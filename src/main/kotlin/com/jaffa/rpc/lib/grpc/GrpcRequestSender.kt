@@ -51,9 +51,9 @@ class GrpcRequestSender : Sender() {
     private val managedChannel: ManagedChannel
         get() {
             return cache.computeIfAbsent(
-                    Utils.getHostAndPort(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.GRPC).left, ":")
-            ) { key: Pair<String?, Int?>? ->
-                GrpcAsyncAndSyncRequestReceiver.addSecurityContext(NettyChannelBuilder.forAddress(key?.left, key?.right!!)).build()
+                    Utils.getHostAndPort(Utils.getHostForService(command?.serviceClass, moduleId, Protocol.GRPC).left!!, ":")
+            ) { key: Pair<String, Int> ->
+                GrpcAsyncAndSyncRequestReceiver.addSecurityContext(NettyChannelBuilder.forAddress(key.left, key.right)).build()
             }
         }
 
@@ -82,7 +82,7 @@ class GrpcRequestSender : Sender() {
 
         private val log = LoggerFactory.getLogger(GrpcRequestSender::class.java)
 
-        private val cache: MutableMap<Pair<String?, Int?>?, ManagedChannel> = ConcurrentHashMap()
+        private val cache: MutableMap<Pair<String, Int>, ManagedChannel> = ConcurrentHashMap()
 
         fun shutDownChannels() {
             cache.values.forEach(Consumer { x: ManagedChannel -> if (!x.isShutdown) x.shutdownNow() })

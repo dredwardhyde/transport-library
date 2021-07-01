@@ -55,14 +55,14 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
 
         private val log = LoggerFactory.getLogger(HttpRequestHandler::class.java)
 
-        override fun handle(request: HttpExchange?) {
+        override fun handle(request: HttpExchange) {
             try {
-                Serializer.current.deserialize(ByteStreams.toByteArray(request?.requestBody), CallbackContainer::class.java
+                Serializer.current.deserialize(ByteStreams.toByteArray(request.requestBody), CallbackContainer::class.java
                 )?.let { RequestInvocationHelper.processCallbackContainer(it) }
                 val response = "OK"
-                request?.sendResponseHeaders(200, response.toByteArray().size.toLong())
-                request?.responseBody.also { it?.write(response.toByteArray()) }.also { it?.close() }
-                request?.close()
+                request.sendResponseHeaders(200, response.toByteArray().size.toLong())
+                request.responseBody.also { it?.write(response.toByteArray()) }.also { it?.close() }
+                request.close()
             } catch (callbackExecutionException: Exception) {
                 log.error("HTTP callback execution exception", callbackExecutionException)
             }

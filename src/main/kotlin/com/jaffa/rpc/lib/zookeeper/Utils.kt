@@ -202,9 +202,9 @@ object Utils {
             return senders[rpcProtocol] ?: throw JaffaRpcSystemException(JaffaRpcSystemException.NO_PROTOCOL_DEFINED)
         }
 
-    fun getHostAndPort(address: String?, delimiter: String): Pair<String?, Int?> {
-        val s = address?.split(delimiter.toRegex())?.toTypedArray()
-        return ImmutablePair(s?.get(0), s?.get(1)?.toInt())
+    fun getHostAndPort(address: String, delimiter: String): Pair<String, Int> {
+        val s = address.split(delimiter.toRegex()).toTypedArray()
+        return ImmutablePair(s[0], s[1].toInt())
     }
 
     @kotlin.jvm.JvmStatic
