@@ -33,9 +33,13 @@ class GrpcAsyncResponseReceiver : Runnable, Closeable {
     }
 
     override fun close() {
-        server.shutdown()
-        requestService.shutdown()
-        log.info("gRPC async response receiver stopped")
+        try {
+            server.shutdown()
+            requestService.shutdown()
+            log.info("gRPC async response receiver stopped")
+        }catch (e: Exception){
+            //No-op
+        }
     }
 
     private class CallbackServiceImpl : CallbackServiceImplBase() {

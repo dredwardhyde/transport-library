@@ -19,7 +19,6 @@ import org.springframework.amqp.AmqpException
 import org.springframework.amqp.rabbit.connection.Connection
 import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicReference
 
 class RabbitMQRequestSender : Sender() {
