@@ -72,7 +72,7 @@ open class JaffaService {
     private val clientEndpoints: List<ClientEndpoint>? = null
 
     @Autowired
-    private val context: ApplicationContext? = null
+    private lateinit var context: ApplicationContext
 
     @Autowired
     private val moduleId: String? = null
@@ -84,7 +84,7 @@ open class JaffaService {
             apiImpls[it] = it.interfaces[0]
         }
         apiImpls.forEach { entry ->
-            RequestInvocationHelper.wrappedServices[entry.value] = context?.getBean(entry.key) as Any
+            RequestInvocationHelper.wrappedServices[entry.value] = context.getBean(entry.key) as Any
             Utils.rpcProtocol?.let { Utils.registerService(entry.value.name, it) }
         }
         RequestInvocationHelper.context = context
@@ -107,7 +107,7 @@ open class JaffaService {
             )
             zkClient = KafkaZkClient(zooKeeperClient, false, Time.SYSTEM)
             adminZkClient = AdminZkClient(zkClient)
-            brokersCount = zkClient?.allBrokersInCluster?.size() ?: 0
+            brokersCount = zkClient.allBrokersInCluster?.size() ?: 0
             log.info("Kafka brokers: {}", brokersCount)
             serverAsyncTopics = createKafkaTopics("server-async")
             clientAsyncTopics = createKafkaTopics("client-async")
@@ -130,20 +130,20 @@ open class JaffaService {
                 factory.setTrustStorePassphrase(Utils.getRequiredOption(OptionConstants.RABBIT_SSL_TRUSTSTORE_PASSWORD))
             }
             connectionFactory = if (Utils.isZkTestMode) {
-                CachingConnectionFactory(context?.getBean(com.rabbitmq.client.ConnectionFactory::class.java))
+                CachingConnectionFactory(context.getBean(com.rabbitmq.client.ConnectionFactory::class.java))
             } else {
                 CachingConnectionFactory(factory.rabbitConnectionFactory)
             }
             adminRabbitMQ = RabbitAdmin(connectionFactory)
-            adminRabbitMQ?.declareExchange(DirectExchange(RabbitMQRequestSender.EXCHANGE_NAME, true, false))
-            if (adminRabbitMQ?.getQueueInfo(RabbitMQRequestSender.SERVER) == null) {
-                adminRabbitMQ?.declareQueue(Queue(RabbitMQRequestSender.SERVER))
+            adminRabbitMQ.declareExchange(DirectExchange(RabbitMQRequestSender.EXCHANGE_NAME, true, false))
+            if (adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.SERVER) == null) {
+                adminRabbitMQ.declareQueue(Queue(RabbitMQRequestSender.SERVER))
             }
-            if (adminRabbitMQ?.getQueueInfo(RabbitMQRequestSender.CLIENT_ASYNC_NAME) == null) {
-                adminRabbitMQ?.declareQueue(Queue(RabbitMQRequestSender.CLIENT_ASYNC_NAME))
+            if (adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.CLIENT_ASYNC_NAME) == null) {
+                adminRabbitMQ.declareQueue(Queue(RabbitMQRequestSender.CLIENT_ASYNC_NAME))
             }
-            if (adminRabbitMQ?.getQueueInfo(RabbitMQRequestSender.CLIENT_SYNC_NAME) == null) {
-                adminRabbitMQ?.declareQueue(Queue(RabbitMQRequestSender.CLIENT_SYNC_NAME))
+            if (adminRabbitMQ.getQueueInfo(RabbitMQRequestSender.CLIENT_SYNC_NAME) == null) {
+                adminRabbitMQ.declareQueue(Queue(RabbitMQRequestSender.CLIENT_SYNC_NAME))
             }
         }
     }
@@ -188,10 +188,10 @@ open class JaffaService {
     private fun createKafkaTopics(type: String): Set<String> {
         val topicsCreated = getTopicNames(type)
         topicsCreated.forEach(Consumer { topic: String ->
-            if (!zkClient!!.topicExists(topic))
-                adminZkClient!!.createTopic(topic, brokersCount, 1, Properties(), RackAwareMode.`Disabled$`.`MODULE$`)
+            if (!zkClient.topicExists(topic))
+                adminZkClient.createTopic(topic, brokersCount, 1, Properties(), RackAwareMode.`Disabled$`.`MODULE$`)
             else
-                check(Integer.valueOf(zkClient!!.getTopicPartitionCount(topic).get().toString() + "") == brokersCount) { "Topic $topic has wrong config" }
+                check(Integer.valueOf(zkClient.getTopicPartitionCount(topic).get().toString() + "") == brokersCount) { "Topic $topic has wrong config" }
         })
         return topicsCreated
     }
@@ -216,10 +216,10 @@ open class JaffaService {
             }
             when (protocol) {
                 Protocol.KAFKA -> {
-                    if (clientSyncTopics?.isNotEmpty() == true && clientAsyncTopics?.isNotEmpty() == true) expectedThreadCount += 2
-                    if (serverSyncTopics?.isNotEmpty() == true && serverAsyncTopics?.isNotEmpty() == true) expectedThreadCount += 2
+                    if (clientSyncTopics.isNotEmpty() == true && clientAsyncTopics.isNotEmpty() == true) expectedThreadCount += 2
+                    if (serverSyncTopics.isNotEmpty() == true && serverAsyncTopics.isNotEmpty() == true) expectedThreadCount += 2
                     if (expectedThreadCount != 0) started = CountDownLatch(brokersCount * expectedThreadCount)
-                    if (serverSyncTopics?.isNotEmpty() == true && serverAsyncTopics?.isNotEmpty() == true) {
+                    if (serverSyncTopics.isNotEmpty() == true && serverAsyncTopics.isNotEmpty() == true) {
                         val kafkaSyncRequestReceiver = KafkaSyncRequestReceiver(started)
                         val kafkaAsyncRequestReceiver = KafkaAsyncRequestReceiver(started)
                         kafkaReceivers.add(kafkaAsyncRequestReceiver)
@@ -227,7 +227,7 @@ open class JaffaService {
                         receiverThreads.add(Thread(kafkaSyncRequestReceiver))
                         receiverThreads.add(Thread(kafkaAsyncRequestReceiver))
                     }
-                    if (clientSyncTopics?.isNotEmpty() == true && clientAsyncTopics?.isNotEmpty() == true) {
+                    if (clientSyncTopics.isNotEmpty() == true && clientAsyncTopics.isNotEmpty() == true) {
                         val kafkaAsyncResponseReceiver = KafkaAsyncResponseReceiver(started)
                         kafkaReceivers.add(kafkaAsyncResponseReceiver)
                         KafkaRequestSender.initSyncKafkaConsumers(brokersCount, started!!)
@@ -322,16 +322,13 @@ open class JaffaService {
         log.info("Kafka receivers closed")
         KafkaRequestSender.shutDownConsumers()
         log.info("Kafka sync response consumers closed")
-        if (Utils.conn != null) {
-            try {
-                if (!Utils.isZkTestMode) {
-                    Utils.services.forEach { Utils.deleteAllRegistrations(it) }
-                }
-                Utils.conn?.close()
-                Utils.conn = null
-            } catch (e: Exception) {
-                log.error("Unable to unregister services from ZooKeeper cluster, probably it was done earlier", e)
+        try {
+            if (!Utils.isZkTestMode) {
+                Utils.services.forEach { Utils.deleteAllRegistrations(it) }
             }
+            Utils.conn.close()
+        } catch (e: Exception) {
+            log.error("Unable to unregister services from ZooKeeper cluster, probably it was done earlier", e)
         }
         log.info("Services were unregistered")
         zmqReceivers.forEach(Consumer { a: Closeable ->
@@ -369,23 +366,23 @@ open class JaffaService {
 
         val clientsAndTicketProviders: MutableMap<Class<*>, Class<out TicketProvider>> = HashedMap()
 
-        var zkClient: KafkaZkClient? = null
+        lateinit var zkClient: KafkaZkClient
 
         var brokersCount = 0
 
-        var serverAsyncTopics: Set<String>? = null
+        lateinit var serverAsyncTopics: Set<String>
 
-        var clientAsyncTopics: Set<String>? = null
+        lateinit var clientAsyncTopics: Set<String>
 
-        var serverSyncTopics: Set<String>? = null
+        lateinit var serverSyncTopics: Set<String>
 
-        var clientSyncTopics: Set<String>? = null
+        lateinit var clientSyncTopics: Set<String>
 
-        var adminZkClient: AdminZkClient? = null
+        lateinit var adminZkClient: AdminZkClient
 
-        var adminRabbitMQ: RabbitAdmin? = null
+        lateinit var adminRabbitMQ: RabbitAdmin
 
-        var connectionFactory: ConnectionFactory? = null
+        lateinit var connectionFactory: ConnectionFactory
         fun loadInternalProperties() {
             if (Utils.rpcProtocol == Protocol.KAFKA) {
                 consumerProps["bootstrap.servers"] = Utils.getRequiredOption(OptionConstants.KAFKA_BOOTSTRAP_SERVERS)

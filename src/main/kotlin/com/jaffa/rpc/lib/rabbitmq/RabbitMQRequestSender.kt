@@ -60,7 +60,7 @@ class RabbitMQRequestSender : Sender() {
         } else {
             targetModuleId = Utils.getModuleForService(Utils.getServiceInterfaceNameFromClient(command?.serviceClass), Protocol.RABBIT)
         }
-        clientChannel?.basicPublish(targetModuleId, "$targetModuleId-server", null, message)
+        clientChannel.basicPublish(targetModuleId, "$targetModuleId-server", null, message)
     }
 
     public override fun executeAsync(message: ByteArray?) {
@@ -94,16 +94,16 @@ class RabbitMQRequestSender : Sender() {
 
         private val requests: MutableMap<String?, Callback> = ConcurrentHashMap()
 
-        private var connection: Connection? = null
+        private lateinit var connection: Connection
 
-        private var clientChannel: Channel? = null
+        private lateinit var clientChannel: Channel
 
         @kotlin.jvm.JvmStatic
         fun init() {
             try {
-                connection = JaffaService.connectionFactory?.createConnection()
-                clientChannel = connection?.createChannel(false)
-                clientChannel?.queueBind(CLIENT_SYNC_NAME, EXCHANGE_NAME, CLIENT_SYNC_NAME)
+                connection = JaffaService.connectionFactory.createConnection()
+                clientChannel = connection.createChannel(false)
+                clientChannel.queueBind(CLIENT_SYNC_NAME, EXCHANGE_NAME, CLIENT_SYNC_NAME)
                 val consumer: Consumer = object : DefaultConsumer(clientChannel) {
                     @Throws(IOException::class)
                     override fun handleDelivery(consumerTag: String, envelope: Envelope, properties: AMQP.BasicProperties, body: ByteArray) {
@@ -111,12 +111,12 @@ class RabbitMQRequestSender : Sender() {
                             val callback = requests.remove(properties.correlationId)
                             if (callback != null) {
                                 callback.call(body)
-                                clientChannel?.basicAck(envelope.deliveryTag, false)
+                                clientChannel.basicAck(envelope.deliveryTag, false)
                             }
                         }
                     }
                 }
-                clientChannel?.basicConsume(CLIENT_SYNC_NAME, false, consumer)
+                clientChannel.basicConsume(CLIENT_SYNC_NAME, false, consumer)
             } catch (ioException: AmqpException) {
                 log.error("Error during RabbitMQ response receiver startup:", ioException)
                 throw JaffaRpcSystemException(ioException)
@@ -128,13 +128,13 @@ class RabbitMQRequestSender : Sender() {
 
         fun close() {
             try {
-                clientChannel?.close()
+                clientChannel.close()
             } catch (ignore: IOException) {
                 // No-op
             } catch (ignore: TimeoutException) {
                 // No-op
             }
-            connection?.close()
+            connection.close()
         }
     }
 }

@@ -36,18 +36,18 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
         }
     }
 
-    private var connection: Connection? = null
+    private lateinit var connection: Connection
 
-    private var serverChannel: Channel? = null
+    private lateinit var serverChannel: Channel
 
-    private var clientChannel: Channel? = null
+    private lateinit var clientChannel: Channel
 
     override fun run() {
         try {
-            connection = JaffaService.connectionFactory?.createConnection()
-            serverChannel = connection?.createChannel(false)
-            clientChannel = connection?.createChannel(false)
-            serverChannel?.queueBind(RabbitMQRequestSender.SERVER, RabbitMQRequestSender.EXCHANGE_NAME, RabbitMQRequestSender.SERVER)
+            connection = JaffaService.connectionFactory.createConnection()
+            serverChannel = connection.createChannel(false)
+            clientChannel = connection.createChannel(false)
+            serverChannel.queueBind(RabbitMQRequestSender.SERVER, RabbitMQRequestSender.EXCHANGE_NAME, RabbitMQRequestSender.SERVER)
             val consumer: Consumer = object : DefaultConsumer(serverChannel) {
                 override fun handleDelivery(consumerTag: String, envelope: Envelope, properties: AMQP.BasicProperties, body: ByteArray) {
                     requestService.execute {
@@ -56,13 +56,13 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                             if (command?.callbackKey != null && command.callbackClass != null) {
                                 val runnable = Runnable {
                                     try {
-                                        clientChannel?.basicPublish(
+                                        clientChannel.basicPublish(
                                                 command.sourceModuleId,
                                                 command.sourceModuleId + "-client-async",
                                                 AMQP.BasicProperties.Builder().headers(asyncHeaders).build(),
                                                 Serializer.current.serialize(RequestInvocationHelper.constructCallbackContainer(command, RequestInvocationHelper.invoke(command)))
                                         )
-                                        serverChannel?.basicAck(envelope.deliveryTag, false)
+                                        serverChannel.basicAck(envelope.deliveryTag, false)
                                     } catch (e: Exception) {
                                         log.error("Error while receiving async request", e)
                                     }
@@ -70,14 +70,14 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                                 responseService.execute(runnable)
                             } else {
                                 if (command != null) {
-                                    clientChannel?.basicPublish(
+                                    clientChannel.basicPublish(
                                             command.sourceModuleId,
                                             command.sourceModuleId + "-client-sync",
                                             AMQP.BasicProperties.Builder().correlationId(command.rqUid).build(),
                                             Serializer.current.serializeWithClass(RequestInvocationHelper.getResult(command.let { RequestInvocationHelper.invoke(it) }))
                                     )
                                 }
-                                serverChannel?.basicAck(envelope.deliveryTag, false)
+                                serverChannel.basicAck(envelope.deliveryTag, false)
                             }
                         } catch (ioException: Exception) {
                             log.error("Error while receiving sync request", ioException)
@@ -85,7 +85,7 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
                     }
                 }
             }
-            serverChannel?.basicConsume(RabbitMQRequestSender.SERVER, false, consumer)
+            serverChannel.basicConsume(RabbitMQRequestSender.SERVER, false, consumer)
         } catch (amqpException: Exception) {
             log.error("Error during RabbitMQ request receiver startup:", amqpException)
             throw JaffaRpcSystemException(amqpException)
@@ -95,14 +95,14 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
     override fun close() {
         try {
-            serverChannel?.close()
-            clientChannel?.close()
+            serverChannel.close()
+            clientChannel.close()
         } catch (ignore: IOException) {
             // No-op
         } catch (ignore: TimeoutException) {
             // No-op
         }
-        connection?.close()
+        connection.close()
         responseService.shutdownNow()
         requestService.shutdownNow()
     }

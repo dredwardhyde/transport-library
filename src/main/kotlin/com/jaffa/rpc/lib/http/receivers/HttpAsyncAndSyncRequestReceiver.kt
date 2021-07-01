@@ -41,7 +41,7 @@ import javax.net.ssl.TrustManagerFactory
 
 class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
-    private var server: HttpServer? = null
+    private lateinit var server: HttpServer
 
     override fun run() {
         try {
@@ -69,7 +69,7 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
     }
 
     override fun close() {
-        server?.stop(2)
+        server.stop(2)
         service.shutdown()
         try {
             client.close()

@@ -45,13 +45,13 @@ object Utils {
 
     @Volatile
     @JvmStatic
-    var conn: ZooKeeperConnection? = null
+    lateinit var conn: ZooKeeperConnection
 
-    var zk: ZooKeeper? = null
+    lateinit var zk: ZooKeeper
 
     @kotlin.jvm.JvmField
     val cache = Caffeine.newBuilder().maximumSize(100).expireAfterWrite(10, TimeUnit.MINUTES)
-            .build { k: String? -> zk?.getData(k, true, null) }
+            .build { k: String? -> zk.getData(k, true, null) }
 
     @kotlin.jvm.JvmStatic
     fun loadExternalProperties(moduleId: String?) {
@@ -83,7 +83,7 @@ object Utils {
     fun connect(url: String) {
         try {
             conn = ZooKeeperConnection()
-            zk = conn?.connect(url)
+            zk = conn.connect(url)
             val shutdownHook = ShutdownHook()
             Runtime.getRuntime().addShutdownHook(shutdownHook)
         } catch (e: IOException) {
@@ -236,22 +236,22 @@ object Utils {
     private fun create(service: String, protocol: Protocol) {
         val ja = JSONArray()
         ja.add(getServiceBindAddress(protocol))
-        zk?.create(service, ja.toJSONString().toByteArray(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT)
+        zk.create(service, ja.toJSONString().toByteArray(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT)
     }
 
     @Throws(KeeperException::class, InterruptedException::class)
     private fun isZNodeExists(service: String): Stat? {
-        return zk?.exists(service, true)
+        return zk.exists(service, true)
     }
 
     @Throws(KeeperException::class, InterruptedException::class, ParseException::class, UnknownHostException::class)
     private fun update(service: String, protocol: Protocol) {
-        val zkData = zk?.getData(service, true, null)
+        val zkData = zk.getData(service, true, null)
         val jArray = JSONParser().parse(zkData?.let { String(it) }) as JSONArray
         val local = getServiceBindAddress(protocol)
         if (!jArray.contains(local)) {
             jArray.add(local)
-            zk?.exists(service, true)?.version?.let { zk?.setData(service, jArray.toJSONString().toByteArray(), it) }
+            zk.exists(service, true)?.version?.let { zk.setData(service, jArray.toJSONString().toByteArray(), it) }
         }
     }
 
@@ -264,12 +264,12 @@ object Utils {
     @kotlin.jvm.JvmStatic
     @Throws(KeeperException::class, InterruptedException::class, ParseException::class, UnknownHostException::class)
     fun delete(service: String?, protocol: Protocol) {
-        val zkData = zk?.getData(service, true, null)
+        val zkData = zk.getData(service, true, null)
         val jArray = JSONParser().parse(zkData?.let { String(it) }) as JSONArray
         val local = getServiceBindAddress(protocol)
         if (jArray.contains(local)) {
             jArray.remove(local)
-            zk?.exists(service, true)?.version?.let { zk?.setData(service, jArray.toJSONString().toByteArray(), it) }
+            zk.exists(service, true)?.version?.let { zk.setData(service, jArray.toJSONString().toByteArray(), it) }
         }
         log.info("Service {} for protocol {} was unregistered", service, protocol.fullName)
     }
@@ -335,13 +335,10 @@ internal class ShutdownHook : Thread() {
 
     override fun run() {
         try {
-            if (Utils.conn != null) {
-                if (!Utils.isZkTestMode) {
-                    Utils.services.forEach { Utils.deleteAllRegistrations(it) }
-                }
-                Utils.conn?.close()
+            if (!Utils.isZkTestMode) {
+                Utils.services.forEach { Utils.deleteAllRegistrations(it) }
             }
-            Utils.conn = null
+            Utils.conn.close()
         } catch (e: Exception) {
             log.error("Error occurred in shutdown hook", e)
         }

@@ -17,7 +17,7 @@ import java.util.concurrent.Executors
 
 class HttpAsyncResponseReceiver : Runnable, Closeable {
 
-    private var server: HttpServer? = null
+    private lateinit var server: HttpServer
 
     private val log = LoggerFactory.getLogger(HttpAsyncAndSyncRequestReceiver::class.java)
 
@@ -47,7 +47,7 @@ class HttpAsyncResponseReceiver : Runnable, Closeable {
     }
 
     override fun close() {
-        server?.stop(2)
+        server.stop(2)
         log.info("HTTP async response receiver stopped")
     }
 

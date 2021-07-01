@@ -23,7 +23,7 @@ object RequestInvocationHelper {
 
     val wrappedServices: MutableMap<Class<*>, Any> = HashMap()
 
-    var context: ApplicationContext? = null
+    lateinit var context: ApplicationContext
 
     @Throws(ClassNotFoundException::class)
     private fun getTargetService(command: Command): Any? {
@@ -106,7 +106,7 @@ object RequestInvocationHelper {
         val command: Command? = FinalizationHelper.eventsToConsume.remove(callbackContainer?.key)
         return if (command != null) {
             val callbackClass = Class.forName(callbackContainer?.listener)
-            val callBackBean = context?.getBean(callbackClass)
+            val callBackBean = context.getBean(callbackClass)
             val onErrorMethod = callbackClass.getMethod("onError", String::class.java, Throwable::class.java)
             val result = callbackContainer?.result
             val resultClazz = Class.forName(callbackContainer?.resultClass)

@@ -18,7 +18,7 @@ class GrpcAsyncResponseReceiver : Runnable, Closeable {
 
     private val log = LoggerFactory.getLogger(GrpcAsyncResponseReceiver::class.java)
 
-    private var server: Server? = null
+    private lateinit var server: Server
 
     override fun run() {
         try {
@@ -33,7 +33,7 @@ class GrpcAsyncResponseReceiver : Runnable, Closeable {
     }
 
     override fun close() {
-        server?.shutdown()
+        server.shutdown()
         requestService.shutdown()
         log.info("gRPC async response receiver stopped")
     }

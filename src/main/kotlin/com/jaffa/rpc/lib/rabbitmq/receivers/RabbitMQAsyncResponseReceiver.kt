@@ -21,15 +21,15 @@ class RabbitMQAsyncResponseReceiver : Runnable, Closeable {
 
     private val log = LoggerFactory.getLogger(RabbitMQAsyncResponseReceiver::class.java)
 
-    private var connection: Connection? = null
+    private lateinit var connection: Connection
 
-    private var clientChannel: Channel? = null
+    private lateinit var clientChannel: Channel
 
     override fun run() {
         try {
-            connection = JaffaService.connectionFactory?.createConnection()
-            clientChannel = connection?.createChannel(false)
-            clientChannel?.queueBind(RabbitMQRequestSender.CLIENT_ASYNC_NAME, RabbitMQRequestSender.EXCHANGE_NAME, RabbitMQRequestSender.CLIENT_ASYNC_NAME)
+            connection = JaffaService.connectionFactory.createConnection()
+            clientChannel = connection.createChannel(false)
+            clientChannel.queueBind(RabbitMQRequestSender.CLIENT_ASYNC_NAME, RabbitMQRequestSender.EXCHANGE_NAME, RabbitMQRequestSender.CLIENT_ASYNC_NAME)
             val consumer: Consumer = object : DefaultConsumer(clientChannel) {
                 override fun handleDelivery(consumerTag: String, envelope: Envelope, properties: AMQP.BasicProperties, body: ByteArray) {
                     if (properties.headers == null) return
@@ -38,7 +38,7 @@ class RabbitMQAsyncResponseReceiver : Runnable, Closeable {
                     try {
                         val callbackContainer = Serializer.current.deserialize(body, CallbackContainer::class.java)
                         if (callbackContainer?.let { RequestInvocationHelper.processCallbackContainer(it) } == true)
-                            clientChannel?.basicAck(envelope.deliveryTag, false)
+                            clientChannel.basicAck(envelope.deliveryTag, false)
                     } catch (ioException: IOException) {
                         log.error("General RabbitMQ exception", ioException)
                     } catch (callbackExecutionException: Exception) {
@@ -46,7 +46,7 @@ class RabbitMQAsyncResponseReceiver : Runnable, Closeable {
                     }
                 }
             }
-            clientChannel?.basicConsume(RabbitMQRequestSender.CLIENT_ASYNC_NAME, false, consumer)
+            clientChannel.basicConsume(RabbitMQRequestSender.CLIENT_ASYNC_NAME, false, consumer)
         } catch (ioException: Exception) {
             log.error("Error during RabbitMQ response receiver startup:", ioException)
             throw JaffaRpcSystemException(ioException)
@@ -55,12 +55,12 @@ class RabbitMQAsyncResponseReceiver : Runnable, Closeable {
 
     override fun close() {
         try {
-            clientChannel?.close()
+            clientChannel.close()
         } catch (ignore: IOException) {
             // No-op
         } catch (ignore: TimeoutException) {
             // No-op
         }
-        connection?.close()
+        connection.close()
     }
 }

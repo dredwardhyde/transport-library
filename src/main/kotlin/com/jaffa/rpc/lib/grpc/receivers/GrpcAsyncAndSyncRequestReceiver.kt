@@ -28,7 +28,7 @@ import java.util.function.Consumer
 
 class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
-    var server: Server? = null
+    lateinit var server: Server
 
     override fun run() {
         try {
@@ -44,7 +44,7 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
     }
 
     override fun close() {
-        server?.shutdown()
+        server.shutdown()
         asyncService.shutdown()
         requestService.shutdown()
     }
