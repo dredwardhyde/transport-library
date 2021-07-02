@@ -38,7 +38,7 @@ object FinalizationHelper {
                             log.debug("Finalization request {} took {}ns", command.rqUid, System.nanoTime() - start)
                         }
                     } catch (e: Exception) {
-                        log.error("Error during finalization command: {}", command)
+                        log.error("Error during finalization command: {}", command.rqUid)
                     }
                 }
     }
