@@ -23,8 +23,9 @@ class GrpcAsyncResponseReceiver : Runnable, Closeable {
     override fun run() {
         try {
             server = GrpcAsyncAndSyncRequestReceiver.addSecurityContext(NettyServerBuilder.forPort(Utils.callbackPort))
-                    .executor(requestService).addService(CallbackServiceImpl()).build().also { it.start() }
-                    .also { it.awaitTermination() }
+                    .executor(requestService).addService(CallbackServiceImpl()).build()
+            server.start()
+            server.awaitTermination()
         } catch (zmqStartupException: Exception) {
             log.error("Error during gRPC async response receiver startup:", zmqStartupException)
             throw JaffaRpcSystemException(zmqStartupException)

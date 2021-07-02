@@ -34,8 +34,8 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
         try {
             val serverBuilder = NettyServerBuilder.forPort(Utils.servicePort).also { addSecurityContext(it) }
             server = serverBuilder.executor(requestService).addService(CommandServiceImpl()).build()
-                    .also { it.start() }
-                    .also { it.awaitTermination() }
+            server.start()
+            server.awaitTermination()
         } catch (grpcStartupException: Exception) {
             log.error("Error during gRPC request receiver startup:", grpcStartupException)
             throw JaffaRpcSystemException(grpcStartupException)
