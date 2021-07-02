@@ -28,7 +28,7 @@ import java.util.function.Consumer
 
 class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
-    lateinit var server: Server
+    private lateinit var server: Server
 
     override fun run() {
         try {
