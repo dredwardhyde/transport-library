@@ -82,7 +82,7 @@ class AdminServer {
                     "/admin" -> { respondWithFile(exchange, "admin.html") }
                     "/vis.min.css" -> { respondWithFile(exchange, "vis.min.css") }
                     "/vis.min.js" -> { respondWithFile(exchange, "vis.min.js") }
-                    "/protocol" -> { Utils.rpcProtocol?.fullName?.let { respondWithString(exchange, it) } }
+                    "/protocol" -> { Utils.rpcProtocol.fullName.let { respondWithString(exchange, it) } }
                     "/response" -> {
                         var count = 0
                         val builder = StringBuilder()

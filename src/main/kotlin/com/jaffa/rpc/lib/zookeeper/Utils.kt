@@ -94,10 +94,8 @@ object Utils {
             val shutdownHook = ShutdownHook()
             Runtime.getRuntime().addShutdownHook(shutdownHook)
         } catch (e: IOException) {
-            log.error("Can not connect to ZooKeeper cluster", e)
             throw JaffaRpcSystemException(e)
         } catch (e: InterruptedException) {
-            log.error("Can not connect to ZooKeeper cluster", e)
             throw JaffaRpcSystemException(e)
         }
     }
@@ -172,7 +170,6 @@ object Utils {
                 hosts[0]
             }
         } catch (e: ParseException) {
-            log.error("Error while getting avaiable module.id:", e)
             throw JaffaRpcNoRouteException(service, protocol.shortName)
         }
     }

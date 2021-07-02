@@ -216,10 +216,10 @@ open class JaffaService {
             }
             when (protocol) {
                 Protocol.KAFKA -> {
-                    if (clientSyncTopics.isNotEmpty() == true && clientAsyncTopics.isNotEmpty() == true) expectedThreadCount += 2
-                    if (serverSyncTopics.isNotEmpty() == true && serverAsyncTopics.isNotEmpty() == true) expectedThreadCount += 2
+                    if (clientSyncTopics.isNotEmpty() && clientAsyncTopics.isNotEmpty()) expectedThreadCount += 2
+                    if (serverSyncTopics.isNotEmpty() && serverAsyncTopics.isNotEmpty()) expectedThreadCount += 2
                     if (expectedThreadCount != 0) started = CountDownLatch(brokersCount * expectedThreadCount)
-                    if (serverSyncTopics.isNotEmpty() == true && serverAsyncTopics.isNotEmpty() == true) {
+                    if (serverSyncTopics.isNotEmpty() && serverAsyncTopics.isNotEmpty()) {
                         val kafkaSyncRequestReceiver = KafkaSyncRequestReceiver(started)
                         val kafkaAsyncRequestReceiver = KafkaAsyncRequestReceiver(started)
                         kafkaReceivers.add(kafkaAsyncRequestReceiver)
@@ -227,7 +227,7 @@ open class JaffaService {
                         receiverThreads.add(Thread(kafkaSyncRequestReceiver))
                         receiverThreads.add(Thread(kafkaAsyncRequestReceiver))
                     }
-                    if (clientSyncTopics.isNotEmpty() == true && clientAsyncTopics.isNotEmpty() == true) {
+                    if (clientSyncTopics.isNotEmpty() && clientAsyncTopics.isNotEmpty()) {
                         val kafkaAsyncResponseReceiver = KafkaAsyncResponseReceiver(started)
                         kafkaReceivers.add(kafkaAsyncResponseReceiver)
                         KafkaRequestSender.initSyncKafkaConsumers(brokersCount, started!!)
@@ -380,7 +380,7 @@ open class JaffaService {
 
         lateinit var adminZkClient: AdminZkClient
 
-        lateinit var adminRabbitMQ: RabbitAdmin
+        private lateinit var adminRabbitMQ: RabbitAdmin
 
         lateinit var connectionFactory: ConnectionFactory
         fun loadInternalProperties() {

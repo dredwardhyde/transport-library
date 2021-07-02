@@ -15,7 +15,7 @@ class ZooKeeperConnection {
 
     private val connectedSignal = CountDownLatch(1)
 
-    lateinit var zoo: ZooKeeper
+    private lateinit var zoo: ZooKeeper
 
     @Throws(IOException::class, InterruptedException::class)
     fun connect(host: String?): ZooKeeper {

@@ -38,9 +38,7 @@ class JavaSerializer : ObjectSerializer {
         val bis = ByteArrayInputStream(serialized)
         try {
             ObjectInputStream(bis).use { `in` -> return `in`.readObject() }
-        } catch (exception: IOException) {
-            log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
-        } catch (exception: ClassNotFoundException) {
+        } catch (exception: Exception) {
             log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
         }
         return null
@@ -50,11 +48,7 @@ class JavaSerializer : ObjectSerializer {
         val bis = ByteArrayInputStream(serialized)
         try {
             ObjectInputStream(bis).use { `in` -> return `in`.readObject() as T }
-        } catch (exception: IOException) {
-            log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
-        } catch (exception: ClassNotFoundException) {
-            log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
-        } catch (exception: ClassCastException) {
+        } catch (exception: Exception) {
             log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
         }
         return null
