@@ -1,5 +1,6 @@
 package com.jaffa.rpc.lib.serialization
 
+import com.jaffa.rpc.lib.exception.JaffaRpcExecutionException
 import org.slf4j.LoggerFactory
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -24,10 +25,9 @@ class JavaSerializer : ObjectSerializer {
                 out.flush()
                 return bos.toByteArray()
             }
-        } catch (ioException: IOException) {
-            log.error(ERROR_SERIALIZATION_MESSAGE, ioException)
+        } catch (exception: Exception) {
+            throw JaffaRpcExecutionException(exception)
         }
-        return null
     }
 
     override fun serializeWithClass(obj: Any?): ByteArray? {
@@ -39,9 +39,8 @@ class JavaSerializer : ObjectSerializer {
         try {
             ObjectInputStream(bis).use { `in` -> return `in`.readObject() }
         } catch (exception: Exception) {
-            log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
+            throw JaffaRpcExecutionException(exception)
         }
-        return null
     }
 
     override fun <T> deserialize(serialized: ByteArray?, clazz: Class<T>?): T? {
@@ -49,8 +48,7 @@ class JavaSerializer : ObjectSerializer {
         try {
             ObjectInputStream(bis).use { `in` -> return `in`.readObject() as T }
         } catch (exception: Exception) {
-            log.error(ERROR_DESERIALIZATION_MESSAGE, exception)
+            throw JaffaRpcExecutionException(exception)
         }
-        return null
     }
 }
