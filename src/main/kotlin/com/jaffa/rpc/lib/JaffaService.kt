@@ -376,7 +376,7 @@ open class JaffaService {
 
         lateinit var serverSyncTopics: Set<String>
 
-        lateinit var clientSyncTopics: Set<String>
+        private lateinit var clientSyncTopics: Set<String>
 
         lateinit var adminZkClient: AdminZkClient
 
