@@ -28,7 +28,6 @@ import javax.annotation.PreDestroy
 class AdminServer {
 
     private lateinit var server: HttpServer
-
     private lateinit var prometheusServer: HTTPServer
 
     @Throws(IOException::class)
@@ -121,13 +120,9 @@ class AdminServer {
     class ResponseMetric(val time: Long, val duration: Double)
 
     companion object {
-
         private val log = LoggerFactory.getLogger(AdminServer::class.java)
-
         private val responses: Queue<ResponseMetric> = QueueUtils.synchronizedQueue(CircularFifoQueue(1000))
-
         private val requestLatency: Gauge = Gauge.build().name("requests_latency_seconds").help("Request latency in ms.").register()
-
         private const val SERVER_STARTUP_ERROR_MESSAGE = "Exception during admin HTTP server startup"
 
         @kotlin.jvm.JvmStatic

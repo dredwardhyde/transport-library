@@ -17,7 +17,6 @@ import java.util.concurrent.Executors
 class GrpcAsyncResponseReceiver : Runnable, Closeable {
 
     private val log = LoggerFactory.getLogger(GrpcAsyncResponseReceiver::class.java)
-
     private lateinit var server: Server
 
     override fun run() {

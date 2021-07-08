@@ -79,9 +79,7 @@ class GrpcRequestSender : Sender() {
     }
 
     companion object {
-
         private val log = LoggerFactory.getLogger(GrpcRequestSender::class.java)
-
         private val cache: MutableMap<Pair<String, Int>, ManagedChannel> = ConcurrentHashMap()
 
         fun shutDownChannels() {

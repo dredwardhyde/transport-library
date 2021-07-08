@@ -6,7 +6,6 @@ import com.jaffa.rpc.lib.security.SecurityTicket
 object RequestContextHelper {
 
     private val sourceModuleId = ThreadLocal<String>()
-
     private val securityTicketThreadLocal = ThreadLocal<SecurityTicket>()
 
     @kotlin.jvm.JvmStatic

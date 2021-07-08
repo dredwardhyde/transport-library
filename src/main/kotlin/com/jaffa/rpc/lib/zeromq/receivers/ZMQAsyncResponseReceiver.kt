@@ -22,9 +22,7 @@ import java.net.UnknownHostException
 class ZMQAsyncResponseReceiver : Runnable, Closeable {
 
     private var context: ZContext
-
     private var socket: ZMQ.Socket
-
     private lateinit var auth: ZAuth
 
     override fun run() {
@@ -62,7 +60,6 @@ class ZMQAsyncResponseReceiver : Runnable, Closeable {
     }
 
     companion object {
-
         private val log = LoggerFactory.getLogger(ZMQAsyncResponseReceiver::class.java)
 
         fun sendKillMessageToSocket(address: String?) {

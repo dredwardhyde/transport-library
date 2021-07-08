@@ -19,9 +19,7 @@ import java.io.IOException
 class RabbitMQAsyncResponseReceiver : Runnable, Closeable {
 
     private val log = LoggerFactory.getLogger(RabbitMQAsyncResponseReceiver::class.java)
-
     private lateinit var connection: Connection
-
     private lateinit var clientChannel: Channel
 
     override fun run() {

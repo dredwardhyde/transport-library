@@ -121,11 +121,8 @@ class HttpAsyncAndSyncRequestReceiver : Runnable, Closeable {
     }
 
     companion object {
-
         private val service = Executors.newFixedThreadPool(3)
-
         private val log = LoggerFactory.getLogger(HttpAsyncAndSyncRequestReceiver::class.java)
-
         lateinit var client: CloseableHttpClient
 
         @kotlin.jvm.JvmStatic

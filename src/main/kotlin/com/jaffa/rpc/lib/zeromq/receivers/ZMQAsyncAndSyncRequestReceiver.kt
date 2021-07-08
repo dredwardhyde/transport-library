@@ -23,9 +23,7 @@ import java.util.concurrent.Executors
 class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
 
     private var context: ZContext
-
     private var socket: ZMQ.Socket
-
     private lateinit var auth: ZAuth
 
     override fun run() {
@@ -90,9 +88,7 @@ class ZMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
     }
 
     companion object {
-
         private val log = LoggerFactory.getLogger(ZMQAsyncAndSyncRequestReceiver::class.java)
-
         private val service = Executors.newFixedThreadPool(3)
 
         @kotlin.jvm.JvmStatic

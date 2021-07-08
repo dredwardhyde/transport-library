@@ -38,15 +38,12 @@ import java.util.concurrent.TimeUnit
 object Utils {
 
     private val log = LoggerFactory.getLogger(Utils::class.java)
-
     val services: MutableList<String> = ArrayList()
-
     val senders: MutableMap<Protocol, Class<out Sender?>> = EnumMap(Protocol::class.java)
 
     @Volatile
     @JvmStatic
     lateinit var conn: ZooKeeperConnection
-
     lateinit var zk: ZooKeeper
 
     @kotlin.jvm.JvmField

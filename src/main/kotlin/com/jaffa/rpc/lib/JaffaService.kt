@@ -58,11 +58,8 @@ import javax.annotation.PostConstruct
 open class JaffaService {
 
     private val log = LoggerFactory.getLogger(JaffaService::class.java)
-
     private val kafkaReceivers: MutableList<KafkaReceiver> = ArrayList()
-
     private val zmqReceivers: MutableList<Closeable> = ArrayList()
-
     private val receiverThreads: MutableList<Thread> = ArrayList()
 
     @Autowired
@@ -189,7 +186,7 @@ open class JaffaService {
         val topicsCreated = getTopicNames(type)
         topicsCreated.forEach(Consumer { topic: String ->
             if (!zkClient.topicExists(topic))
-                adminZkClient.createTopic(topic, brokersCount, 1, Properties(), RackAwareMode.`Disabled$`.`MODULE$`)
+                adminZkClient.createTopic(topic, brokersCount, 1, Properties(), RackAwareMode.`Disabled$`.`MODULE$`, false)
             else
                 check(Integer.valueOf(zkClient.getTopicPartitionCount(topic).get().toString() + "") == brokersCount) { "Topic $topic has wrong config" }
         })
@@ -359,30 +356,19 @@ open class JaffaService {
     }
 
     companion object {
-
         val producerProps = Properties()
-
         val consumerProps = Properties()
-
         val clientsAndTicketProviders: MutableMap<Class<*>, Class<out TicketProvider>> = HashedMap()
-
         lateinit var zkClient: KafkaZkClient
-
         var brokersCount = 0
-
         lateinit var serverAsyncTopics: Set<String>
-
         lateinit var clientAsyncTopics: Set<String>
-
         lateinit var serverSyncTopics: Set<String>
-
         private lateinit var clientSyncTopics: Set<String>
-
         lateinit var adminZkClient: AdminZkClient
-
         private lateinit var adminRabbitMQ: RabbitAdmin
-
         lateinit var connectionFactory: ConnectionFactory
+
         fun loadInternalProperties() {
             if (Utils.rpcProtocol == Protocol.KAFKA) {
                 consumerProps["bootstrap.servers"] = Utils.getRequiredOption(OptionConstants.KAFKA_BOOTSTRAP_SERVERS)

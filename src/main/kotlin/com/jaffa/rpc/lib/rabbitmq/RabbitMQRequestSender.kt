@@ -76,23 +76,14 @@ class RabbitMQRequestSender : Sender() {
     }
 
     companion object {
-
         private val log = LoggerFactory.getLogger(RabbitMQRequestSender::class.java)
-
         private val NAME_PREFIX = OptionConstants.MODULE_ID
-
         val EXCHANGE_NAME = NAME_PREFIX
-
         val CLIENT_SYNC_NAME = "$NAME_PREFIX-client-sync"
-
         val CLIENT_ASYNC_NAME = "$NAME_PREFIX-client-async"
-
         val SERVER = "$NAME_PREFIX-server"
-
         private val requests: MutableMap<String?, Callback> = ConcurrentHashMap()
-
         private lateinit var connection: Connection
-
         private lateinit var clientChannel: Channel
 
         @kotlin.jvm.JvmStatic

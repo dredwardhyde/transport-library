@@ -18,7 +18,6 @@ import java.util.concurrent.Executors
 class HttpAsyncResponseReceiver : Runnable, Closeable {
 
     private lateinit var server: HttpServer
-
     private val log = LoggerFactory.getLogger(HttpAsyncAndSyncRequestReceiver::class.java)
 
     override fun run() {

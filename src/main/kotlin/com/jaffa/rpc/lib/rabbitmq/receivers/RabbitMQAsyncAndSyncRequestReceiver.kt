@@ -22,22 +22,16 @@ class RabbitMQAsyncAndSyncRequestReceiver : Runnable, Closeable {
     private val log = LoggerFactory.getLogger(RabbitMQAsyncAndSyncRequestReceiver::class.java)
 
     companion object {
-
         private val responseService = Executors.newFixedThreadPool(3)
-
         private val requestService = Executors.newFixedThreadPool(3)
-
         private val asyncHeaders: MutableMap<String, Any> = HashMap()
-
         init {
             asyncHeaders["communication-type"] = "async"
         }
     }
 
     private lateinit var connection: Connection
-
     private lateinit var serverChannel: Channel
-
     private lateinit var clientChannel: Channel
 
     override fun run() {

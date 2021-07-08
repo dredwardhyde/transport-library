@@ -15,11 +15,8 @@ import java.util.concurrent.TimeUnit
 class RequestImpl<T>(private val command: Command) : Request<T> {
 
     private val log = LoggerFactory.getLogger(FinalizationHelper::class.java)
-
     private lateinit var sender: Sender
-
     private var timeout: Long = -1
-
     private var moduleId: String? = null
 
     override fun withTimeout(timeout: Long?, unit: TimeUnit?): RequestImpl<T> {

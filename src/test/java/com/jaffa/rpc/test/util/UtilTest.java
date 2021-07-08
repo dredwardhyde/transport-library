@@ -86,8 +86,8 @@ public class UtilTest {
         KafkaConfig config = new KafkaConfig(brokerProps);
         KafkaServer kafkaServer = TestUtils.createServer(config, Time.SYSTEM);
         kafkaServer.startup();
-        JaffaService.Companion.getAdminZkClient().createTopic("xxx-test.server-server-async", 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$);
-        JaffaService.Companion.getAdminZkClient().createTopic("xxx-test.server-server-sync", 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$);
+        JaffaService.Companion.getAdminZkClient().createTopic("xxx-test.server-server-async", 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$, false);
+        JaffaService.Companion.getAdminZkClient().createTopic("xxx-test.server-server-sync", 1, 1, new Properties(), RackAwareMode.Disabled$.MODULE$, false);
         kafkaServer.shutdown();
         kafkaServer.awaitShutdown();
         KafkaRequestSender sender = new KafkaRequestSender();

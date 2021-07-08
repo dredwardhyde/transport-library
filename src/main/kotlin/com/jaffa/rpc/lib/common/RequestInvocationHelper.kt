@@ -20,9 +20,7 @@ import java.lang.reflect.Method
 object RequestInvocationHelper {
 
     private val log = LoggerFactory.getLogger(RequestInvocationHelper::class.java)
-
     val wrappedServices: MutableMap<Class<*>, Any> = HashMap()
-
     lateinit var context: ApplicationContext
 
     @Throws(ClassNotFoundException::class)

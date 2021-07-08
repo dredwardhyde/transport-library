@@ -12,11 +12,8 @@ import java.util.*
 object CurveUtils {
 
     private val log = LoggerFactory.getLogger(CurveUtils::class.java)
-
     private val moduleIdWithClientKeys: MutableMap<String, String?> = HashMap()
-
     var serverPublicKey: String? = null
-
     var serverSecretKey: String? = null
 
     @kotlin.jvm.JvmStatic

@@ -95,13 +95,9 @@ class GrpcAsyncAndSyncRequestReceiver : Runnable, Closeable {
     }
 
     companion object {
-
         private val asyncService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
-
         private val requestService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
-
         private val cache: MutableMap<Pair<String, Int>, ManagedChannel> = ConcurrentHashMap()
-
         private val log = LoggerFactory.getLogger(GrpcAsyncAndSyncRequestReceiver::class.java)
 
         fun shutDownChannels() {

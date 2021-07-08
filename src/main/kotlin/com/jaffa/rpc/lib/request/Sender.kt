@@ -7,9 +7,7 @@ import com.jaffa.rpc.lib.serialization.Serializer
 abstract class Sender {
 
     var timeout: Long = -1
-
     var moduleId: String? = null
-
     lateinit var command: Command
 
     protected abstract fun executeSync(message: ByteArray?): ByteArray?
@@ -21,7 +19,6 @@ abstract class Sender {
         val response = executeSync(out) ?: throw JaffaRpcExecutionTimeoutException()
         return Serializer.current.deserializeWithClass(response)
     }
-
     open fun executeAsync(command: Command) {
         executeAsync(Serializer.current.serialize(command))
     }

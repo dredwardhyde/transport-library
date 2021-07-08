@@ -27,7 +27,6 @@ import kotlin.collections.HashMap
 class KafkaRequestSender : Sender() {
 
     private val log = LoggerFactory.getLogger(KafkaRequestSender::class.java)
-
     private val producer: KafkaProducer<String, ByteArray?> = KafkaProducer(JaffaService.producerProps)
 
     private fun seekTopicsForQuery(cons: KafkaConsumer<String, ByteArray>, query: Map<TopicPartition, Long>) {
@@ -114,7 +113,6 @@ class KafkaRequestSender : Sender() {
     }
 
     companion object {
-
         private val consumers = ConcurrentLinkedQueue<KafkaConsumer<String, ByteArray>>()
 
         @kotlin.jvm.JvmStatic

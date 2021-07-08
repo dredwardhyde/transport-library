@@ -13,11 +13,8 @@ import java.util.concurrent.TimeUnit
 object FinalizationHelper {
 
     private val log = LoggerFactory.getLogger(FinalizationHelper::class.java)
-
     val eventsToConsume: ConcurrentMap<String, Command> = ConcurrentHashMap()
-
     private var executor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
-
     lateinit var context: ApplicationContext
 
     private val finalizerThread = Runnable {
