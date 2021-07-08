@@ -7,7 +7,7 @@
 [![codecov](https://codecov.io/gh/dredwardhyde/jaffa-rpc-library/branch/master/graph/badge.svg)](https://codecov.io/gh/dredwardhyde/jaffa-rpc-library)
 ## Jaffa RPC library  
 
-<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/bench/logo.png" width="1024"/>  
+<img src="https://raw.githubusercontent.com/dredwardhyde/jaffa-rpc-library/master/logo.png" width="1024"/>  
 
 **This library provides RPC communication between Java Spring applications.**  
 
